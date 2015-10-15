@@ -14,7 +14,7 @@ hs_err_pid*
 # Eclipse-related
 # copied from   https://github.com/github/gitignore/blob/master/Global/Eclipse.gitignore
 *.pydevproject
-.metadata
+**/.metadata
 .gradle
 bin/
 tmp/
@@ -23,7 +23,7 @@ tmp/
 *.swp
 *~.nib
 local.properties
-.settings/
+**/.settings/
 .loadpath
 
 # Eclipse Core
@@ -40,13 +40,13 @@ local.properties
 .cproject
 
 # JDT-specific (Eclipse Java Development Tools)
-.classpath
+**/.classpath
 
 # Java annotation processor (APT)
 .factorypath
 
 # PDT-specific
-.buildpath
+**/.buildpath
 
 # sbteclipse plugin
 .target

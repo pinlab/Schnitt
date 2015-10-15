@@ -1,10 +1,5 @@
 # schnitt
-Audio cutter based on VAD, with a swing GUI
+VAD-based audio cutter with a swing GUI.
 
-Project members:
-  - andzsinszan
-  - daikon
-  - kinoko
-
-
+This is started as a programming seminar project.
 

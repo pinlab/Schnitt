@@ -39,7 +39,7 @@ import java.util.TreeMap;
  *
  *
  */
-public class BinaryTier extends AbstractTier{
+public class BinaryTier extends AbstractIntervalTier<Boolean>{
 	TreeMap<Double, Boolean> points ;
 	
 	
@@ -49,19 +49,17 @@ public class BinaryTier extends AbstractTier{
 	}
 	
 	
-
-	public void addInterval(double from, double to){
-		if(to<from){ //-- switch if wrong order
-			double tmp = from;
-			from = to;
-			to = tmp; 
-		}
-		if(from < this.getTierStartTime()){
-			this.setTierStartTime(from);
-		}
-		addInterval(from, to, true);
-	}
-		
+//	public void addInterval(double from, double to){
+//		if(to<from){ //-- switch if wrong order
+//			double tmp = from;
+//			from = to;
+//			to = tmp; 
+//		}
+//		if(from < this.getTierStartTime()){
+//			this.setTierStartTime(from);
+//		}
+//		addInterval(from, to, true);
+//	}
 	
 	
 /**
@@ -164,6 +162,13 @@ public class BinaryTier extends AbstractTier{
 		
 		tier.debugPrint();
 		
+	}
+
+
+
+	@Override
+	public Boolean combineLabels(List<Boolean> labels) {
+		return labels.get(0);
 	}
 	
 }

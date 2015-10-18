@@ -1,7 +1,10 @@
 package info.pinlab.snd.gui.swing;
 
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ComponentEvent;
@@ -240,12 +243,11 @@ public class WavPanelImpl extends JPanel
 	}
 
 	
-	
-	
 	int selMagnetDist = 10 /*pixels*/;
 	
 
-	
+		
+//	boolean redoSampleStats = true;
 	
 	
 	private GeneralPath calcPolyLine(){
@@ -257,9 +259,9 @@ public class WavPanelImpl extends JPanel
 		
 		GeneralPath path = new GeneralPath(GeneralPath.WIND_NON_ZERO) ;
 
-		if(samples.length > pixelN){ //-- more pixels than samples
+		if(pixelN < samples.length){ //-- more samples than pixels
 			double spanSize = samples.length / (double)pixelN;
-			System.out.println("Pixel #=" + pixelN);
+//			System.out.println("Pixel #=" + pixelN + " " + samples.length);
 			
 			int sampleMin = samples[0]; 
 			int sampleMax = samples[0];
@@ -268,7 +270,8 @@ public class WavPanelImpl extends JPanel
 			
 			
 			int j = 0;
-			for(int i = 0; i < pixelN ; i++){ //-- let's calc every pixel!
+			for(int i = 0; i < pixelN ; i++){ 
+				//-- calc for each pixel: min & max sample values
 				int jMax = (int)Math.round((i+1)*spanSize);
 //				System.out.println("  " + j +  "..." + jMax);
 
@@ -284,7 +287,10 @@ public class WavPanelImpl extends JPanel
 				spanMaxs[i] = spanMax;
 				sampleMin = (spanMin < sampleMin) ? spanMin : sampleMin;
 				sampleMax = (spanMax > sampleMax) ? spanMax : sampleMax;
+				
+//				System.out.println(" " + spanMins[i] + "    " + spanMaxs[i]);
 			}
+
 			
 //			sampleMin = (-sampleMax < sampleMin)? -sampleMax : sampleMin;
 //			sampleMax = (-sampleMin > sampleMax)? -sampleMin : sampleMax;
@@ -292,13 +298,16 @@ public class WavPanelImpl extends JPanel
 //			sampleMin *= 1.05; //-- give some padding 
 			
 			
-			double range = (sampleMax - sampleMin)/pixelH;
+			double range = (sampleMax - sampleMin)/(double)pixelH;
+			System.out.println(pixelH + "\t " + range +" \t" + pixelN);
 			path.moveTo(0, spanMins[0]);
 			for(int i = 0 ; i < pixelN ; i++){
 				spanMaxs[i] =(int)Math.ceil( (spanMaxs[i]-sampleMin)/range) ; 
 				spanMins[i] =(int)Math.floor((spanMins[i]-sampleMin)/range);
 				path.lineTo(i, spanMaxs[i]);
 				path.lineTo(i, spanMins[i]);
+				
+//				System.out.println(i +" ---> " + spanMaxs[i]);
 			}
 		}else{ //-- more pixels than samples -> interpolate
 			double spanSize = pixelN/(double)samples.length; 
@@ -309,7 +318,8 @@ public class WavPanelImpl extends JPanel
 				sampleMin = (samples[i] < sampleMin) ? samples[i] : sampleMin;
 			}
 			
-			double range = 1.05*(sampleMax - sampleMin)/pixelH;
+			double range = (sampleMax - sampleMin)/(double)pixelH;
+			System.out.println(pixelH + "\t " + range +" \t" + pixelN);
 			path.moveTo(0, samples[0]);
 			for (int i = 0; i < samples.length ; i++){
 				path.lineTo(i*spanSize, (samples[i]-sampleMin)/range);
@@ -340,6 +350,10 @@ public class WavPanelImpl extends JPanel
 			g2.dispose();
 		}
 
+		
+//		paintLabels(g);
+
+		
 		//-- paint cursor --//
 		int cursorX = pixelH /2;
 		g.setColor(cursorCol);
@@ -351,8 +365,64 @@ public class WavPanelImpl extends JPanel
 		
 	}
 	
-	
+	private static Font timeLabelFont = new Font("Arial", Font.PLAIN, 9);
+	Font labelFont = new Font("Helvetica", Font.PLAIN, 1);
 
+
+//	private void paintLabels(Graphics g){
+//		LabelTier tier = (LabelTier) currentAudio.getTierByName("label");
+//		if(tier==null)
+//			return;
+//        Graphics2D g2 = (Graphics2D) g.create(); 
+//		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, labelAlpha)); 
+//		
+//		int labelMargin = 2;
+//		int w = getSize().width;
+//		int h = getSize().height;
+//		int yTop = (int) Math.ceil(h/6.0);
+//		int boxHeight = yTop;//(int) Math.ceil(5 * h/6.0);
+//		int fontHeight = boxHeight - 2 * labelMargin; 
+//		int yPad = 0;
+//		
+//		for(int i = 0 ; i < tier.getIntervalN() ; i++){
+//			double t1 = tier.getStartX(i)*hz/1000.0d  ;
+//			double t2 = tier.getEndX(i)*hz/1000.0d  ;
+//			if(viewEndSampleX < t1)
+//				break;
+//			if(t2 < viewStartSampleX)
+//				continue;
+//			
+//			String s = tier.getLabelX(i);
+//			int left = (int)Math.floor(w * (t1-viewStartSampleX)/(viewEndSampleX-viewStartSampleX));
+//			int right = (int)Math.floor(w * (t2-viewStartSampleX)/(viewEndSampleX-viewStartSampleX));
+//			
+//			int labW = right-left; 
+//			int fontH = 0;
+//			int fontW = 0;
+//			g2.setFont(labelFont);
+//			do{
+//				Font font = g2.getFont();
+//				g2.setFont(font.deriveFont( font.getSize() + 0.5f) );
+//				
+//				FontMetrics metrics = g2.getFontMetrics();
+//				fontH = metrics.getDescent() + metrics.getAscent();
+//				fontW = metrics.stringWidth(s+" ");
+////			System.out.println(fontW + " " + fontH);
+//			}while(fontH < fontHeight &&  fontW < labW);
+//			yPad = g2.getFontMetrics().getDescent() > ((boxHeight - fontH)/2)  ? g.getFontMetrics().getDescent()+labelMargin : ((boxHeight - fontH)/2) + labelMargin;
+//
+//			
+//			g2.setColor(labelBgCol);
+//			g2.fillRect(left, yTop, right-left, boxHeight);
+//			g2.setColor(Color.BLACK);
+//			g2.drawString(s, left, yTop + boxHeight - yPad);
+//		}
+//		g2.dispose();
+//	}
+	
+	
+	
+	
 
 	private int fromPixToFrame(int px){
 		return viewStartSampleX + (int)Math.floor((viewEndSampleX-viewStartSampleX)*(px /(double)this.getWidth()));

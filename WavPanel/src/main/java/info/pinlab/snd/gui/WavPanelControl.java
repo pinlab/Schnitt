@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import info.pinlab.pinsound.WavClip;
-import info.pinlab.snd.WavUtil;
+//import info.pinlab.snd.WavUtil;
 import info.pinlab.snd.gui.swing.WavPanelImpl;
 import info.pinlab.snd.trs.Tier;
 
@@ -62,7 +62,7 @@ public class WavPanelControl {
 	public void setWavClip(WavClip wav){
 		this.wav = wav;
 		//-- set all samples
-		samples = WavUtil.getIntArray(wav);
+		samples = this.wav.toIntArray();
 		this.hz = (int)wav.getAudioFormat().getSampleRate();
 		if(view!=null){
 			view.setSampleArray(samples, hz);
@@ -98,7 +98,7 @@ public class WavPanelControl {
 		WavPanelImpl view = new WavPanelImpl();
 		control.setWavPane(view);
 		control.setWavClip(wav);
-		control.zoomTo(2400, 3000);
+		control.zoomTo(2000, 3000);
 		
 		
 		JFrame frame = new JFrame("WavPanel test");

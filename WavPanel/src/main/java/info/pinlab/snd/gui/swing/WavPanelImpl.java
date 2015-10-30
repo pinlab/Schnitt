@@ -1,10 +1,8 @@
 package info.pinlab.snd.gui.swing;
 
 
-import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ComponentEvent;
@@ -17,8 +15,11 @@ import java.awt.geom.GeneralPath;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import info.pinlab.pinsound.WavClip;
 import info.pinlab.snd.WavUtil;
@@ -33,13 +34,12 @@ import info.pinlab.snd.trs.Tier;
  *
  */
 public class WavPanelImpl extends JPanel 
-			implements  WavPanelUI
-			, MouseListener, MouseMotionListener,
-			ComponentListener
+			implements  WavPanelUI, ComponentListener
+			, MouseListener, MouseMotionListener
 {
 	private static final long serialVersionUID = -1689117249151777252L;
 	
-	private static Logger logger = LogManager.getLogger(WavPanelImpl.class);
+	private static Logger logger = LoggerFactory.getLogger(WavPanelImpl.class);
 	
 	private int [] samples = null;
 //	private int hz = 0;
@@ -466,9 +466,12 @@ public class WavPanelImpl extends JPanel
 //		frame.pack();
 		frame.setVisible(true);
 		
+		
+		logger.trace("Trace");
 		logger.info("What'S up?" );
+		logger.warn("Warning");
 		logger.error("Error? What'S up?" );
-		logger.fatal("FATAL ? "+ logger.getLevel());
+		logger.error("FATAL ? "+ logger.getName());
 	}
 
 

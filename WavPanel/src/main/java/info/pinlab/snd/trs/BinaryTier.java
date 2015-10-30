@@ -40,13 +40,19 @@ import java.util.TreeMap;
  *
  */
 public class BinaryTier extends AbstractIntervalTier<Boolean>{
-	TreeMap<Double, Boolean> points ;
+	private final TreeMap<Double, Boolean> points ;
 	
 	
 	public BinaryTier(){
 		points = new TreeMap<Double, Boolean>();
 		points.put(0.0d, false);
 	}
+	
+	
+	public double getDuration(){
+		return points.lastKey();
+	}
+
 	
 	
 //	public void addInterval(double from, double to){
@@ -69,6 +75,13 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 	 * @param value
 	 */
 	public void addInterval(double from, double to, boolean b){
+		System.out.println(from +" - " + to);
+//		if(from > to){// wrong order! switch them
+//			from  = from + to;
+//			to    = from - to;
+//			from  = from - to;
+//		}
+		
 		//-- remove in-between values:
 		List<Double> toDelete = new ArrayList<Double>();
 		Double val = points.higherKey(from);
@@ -109,7 +122,7 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 		
 
 		Entry<Double, Boolean> floor = points.floorEntry(from);
-		if(floor.getValue()==b){
+		if(floor!=null && floor.getValue()==b){
 			//-- same value -> ignore 'from' points
 		}else{
 			points.put(from, b);
@@ -143,13 +156,21 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 		}
 		
 	}
+
+
+	@Override
+	public Boolean combineLabels(List<Boolean> labels) {
+		return labels.get(0);
+	}
+	
+	
 	
 	public static void main(String[] args) {
 
 		BinaryTier tier = new BinaryTier();
-//		tier.addInterval(0.15f, 0.2f, true);
-//		tier.addInterval(0.25f, 0.8f,  true);
-//		tier.addInterval(0.5f, 1.5f,  true);
+		tier.addInterval(0.15f, 0.2f, true);
+		tier.addInterval(0.25f, 0.8f,  true);
+		tier.addInterval(0.5f, 1.5f,  true);
 		
 //		tier.addInterval(0.1d, 0.3d, true);
 //		tier.addInterval(0.2f, 0.5f, false);
@@ -165,12 +186,6 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 	}
 
 
-
-	@Override
-	public Boolean combineLabels(List<Boolean> labels) {
-		return labels.get(0);
-	}
-	
 }
 
 

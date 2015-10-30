@@ -26,6 +26,14 @@ public class LabelTier extends AbstractIntervalTier<String>{
 
 
 
+	@Override
+	public double getDuration() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+
 
 
 

@@ -3,6 +3,15 @@ package info.pinlab.snd.trs;
 import java.util.Iterator;
 import java.util.List;
 
+
+/**
+ * 
+ * Holds intervals. 
+ * 
+ * @author Gabor Pinter
+ *
+ * @param <T>
+ */
 public interface IntervalTier<T> extends Tier, Iterator<Interval<T>>{
 
 	

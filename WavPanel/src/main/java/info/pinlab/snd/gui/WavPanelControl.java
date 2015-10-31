@@ -29,6 +29,8 @@ public class WavPanelControl {
 	public WavPanelControl(){
 	}
 	
+	
+		
 	public void setWavPanel(WavPanelUI view){
 		this.view = view;
 	}
@@ -36,25 +38,25 @@ public class WavPanelControl {
 
 	
 	public void zoomTo(int startSampleIx, int endSampleIx){
-		if(samples==null){ //-- sanity check
-			logger.warn("Can't zoom with no samples set!");
-			return;
-		}
-		System.out.println("Size " + samples.length);
-		
-		logger.info("Size " + samples.length);
-		//TODO: implement without copy
-		int len = endSampleIx-startSampleIx;
-		int []clone = new int[len];
-		System.arraycopy(samples, startSampleIx, clone, 0, len);
-		
-		for(int i = 0 ; i < len;i++){
-//			System.out.println(clone[i]);
-		}
-		
-		if(view!=null){
-			view.setSampleArray(clone, hz);
-		}
+//		if(samples==null){ //-- sanity check
+//			logger.warn("Can't zoom with no samples set!");
+//			return;
+//		}
+//		System.out.println("Size " + samples.length);
+//		
+//		logger.info("Size " + samples.length);
+//		//TODO: implement without copy
+//		int len = endSampleIx-startSampleIx;
+//		int []clone = new int[len];
+//		System.arraycopy(samples, startSampleIx, clone, 0, len);
+//		
+//		for(int i = 0 ; i < len;i++){
+////			System.out.println(clone[i]);
+//		}
+//		
+//		if(view!=null){
+//			view.setSampleArray(clone, hz);
+//		}
 	}
 	
 	
@@ -67,7 +69,7 @@ public class WavPanelControl {
 //		samples = this.wav.toIntArray();
 		this.hz = (int)wav.getAudioFormat().getSampleRate();
 		if(view!=null){
-			view.setSampleArray(samples, hz);
+//			view.setSampleArray(samples, hz);
 		}
 	}
 
@@ -77,17 +79,17 @@ public class WavPanelControl {
 	}
 	
 	public void addTier(Tier tier){
-		String tierName = tier.getName();
-		if(tierName==null || tierName.isEmpty()){
-			tierName = String.format("tier%02d", tiers.size());
-		}
-		if(tiers.containsKey(tierName)){
-			throw new IllegalStateException("Already defined tier! '" + tierName +"'");
-		}
-		tiers.put(tierName, tier);
-		if(view != null){
-			view.addTier(tier);
-		}
+//		String tierName = tier.getName();
+//		if(tierName==null || tierName.isEmpty()){
+//			tierName = String.format("tier%02d", tiers.size());
+//		}
+//		if(tiers.containsKey(tierName)){
+//			throw new IllegalStateException("Already defined tier! '" + tierName +"'");
+//		}
+//		tiers.put(tierName, tier);
+//		if(view != null){
+//			view.addTier(tier);
+//		}
 	}
 	
 	

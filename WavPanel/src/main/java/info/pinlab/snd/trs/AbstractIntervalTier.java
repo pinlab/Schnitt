@@ -4,18 +4,36 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Set;
 import java.util.TreeMap;
 
+/**
+ * 
+ * Mother of tiers.
+ * 
+ * @author Gabor Pinter
+ *
+ * @param <T> units of the tier. For example {@link Interval}.
+ */
 public abstract class AbstractIntervalTier<T> implements IntervalTier<T>{
-
-	TreeMap<Double, T> markers = new TreeMap<Double, T>();
+	public static Logger LOG = LoggerFactory.getLogger(AbstractIntervalTier.class);
 	
-	String name = "";
+	final TreeMap<Double, T> points;
+	
+	private String name = "";
+	
+	
+	public AbstractIntervalTier() {
+		points = new TreeMap<Double, T>();
+		points.put(0.0d, null);
+	}
 	
 	
 	
-
 
 	@Override
 	public boolean hasNext() {
@@ -50,15 +68,16 @@ public abstract class AbstractIntervalTier<T> implements IntervalTier<T>{
 
 	@Override
 	public int size(){
-		int sz = markers.size();
+		int sz = points.size();
 		return sz <= 0 ? 0 : sz-1;
 	}
 	
 	
 	@Override
 	public Interval<T> getIntervalX(int x){
-		 Set<Entry<Double, T>> entries = markers.entrySet();
+		 Set<Entry<Double, T>> entries = points.entrySet();
 		 if(x >= entries.size()){
+			 LOG.warn("No tier index {}, tier size: {}", x, points.size());
 			 return null;
 		 }
 		 
@@ -73,7 +92,7 @@ public abstract class AbstractIntervalTier<T> implements IntervalTier<T>{
 		 }else{
 			 return null;
 		 }
-		 return new Interval<>(timeLabelPair.getKey(), endT, timeLabelPair.getValue());
+		 return new Interval<T>(timeLabelPair.getKey(), endT, timeLabelPair.getValue());
 	}
 
 
@@ -85,11 +104,13 @@ public abstract class AbstractIntervalTier<T> implements IntervalTier<T>{
 		addInterval(interval.startT, interval.endT, interval.label);
 	}
 	
+	@Override
 	public void addInterval(double from, double to, T label){
+		LOG.trace("Adding interval {}-{} '{}'", from, to, label);
 		
-		Double floor = markers.floorKey(from);
+		Double floor = points.floorKey(from);
 		if(floor==null){ //-- no earlier interval
-			markers.put(from, label);
+			points.put(from, label);
 		}else{
 			//--check if 
 			if(floor.equals(from)){
@@ -99,25 +120,25 @@ public abstract class AbstractIntervalTier<T> implements IntervalTier<T>{
 				
 				ArrayList<T> labels = new ArrayList<T>();
 				labels.add(label);
-				labels.add(markers.get(from));
+				labels.add(points.get(from));
 				label = combineLabels(labels);
-				markers.put(from, label);
+				points.put(from, label);
 			}else{
 				//-- interval 
 				//--   present:  ---|++++++++?????????
 				//--   new:             |bbbbbb|
 				//--   present:  ---|+++|bbbbbb|------
-				markers.put(from, label);
+				points.put(from, label);
 			}
 		}
 		
-		Double ceiling = markers.higherKey(from);
+		Double ceiling = points.higherKey(from);
 		if(ceiling==null || ceiling > to){ //-- no later interval value
 			//--   present:  -----------------++++-----
 			//--   adding:         +++++
 			//--   adding:   ------+++++------++++-----
-			markers.put(from, label);
-			markers.put(to, null);
+			points.put(from, label);
+			points.put(to, null);
 		}else{
 			//--   present:  --------++--+++-+++------
 			//--   adding:         +++++++++++
@@ -127,28 +148,37 @@ public abstract class AbstractIntervalTier<T> implements IntervalTier<T>{
 			lablesToCombine.add(label);
 			while(ceiling != null && ceiling < to ){
 				marksToDelete.add(ceiling);
-				T ceilingLabel = markers.get(ceiling);
+				T ceilingLabel = points.get(ceiling);
 				lablesToCombine.add(ceilingLabel);
-				ceiling = markers.higherKey(ceiling);
+				ceiling = points.higherKey(ceiling);
 			}
-			markers.put(from, this.combineLabels(lablesToCombine));
+			points.put(from, this.combineLabels(lablesToCombine));
 			if(ceiling != null){
 				//--   present:  ------------|aaaaaaaaaa|-----
 				//--   adding:         |bbbbbbbbb|
 				//--   result:   ------|bbbbbbbbb|aaaaaa|-----
 				
-				T  bridgingLabel =  markers.floorEntry(ceiling).getValue();
-				markers.put(to, bridgingLabel);
+				T  bridgingLabel =  points.floorEntry(ceiling).getValue();
+				points.put(to, bridgingLabel);
 			}else{ //-- no ceiling
-				markers.put(to, null);
+				points.put(to, null);
 			}
 			
 			for(Double mark : marksToDelete){
-				markers.remove(mark);
+				points.remove(mark);
 			}
 			
 		}
 	}
+	
+	
+		
+	@Override
+	public double getDuration(){
+		return points.lastKey();
+	}
+
+	
 		
 		
 	

@@ -6,7 +6,7 @@ package info.pinlab.snd.trs;
  * 
  * @author Gabor PINTER
  *
- * @param <T>
+ * @param <T> Type of the lables. E.g., boolean or String.
  */
 public class Interval<T> {
 	public final Double startT;

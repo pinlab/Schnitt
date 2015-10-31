@@ -3,7 +3,6 @@ package info.pinlab.snd.trs;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 
 
 /**
@@ -11,41 +10,44 @@ import java.util.TreeMap;
  * Tier of ONs and OFFs. 
  * Useful e.g. for Voice Activity Detector.
  * 
- * @author kinoko
+ * <pre>
+ * {@code
+ * 
+ * a)  -----++++++++++++++++--------    (original tier data)
+ * b)            ++++++++               (adding a 'true' interval)
+ * a+b)-----++++++++++++++++--------    (resulting true/false tier)
  *
- *
- * a)  -----++++++++++++++++--------
- * b)            ++++++++
- * a+b)-----++++++++++++++++--------    (like binary addition)
- *
- * a)  ----------++++++++-----------
+ * a)  ----------++-----------------
  * b)       ++++++++++++++++
- * a+b)-----++++++++++++++++--------    (like binary addition)
+ * a+b)-----++++++++++++++++--------    
  *
  *
  * a)  ----------+++++++++----------
  * b)       ++++++++++
- * a+b)-----++++++++++++++----------    (like binary addition)
+ * a+b)-----++++++++++++++----------    
  *
  *
  * a)  ---------------+++++++++-----
  * b)       +++++
- * a+b)-----+++++-----+++++++++-----    (like binary addition)
+ * a+b)-----+++++-----+++++++++-----    
  *
  *
  * a)  -----+++++++++++++++++++-----
- * b)          ------
+ * b)          ------                   (adding a 'false' interval)
  * a+b)-----+++------++++++++++------
- *
- *
+ *}
+ *</pre>
+ * @author kinoko
  */
 public class BinaryTier extends AbstractIntervalTier<Boolean>{
-	private final TreeMap<Double, Boolean> points ;
+//	private final TreeMap<Double, Boolean> points ;
 	
 	
 	public BinaryTier(){
-		points = new TreeMap<Double, Boolean>();
-		points.put(0.0d, false);
+		super();
+		super.points.put(0.0d, false);
+//		points = new TreeMap<Double, Boolean>();
+//		points.put(0.0d, false);
 	}
 	
 	
@@ -66,7 +68,16 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 //		}
 //		addInterval(from, to, true);
 //	}
+
 	
+	
+	
+	
+	@Override
+	public void addInterval(Interval<Boolean> interval){
+		addInterval(interval.startT, interval.endT, (boolean)(interval.label==null? false: interval.label));
+	}
+
 	
 /**
 	 * 
@@ -74,23 +85,26 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 	 * @param to
 	 * @param value
 	 */
-	public void addInterval(double from, double to, boolean b){
+	@Override
+	public void addInterval(double from, double to, Boolean b){
 		System.out.println(from +" - " + to);
-//		if(from > to){// wrong order! switch them
-//			from  = from + to;
-//			to    = from - to;
-//			from  = from - to;
-//		}
+		if(from > to){// wrong order! switch them
+			LOG.trace("Wrong timestamps order {}-{} ! Switching!", from, to);
+			from  = from + to;
+			to    = from - to;
+			from  = from - to;
+		}
 		
+		if(b==null)b = false;
 		//-- remove in-between values:
 		List<Double> toDelete = new ArrayList<Double>();
-		Double val = points.higherKey(from);
-		if(val==null){
+		Double higherKey = points.higherKey(from);
+		if(higherKey==null){
 			if(points.containsKey(from)){
-				val = from;
+				higherKey = from;
 			}
 		}
-		if(val==null){
+		if(higherKey==null){
 			if(b){
 				Entry<Double, Boolean> floor = points.floorEntry(from);
 				if(points.containsKey(from)){
@@ -110,10 +124,10 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 		}
 		
 		
-		while(val!=null && val <= to){
+		while(higherKey!=null && higherKey <= to){
 //			System.out.println(val + "\t" + to + " " + (val<=to));
-			toDelete.add(val);
-			val = points.higherKey(val); 
+			toDelete.add(higherKey);
+			higherKey = points.higherKey(higherKey); 
 		}
 		for(Double delValue : toDelete){
 //			System.out.println("DEL " + toDelete);
@@ -149,18 +163,50 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 	}
 	
 
-	public void debugPrint(){
+	public String debugPrint(){
+		StringBuffer sb = new StringBuffer();
 		
-		for(Double pt : points.keySet()){
-			System.out.println(pt + "\t" + points.get(pt));
+		double prev= -1;
+		boolean prevLab = false;
+		for(double pt : super.points.keySet()){
+			if(pt > 0.0d){
+				sb	.append(prev).append(" - ")
+					.append(pt).append(" ")
+					.append(prevLab)
+					.append('\n');
+			}
+			prev = pt;
+			prevLab = super.points.get(pt);
 		}
-		
+		return sb.toString();
 	}
 
 
 	@Override
 	public Boolean combineLabels(List<Boolean> labels) {
 		return labels.get(0);
+	}
+	
+	
+	
+	
+	@Override
+	public String toString(){
+		StringBuffer sb = new StringBuffer();
+		
+		double prev= -1;
+		Boolean prevLab = false;
+		for(double pt : super.points.keySet()){
+			if(pt > 0.0d){
+				sb	.append(prev).append(" - ")
+					.append(pt).append(" ")
+					.append(prevLab)
+					.append('\n');
+			}
+			prev = pt;
+			prevLab = super.points.get(pt);
+		}
+		return sb.toString();
 	}
 	
 	

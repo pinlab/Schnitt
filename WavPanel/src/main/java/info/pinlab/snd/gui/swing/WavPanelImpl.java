@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import info.pinlab.pinsound.WavClip;
+import info.pinlab.snd.WavUtil;
 import info.pinlab.snd.gui.IntervalSelection;
 import info.pinlab.snd.gui.WavGraphics;
 import info.pinlab.snd.gui.WavPanelModel;
@@ -160,38 +161,34 @@ public class WavPanelImpl extends JPanel
 					}
 				});
 		
-
-		
-		
-		System.out.println(String.format("%12d", Integer.parseInt(Integer.toBinaryString(InputEvent.CTRL_DOWN_MASK << 1))));
-		System.out.println(String.format("%12d", Long.parseLong(Integer.toBinaryString(InputEvent.ALT_DOWN_MASK  << 1))));
-		System.out.println(String.format("%12d", Long.parseLong(Integer.toBinaryString(InputEvent.META_DOWN_MASK << 1))));
-		System.out.println(String.format("%12d", Long.parseLong(Integer.toBinaryString(InputEvent.SHIFT_DOWN_MASK<< 1))));
-		System.out.println(String.format("%12d", Long.parseLong(Integer.toBinaryString(  (InputEvent.SHIFT_DOWN_MASK|InputEvent.CTRL_DOWN_MASK)  <<1))));
-
-		System.out.println(String.format("%12d", Integer.parseInt(Integer.toBinaryString(
-				KeyEvent.VK_A
-				))));
-
-		
-		int key = ((InputEvent.SHIFT_DOWN_MASK|InputEvent.CTRL_DOWN_MASK)<<1) |KeyEvent.VK_A;
-		
-		System.out.println(String.format("%12d", Long.parseLong(Integer.toBinaryString( 
-				((InputEvent.SHIFT_DOWN_MASK|InputEvent.CTRL_DOWN_MASK)<<1) |KeyEvent.VK_A  
-				))));
-		System.out.println(String.format("%12d", Long.parseLong(Integer.toBinaryString( 
-				key  
-				))));
-
-		
-		for(int cut : shortCutMap.keySet()){
-			System.out.println(String.format("Key %12d", Integer.parseInt(Integer.toBinaryString(
-					cut
-					))));
-		}		
+//		System.out.println(String.format("%12d", Integer.parseInt(Integer.toBinaryString(InputEvent.CTRL_DOWN_MASK << 1))));
+//		System.out.println(String.format("%12d", Long.parseLong(Integer.toBinaryString(InputEvent.ALT_DOWN_MASK  << 1))));
+//		System.out.println(String.format("%12d", Long.parseLong(Integer.toBinaryString(InputEvent.META_DOWN_MASK << 1))));
+//		System.out.println(String.format("%12d", Long.parseLong(Integer.toBinaryString(InputEvent.SHIFT_DOWN_MASK<< 1))));
+//		System.out.println(String.format("%12d", Long.parseLong(Integer.toBinaryString(  (InputEvent.SHIFT_DOWN_MASK|InputEvent.CTRL_DOWN_MASK)  <<1))));
+//
+//		System.out.println(String.format("%12d", Integer.parseInt(Integer.toBinaryString(
+//				KeyEvent.VK_A
+//				))));
+//
+//		
+//		int key = ((InputEvent.SHIFT_DOWN_MASK|InputEvent.CTRL_DOWN_MASK)<<1) |KeyEvent.VK_A;
+//		
+//		System.out.println(String.format("%12d", Long.parseLong(Integer.toBinaryString( 
+//				((InputEvent.SHIFT_DOWN_MASK|InputEvent.CTRL_DOWN_MASK)<<1) |KeyEvent.VK_A  
+//				))));
+//		System.out.println(String.format("%12d", Long.parseLong(Integer.toBinaryString( 
+//				key  
+//				))));
+//
+//		
+//		for(int cut : shortCutMap.keySet()){
+//			System.out.println(String.format("Key %12d", Integer.parseInt(Integer.toBinaryString(
+//					cut
+//					))));
+//		}		
 
 
-		
 //		for(Integer ks : shortCutMap.keySet()){
 //			System.out.println(ks);
 //			System.out.println(ks.getKeyCode());
@@ -246,11 +243,13 @@ public class WavPanelImpl extends JPanel
 	private GeneralPath calcPolyLine(){
 		GeneralPath path = new GeneralPath(GeneralPath.WIND_NON_ZERO) ;
 		
-		model.setViewWidthInPx(this.getWidth());
+		int w = this.getWidth();
+		model.setViewWidthInPx(w);
 		model.setViewHeightInPx(this.getHeight());
-
-
-		double [] minMaxs = model.getWaveCurvePointsCondensed();
+		
+		final double [] minMaxs = model.getWaveCurvePointsCondensed();
+//		LOG.info("Len: " + minMaxs.length);
+		
 		path.moveTo(0, minMaxs[0]);
 		for(int i = 0 ; i < (minMaxs.length/2) ; i++){
 //			System.out.println(minMaxs[i*2]);
@@ -394,11 +393,16 @@ public class WavPanelImpl extends JPanel
 
 
 	public static void main(String[] args) throws Exception{
-		WavClip wav = new WavClip(WavPanelImpl.class.getResourceAsStream("sample.wav"));
+//		WavClip wav = new WavClip(WavPanelImpl.class.getResourceAsStream("sample.wav"));
+		WavClip wav = new WavClip(WavPanelImpl.class.getResourceAsStream("longsample.wav"));
+//		WavClip wav = new WavClip(WavPanelImpl.class.getResourceAsStream("verylongsample.wav"));
 		
 		WavPanelModel model = new WavGraphics();
 //		int [] samples = WavUtil.getIntArray(wav);
-		model.setSampleArray(wav.toIntArray(), (int)wav.getAudioFormat().getSampleRate());
+		model.setSampleArray(
+				WavUtil.getIntArray(wav)
+//				wav.toIntArray(), 
+				,(int)wav.getAudioFormat().getSampleRate());
 		
 		WavPanelImpl panel = new WavPanelImpl();
 		panel.setWavPanelModel(model);	

@@ -214,7 +214,7 @@ public class WavGraphics implements WavPanelModel{
 	 * @return min + max values for each pixelpoint
 	 */
 	public double[] getWaveCurvePointsCondensed(){
-		double [] minMaxCoordinates = new double [samples.length*2];
+		double [] minMaxCoordinates = new double [panelWidthInPx*2];
 		
 		double spanSize = viewSizeInSample / (double)panelWidthInPx;
 
@@ -223,8 +223,11 @@ public class WavGraphics implements WavPanelModel{
 		int j = sampleStart;
 		
 		//-- vertical manipulation
-		double multiplier = this.panelHeightInPx/(double)(2*sampleHalfRange);
-		int shift = -1 * this.sampleHalfRange;
+		double multiplier = -1*this.panelHeightInPx/(double)(2*sampleHalfRange);
+//		int shift = 1 * this.sampleHalfRange;
+//		int shift = 1 * (sampleRangeUpper-sampleRangeLower);
+		double shift = sampleMax;
+//		double shift = 1.0d * this.sampleMin;
 		
 		for(int pixIx = 0; pixIx < panelWidthInPx ; pixIx++){ 
 			//-- calc for each pixel: min & max sample values
@@ -238,8 +241,8 @@ public class WavGraphics implements WavPanelModel{
 				j++;
 			}
 			//-- transform values 
-//			minMaxCoordinates[i*2+0] = this.panelHeightInPx*(spanMin-this.sampleMin)/(sampleRange) ;
-//			minMaxCoordinates[i*2+1] = this.panelHeightInPx*(spanMax-this.sampleMin)/(sampleRange) ;
+//			minMaxCoordinates[pixIx*2+0] = this.panelHeightInPx*(spanMin-this.sampleMin)/(sampleRange) ;
+//			minMaxCoordinates[pixIx*2+1] = this.panelHeightInPx*(spanMax-this.sampleMin)/(sampleRange) ;
 			
 //			minMaxCoordinates[i*2+0] = this.panelHeightInPx*(spanMin+this.sampleHalfRange)/(double)(2*sampleHalfRange) ;
 //			minMaxCoordinates[i*2+1] = this.panelHeightInPx*(spanMax+this.sampleHalfRange)/(double)(2*sampleHalfRange) ;
@@ -250,10 +253,8 @@ public class WavGraphics implements WavPanelModel{
 		
 		long t1 = System.currentTimeMillis();
 		LOG.trace("Graph created in {} ms", t1-t0);
-		
 		return minMaxCoordinates;
 	}
-
 
 	
 	@Override
@@ -281,25 +282,26 @@ public class WavGraphics implements WavPanelModel{
 			}else{
 				cnt++;
 			}
-			sampleFreqMax = cnt > sampleFreqMax ? cnt : sampleFreqMax ;
+			if(cnt > sampleFreqMax){
+				sampleFreqMax = cnt;
+				sampleFreqMaxVal = sample;
+			}
 			sampleFreq.put(sample, cnt);
 		}
 		sampleRange = sampleMax-sampleMin;
 		sampleMean = sampleSum/samples.length;
-		sampleFreqMaxVal = sampleFreq.get(sampleFreqMax);
-		
 		
 		sampleRangeUpper = (int) Math.abs(sampleMax - sampleFreqMaxVal);
 		sampleRangeLower = (int) Math.abs(sampleMin - sampleFreqMaxVal);
 		sampleHalfRange = sampleRangeUpper > sampleRangeLower ? sampleRangeUpper : sampleRangeLower;  
 		
-		LOG.trace("|-Sample min  : {}", (int) sampleMin);
-		LOG.trace("|-Sample mean : {}", sampleMean);
-		LOG.trace("|-Sample mode : {}", (int) sampleFreqMaxVal);
 		LOG.trace("|-Sample max  : {}", (int) sampleMax);
+		LOG.trace("|-Sample mean : {}", sampleMean);
+		LOG.trace("|-Sample mode : {} ({})", (int) sampleFreqMaxVal, sampleFreqMax);
+		LOG.trace("|-Sample min  : {}", (int) sampleMin);
 		LOG.trace("|-Sample range: {}", (int)sampleRange );
-		LOG.trace("|-Lower range : {}", sampleRangeLower );
-		LOG.trace("|-Upper range : {}", sampleRangeUpper );
+		LOG.trace("|-       upper: {}", sampleRangeUpper );
+		LOG.trace("|-       lower: {}", sampleRangeLower );
 		LOG.trace("|-Half  range : {}", sampleHalfRange  );
 	}
 

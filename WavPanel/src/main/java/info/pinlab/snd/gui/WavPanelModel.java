@@ -2,6 +2,7 @@ package info.pinlab.snd.gui;
 
 import java.util.List;
 
+import info.pinlab.snd.trs.Interval;
 import info.pinlab.snd.trs.Tier;
 
 public interface WavPanelModel {
@@ -35,7 +36,11 @@ public interface WavPanelModel {
 //	public boolean hasActiveSelection();
 	public IntervalSelection getActiveIntervalSelection();
 	public void addIntervalSelection(IntervalSelection selection);
+	public void addInterval(Interval<?> interval);
 
 	public List<IntervalSelection> getInterVals();
 
+	//-- ZOOM
+	public void zoomTo(double start, double end);
+	public void zoomOut();
 }

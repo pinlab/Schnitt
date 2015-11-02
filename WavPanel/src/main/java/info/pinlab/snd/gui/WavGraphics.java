@@ -2,19 +2,26 @@ package info.pinlab.snd.gui;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import info.pinlab.snd.trs.BinaryTier;
 import info.pinlab.snd.trs.Interval;
 import info.pinlab.snd.trs.Tier;
 
 public class WavGraphics implements WavPanelModel{
+	public static Logger LOG = LoggerFactory.getLogger(WavGraphics.class);
 	
 	private int [] samples;
 	private double hz;
 	private int viewStartSampleIx = 0;
 	private int viewEndSampleIx = 0;
-	private int viewSize = 0;
+	private int viewSizeInSample = 0;
 
 	//-- about the view
 	private int panelWidthInPx  = 0;
@@ -24,12 +31,15 @@ public class WavGraphics implements WavPanelModel{
 //	private int cursorPosInPx = 0;
 	
 
-	private double sampleMin, sampleMax, sampleRange;
+	private double sampleMin, sampleMax, sampleMean, sampleRange;
+	private int sampleSum, sampleHalfRange, sampleRangeUpper, sampleRangeLower;
+	int sampleFreqMax = 0;
+	int sampleFreqMaxVal = 0; 
+
 	
 	private final IntervalSelection activeSelection;
 	BinaryTier tier = new BinaryTier();
 
-	
 	
 	public WavGraphics(){
 		activeSelection = new Selection();
@@ -63,7 +73,7 @@ public class WavGraphics implements WavPanelModel{
 		
 		@Override
 		public void setSelectionStartPx(int px) {
-			startSampleIx = viewSize * (px /(double) panelWidthInPx);
+			startSampleIx = viewStartSampleIx + ( viewSizeInSample * (px /(double) panelWidthInPx));
 		}
 		@Override
 		public void setSelectionStartSec(double s){
@@ -71,18 +81,16 @@ public class WavGraphics implements WavPanelModel{
 		}
 		@Override
 		public void setSelectionEndPx(int px) {
-			endSampleIx = viewSize * (px /(double) panelWidthInPx);
+			endSampleIx = viewStartSampleIx + (viewSizeInSample * (px /(double) panelWidthInPx));
 		}
 		public void setSelectionEndSec(double s){
 			endSampleIx = s*hz;
 		}
 
-		
-		
 		@Override
 		public int getSelectionStartPx(){
 			return (int)Math.round(
-					panelWidthInPx * startSampleIx / (double)viewSize
+					panelWidthInPx * (startSampleIx-viewStartSampleIx) / (double)viewSizeInSample
 					);
 		}
 		public double getSelectionStartInSec(){
@@ -91,14 +99,13 @@ public class WavGraphics implements WavPanelModel{
 		@Override
 		public int getSelectionEndPx() {
 			return (int)Math.round(
-					panelWidthInPx * endSampleIx / (double)viewSize
+					panelWidthInPx * (endSampleIx-viewStartSampleIx)/ (double)viewSizeInSample
 					);
 		}
 		public double getSelectionEndInSec(){
 			return endSampleIx / hz ;
 		}
 
-		
 		
 		@Override
 		public double getSelectionDurInSec() {
@@ -123,10 +130,10 @@ public class WavGraphics implements WavPanelModel{
 	
 
 	
-	@Override
+	@Override	
 	public int getCursorPositionInPx(){
 		return (int)Math.round(
-				this.panelWidthInPx * cursorPosInSample / (double)this.viewSize
+				this.panelWidthInPx * cursorPosInSample / (double)this.viewSizeInSample
 				);
 	}
 	
@@ -157,7 +164,7 @@ public class WavGraphics implements WavPanelModel{
 	public void setCursorPosToPx(int px){
 		if(px<0)px=0;
 		if(px>this.panelWidthInPx)px=this.panelWidthInPx;
-		cursorPosInSample = this.viewSize * (px /(double) this.panelWidthInPx);
+		cursorPosInSample = this.viewSizeInSample * (px /(double) this.panelWidthInPx);
 	}
 	
 	@Override
@@ -200,7 +207,6 @@ public class WavGraphics implements WavPanelModel{
 	}
 	
 	
-	
 	/**
 	 * Panel width in pixel < sample length <br>
 	 * Calculates min + max values for each point.
@@ -210,26 +216,45 @@ public class WavGraphics implements WavPanelModel{
 	public double[] getWaveCurvePointsCondensed(){
 		double [] minMaxCoordinates = new double [samples.length*2];
 		
-		double spanSize = samples.length / (double)panelWidthInPx;
+		double spanSize = viewSizeInSample / (double)panelWidthInPx;
+
+		long t0 = System.currentTimeMillis();
+		int sampleStart = viewStartSampleIx;
+		int j = sampleStart;
 		
-		int j = 0;
-		for(int i = 0; i < panelWidthInPx ; i++){ 
+		//-- vertical manipulation
+		double multiplier = this.panelHeightInPx/(double)(2*sampleHalfRange);
+		int shift = -1 * this.sampleHalfRange;
+		
+		for(int pixIx = 0; pixIx < panelWidthInPx ; pixIx++){ 
 			//-- calc for each pixel: min & max sample values
-			int jMax = (int)Math.round((i+1)*spanSize);
+			int jMax = sampleStart+(int)Math.round((pixIx+1)*spanSize);
 
 			int spanMin = samples[j];
 			int spanMax = samples[j];
-			while(j < jMax && j < samples.length){
+			while(j < jMax && j < viewEndSampleIx){
 				spanMin = samples[j] < spanMin ? samples[j] : spanMin; 
 				spanMax = samples[j] > spanMax ? samples[j] : spanMax; 
 				j++;
 			}
-			minMaxCoordinates[i*2+0] = this.panelHeightInPx*(spanMin-this.sampleMin)/this.sampleRange ;
-			minMaxCoordinates[i*2+1] = this.panelHeightInPx*(spanMax-this.sampleMin)/this.sampleRange ;
+			//-- transform values 
+//			minMaxCoordinates[i*2+0] = this.panelHeightInPx*(spanMin-this.sampleMin)/(sampleRange) ;
+//			minMaxCoordinates[i*2+1] = this.panelHeightInPx*(spanMax-this.sampleMin)/(sampleRange) ;
+			
+//			minMaxCoordinates[i*2+0] = this.panelHeightInPx*(spanMin+this.sampleHalfRange)/(double)(2*sampleHalfRange) ;
+//			minMaxCoordinates[i*2+1] = this.panelHeightInPx*(spanMax+this.sampleHalfRange)/(double)(2*sampleHalfRange) ;
+			
+			minMaxCoordinates[pixIx*2+0] = multiplier*(spanMin-shift);
+			minMaxCoordinates[pixIx*2+1] = multiplier*(spanMax-shift);
 		}
+		
+		long t1 = System.currentTimeMillis();
+		LOG.trace("Graph created in {} ms", t1-t0);
+		
 		return minMaxCoordinates;
 	}
-	
+
+
 	
 	@Override
 	public void setSampleArray(int[] samples, int hz) {
@@ -237,15 +262,45 @@ public class WavGraphics implements WavPanelModel{
 		this.hz = hz;
 		this.viewStartSampleIx = 0;
 		this.viewEndSampleIx = this.samples.length;
-		this.viewSize = this.viewEndSampleIx - this.viewStartSampleIx;
+		this.viewSizeInSample = this.viewEndSampleIx - this.viewStartSampleIx;
 		
 		sampleMin=sampleMax=samples[0];
+
+		Map<Integer, Integer> sampleFreq = new TreeMap<Integer, Integer>();
+		sampleFreqMax = -1;
+		sampleFreqMaxVal = samples[0]; 
 		
 		for(int sample : samples){
+			sampleSum += sample;
 			sampleMax = (sample > sampleMax) ? sample : sampleMax;
 			sampleMin = (sample < sampleMin) ? sample : sampleMin;
+			
+			Integer cnt = sampleFreq.get(sample);
+			if(cnt==null){
+				cnt =0;
+			}else{
+				cnt++;
+			}
+			sampleFreqMax = cnt > sampleFreqMax ? cnt : sampleFreqMax ;
+			sampleFreq.put(sample, cnt);
 		}
 		sampleRange = sampleMax-sampleMin;
+		sampleMean = sampleSum/samples.length;
+		sampleFreqMaxVal = sampleFreq.get(sampleFreqMax);
+		
+		
+		sampleRangeUpper = (int) Math.abs(sampleMax - sampleFreqMaxVal);
+		sampleRangeLower = (int) Math.abs(sampleMin - sampleFreqMaxVal);
+		sampleHalfRange = sampleRangeUpper > sampleRangeLower ? sampleRangeUpper : sampleRangeLower;  
+		
+		LOG.trace("|-Sample min  : {}", (int) sampleMin);
+		LOG.trace("|-Sample mean : {}", sampleMean);
+		LOG.trace("|-Sample mode : {}", (int) sampleFreqMaxVal);
+		LOG.trace("|-Sample max  : {}", (int) sampleMax);
+		LOG.trace("|-Sample range: {}", (int)sampleRange );
+		LOG.trace("|-Lower range : {}", sampleRangeLower );
+		LOG.trace("|-Upper range : {}", sampleRangeUpper );
+		LOG.trace("|-Half  range : {}", sampleHalfRange  );
 	}
 
 	@Override
@@ -280,7 +335,7 @@ public class WavGraphics implements WavPanelModel{
 	 */
 	@Override
 	public int getSampleIxFromPx(int px){
-		if(this.viewSize==this.panelWidthInPx){
+		if(this.viewSizeInSample==this.panelWidthInPx){
 			return px;
 		}
 //		final int visibleSampleN = this.viewEndSampleIx-this.viewStartSampleIx;
@@ -288,11 +343,47 @@ public class WavGraphics implements WavPanelModel{
 //		System.out.println(this.viewStartSampleIx + " - " + this.viewEndSampleIx + "( " +visibleSampleN +" )");
 //		System.out.println(this.viewSize *  (px /(double) this.panelWidthInPx));
 		int ret = (int)Math.round(
-				this.viewSize *  (px /(double) this.panelWidthInPx));
+				this.viewSizeInSample *  (px /(double) this.panelWidthInPx));
 //		System.out.println(" " + px + " > px > sample > " + ret);
 		return ret;
 	}
 
+
+	public int getSampleIxFromSec(double sec){
+		return (int)Math.round(sec*hz);
+	}
+	
+	
+	
+	@Override
+	public void zoomTo(double start, double end){
+		//-- switch if necessary
+		if(start>end){
+			start = start+end;
+			end   = start-end;
+			start = start-end;
+		}
+		
+		this.viewStartSampleIx = this.getSampleIxFromSec(start);
+		this.viewEndSampleIx   = this.getSampleIxFromSec(end);
+		//-- sanity check
+		this.viewStartSampleIx = this.viewStartSampleIx < 0 ? 0 : this.viewStartSampleIx;
+		this.viewEndSampleIx = this.viewEndSampleIx >= this.samples.length ? (this.samples.length-1) : this.viewEndSampleIx;
+		
+		viewSizeInSample = this.viewEndSampleIx - this.viewStartSampleIx;
+		this.activeSelection.clear();
+		this.activeSelection.isAdjusting(false);
+		
+		this.setCursorPosToMs((int)(end+start)/2*1000);
+	}
+
+	@Override
+	public void zoomOut() {
+		this.viewStartSampleIx = 0;
+		this.viewEndSampleIx   = (this.samples.length-1);
+		this.viewSizeInSample = this.samples.length;
+	}
+	
 	
 	@Override
 	public double getSecFromPx(int px){
@@ -306,15 +397,13 @@ public class WavGraphics implements WavPanelModel{
 	@Override
 	public int getPxFromSampleIx(int x){
 //		System.out.println(x + " > sample > px > " + this.panelWidthInPx * (x / (double)this.viewSize));
-		return (int)Math.round(this.panelWidthInPx * x / (double)this.viewSize);
+		return (int)Math.round(this.panelWidthInPx * x / (double)this.viewSizeInSample);
 	}
 	
 	
 
 	@Override
 	public void addTier(Tier tier) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -332,5 +421,15 @@ public class WavGraphics implements WavPanelModel{
 				,selection.getSelectionEndInSec(), true);
 		tier.addInterval(inter);
 	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void addInterval(Interval<?> interval) {
+		if(interval.label instanceof Boolean){
+			tier.addInterval((Interval<Boolean>)interval);
+		}
+	}
+
+
 
 }

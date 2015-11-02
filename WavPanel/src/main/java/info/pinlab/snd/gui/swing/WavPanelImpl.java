@@ -15,6 +15,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.GeneralPath;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -28,6 +30,7 @@ import info.pinlab.snd.gui.IntervalSelection;
 import info.pinlab.snd.gui.WavGraphics;
 import info.pinlab.snd.gui.WavPanelModel;
 import info.pinlab.snd.gui.WavPanelUI;
+import info.pinlab.snd.trs.Interval;
 
 
 /**
@@ -50,9 +53,6 @@ public class WavPanelImpl extends JPanel
 	Font labelFont = new Font("Helvetica", Font.PLAIN, 1);
 	
 	
-//	int selectionMinSizeInPx = 80;
-	
-	
 	int viewStartSampleX = 0;
 	int viewEndSampleX = 0; 
 //	double hz = 0.0d;
@@ -60,7 +60,8 @@ public class WavPanelImpl extends JPanel
 	int sampleYmin = 0;
 	int sampleN = 0;
 	GeneralPath polyline = null;
-	float labelAlpha = 0.4f; //-- the small the fade 
+	float alphaForActiveLabel = 0.4f;   //-- the smaller the fader 
+	float alphaForPassiveLabel = 0.25f; //-- the smaller the fader 
 	double zoomY = 0.7; 
 	double zoomX = 1.0;
 
@@ -68,12 +69,21 @@ public class WavPanelImpl extends JPanel
 	//-- COLORS in RGB --//
 	private Color bgCol = Color.WHITE; //new Color(243,243,248); //Color.BLACK;
 	private Color fontCol = new Color(126, 179, 102);
-	private Color labelBgCol = new Color(204, 215, 119);
+//	private Color bgColForActiveLabel = new Color(255, 59, 0); //-- redish
+	private Color bgColForPassiveLabel = new Color(204, 215, 119);  //-- grayish 
+	
+	
 	private Color cursorCol = new Color(126, 179, 102); //new Color(119, 127, 0);//Color.white;
 	static private Color lineCol = new Color(100,100,220);;
 	private Color selCol = new Color(214, 255, 161); // greenish;
 	private Color selBorderLineCol = new Color(100, 100, 100); // gray
 	
+	
+	
+	KeyStroke KeyForAddSelection    = null;
+	KeyStroke KeyForRemoveSelection = null;
+
+	private final Map<Integer, Runnable> shortCutMap ;
 	
 	
 	public WavPanelImpl(){
@@ -86,8 +96,108 @@ public class WavPanelImpl extends JPanel
 		
 		this.setOpaque(true);
 		this.setBackground(bgCol);
-	}
+		
+		shortCutMap = new HashMap<Integer, Runnable>();
 
+		
+		//-- add selection
+		shortCutMap.put(
+				(InputEvent.CTRL_DOWN_MASK<<1 ) |KeyEvent.VK_A 
+				,new Runnable() {
+					@Override
+					public void run() {
+						IntervalSelection selection = model.getActiveIntervalSelection();
+						Interval<Boolean> interval = new Interval<Boolean>(
+								selection.getSelectionStartInSec(), 
+								selection.getSelectionEndInSec(), 
+								true);
+						model.addInterval(interval);
+						WavPanelImpl.this.repaint();
+					}
+				});
+//		//-- remove selection
+//		(InputEvent.SHIFT_DOWN_MASK|InputEvent.CTRL_DOWN_MASK)<<1) | KeyEvent.VK_A,
+		shortCutMap.put(
+				(InputEvent.CTRL_DOWN_MASK<<1 ) |KeyEvent.VK_D 
+				,new Runnable() {
+					@Override
+					public void run() {
+						IntervalSelection selection = model.getActiveIntervalSelection();
+						Interval<Boolean> interval = new Interval<Boolean>(
+								selection.getSelectionStartInSec(), 
+								selection.getSelectionEndInSec(), 
+								false);
+						model.addInterval(interval);
+						WavPanelImpl.this.repaint();
+//						model.addIntervalSelection(model.getActiveIntervalSelection());
+//						WavPanelImpl.this.repaint();
+					}
+				});
+		
+		//-- zoom to selection
+		shortCutMap.put(
+				(InputEvent.CTRL_DOWN_MASK<<1 ) |KeyEvent.VK_N 
+				,new Runnable() {
+					@Override
+					public void run() {
+						IntervalSelection selection = model.getActiveIntervalSelection();
+						model.zoomTo(
+								selection.getSelectionStartInSec(),
+								selection.getSelectionEndInSec()	);
+						WavPanelImpl.this.path=null;
+						WavPanelImpl.this.repaint();
+					}
+				});
+		//-- zoom OUT
+		shortCutMap.put(
+				(InputEvent.CTRL_DOWN_MASK<<1 ) |KeyEvent.VK_Q 
+				,new Runnable() {
+					@Override
+					public void run() {
+						model.zoomOut();
+						WavPanelImpl.this.path=null;
+						WavPanelImpl.this.repaint();
+					}
+				});
+		
+
+		
+		
+		System.out.println(String.format("%12d", Integer.parseInt(Integer.toBinaryString(InputEvent.CTRL_DOWN_MASK << 1))));
+		System.out.println(String.format("%12d", Long.parseLong(Integer.toBinaryString(InputEvent.ALT_DOWN_MASK  << 1))));
+		System.out.println(String.format("%12d", Long.parseLong(Integer.toBinaryString(InputEvent.META_DOWN_MASK << 1))));
+		System.out.println(String.format("%12d", Long.parseLong(Integer.toBinaryString(InputEvent.SHIFT_DOWN_MASK<< 1))));
+		System.out.println(String.format("%12d", Long.parseLong(Integer.toBinaryString(  (InputEvent.SHIFT_DOWN_MASK|InputEvent.CTRL_DOWN_MASK)  <<1))));
+
+		System.out.println(String.format("%12d", Integer.parseInt(Integer.toBinaryString(
+				KeyEvent.VK_A
+				))));
+
+		
+		int key = ((InputEvent.SHIFT_DOWN_MASK|InputEvent.CTRL_DOWN_MASK)<<1) |KeyEvent.VK_A;
+		
+		System.out.println(String.format("%12d", Long.parseLong(Integer.toBinaryString( 
+				((InputEvent.SHIFT_DOWN_MASK|InputEvent.CTRL_DOWN_MASK)<<1) |KeyEvent.VK_A  
+				))));
+		System.out.println(String.format("%12d", Long.parseLong(Integer.toBinaryString( 
+				key  
+				))));
+
+		
+		for(int cut : shortCutMap.keySet()){
+			System.out.println(String.format("Key %12d", Integer.parseInt(Integer.toBinaryString(
+					cut
+					))));
+		}		
+
+
+		
+//		for(Integer ks : shortCutMap.keySet()){
+//			System.out.println(ks);
+//			System.out.println(ks.getKeyCode());
+//		}
+		
+	}
 
 
 	@Override
@@ -128,12 +238,12 @@ public class WavPanelImpl extends JPanel
 	}
 	
 	public void mouseMoved(MouseEvent e){
-		System.out.println(e.getX());
+//		System.out.println(e.getX());
 	}
 	public void mouseClicked(MouseEvent e){	}
 	
 	
-	private GeneralPath calcPolyLine2(){
+	private GeneralPath calcPolyLine(){
 		GeneralPath path = new GeneralPath(GeneralPath.WIND_NON_ZERO) ;
 		
 		model.setViewWidthInPx(this.getWidth());
@@ -156,61 +266,70 @@ public class WavPanelImpl extends JPanel
 
 	
 	
+	GeneralPath path = null;
+	
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		GeneralPath path = calcPolyLine2();
+		if(path==null){
+			path = calcPolyLine();
+		}
 		int pixelH = this.getHeight();
-		
+		int pixelW = this.getWidth();
 		
 		if(path!=null){
 			Graphics2D g2 = (Graphics2D) g.create(); 
 			g2.setColor(lineCol);
 			g2.draw(path);
 			g2.dispose();
-			
-			
 		}
+
+		//-- MID-LINE HORIZONTAL
+		g.setColor(Color.RED);
+		g.drawLine(0, pixelH/2, pixelW, pixelH/2);
+
 
 		
 		//-- ACTIVE SELECTION --//
 		IntervalSelection selection = model.getActiveIntervalSelection();
-//		System.out.println(selection.getSelectionDurInSec());
         Graphics2D g2 = (Graphics2D) g.create(); 
-		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, labelAlpha)); 
+		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alphaForActiveLabel)); 
 
 		int left  = selection.getSelectionStartPx();
-		//-- right is moving left is the axis
-		int right = selection.getSelectionEndPx();
+		//-- left is the axis -> right is moving 
 		int axis = left;
+		int right = selection.getSelectionEndPx();
 		double axisT = selection.getSelectionStartInSec();
 		if(left>right){ //-- swap
 			left  = left + right;
 			right = left - right;
 			left  = left - right;
-		}else{
-			
 		}
-	
+		//-- active selection
 		g2.setColor(selCol);
 		g2.fillRect(left, 0, right-left, pixelH);
 		g2.setColor(selBorderLineCol);
 		g2.drawLine(left, 0, left, pixelH);
 		g2.drawLine(right, 0, right, pixelH);
 		
+		//-- time stamps
 		g2.setFont(timeLabelFont);
 		g2.drawString(String.format("%.3f", axisT), axis + 2, pixelH-1);
 
+		
 		//-- NON-ACTIVE SELECTIONS -> LABELS  --//
+		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alphaForPassiveLabel));
 		for(IntervalSelection interval : model.getInterVals()){
 			left = interval.getSelectionStartPx();
 			right = interval.getSelectionEndPx();
 
-			g2.setColor(labelBgCol);
+			g2.setColor(bgColForPassiveLabel);
 			g2.fillRect(left, 40, right-left, pixelH-80);
 			g2.setColor(selBorderLineCol);
-			g2.drawLine(left, 40, left, pixelH-80);
-			g2.drawLine(right, 40, right, pixelH-80);
+			g2.drawLine(left,  40, left, pixelH-40);
+			g2.drawLine(right, 40, right, pixelH-40);
+			g2.drawLine(left, 40, right, 40);
+			g2.drawLine(left, pixelH-40, right, pixelH-40);
 		}
 		
 		
@@ -228,8 +347,6 @@ public class WavPanelImpl extends JPanel
 ////		System.out.println(fontW + " " + fontH);
 //		}while(fontH < fontHeight &&  fontW < labW);
 //		yPad = g2.getFontMetrics().getDescent() > ((boxHeight - fontH)/2)  ? g.getFontMetrics().getDescent()+labelMargin : ((boxHeight - fontH)/2) + labelMargin;
-//
-//			
 		
 		
 		//-- CURSOR --//
@@ -239,13 +356,13 @@ public class WavPanelImpl extends JPanel
 		
 		g.setFont(timeLabelFont);
 		g.drawString(String.format("%.3f", model.getCursorPositionInSec()), cursorX + 2, pixelH-1);
-		
 	}
 	
 
 
 
 	public void componentResized(ComponentEvent arg0) {
+		this.path = null;
 		model.setViewWidthInPx(this.getWidth());
 		model.setViewHeightInPx(this.getHeight());
 	}
@@ -254,7 +371,25 @@ public class WavPanelImpl extends JPanel
 	public void componentShown(ComponentEvent ignore) {}
 	
 	
-	
+
+	@Override
+	public void keyReleased(KeyEvent ignore){ }
+	@Override
+	public void keyTyped(KeyEvent ignore) {	}
+	@Override
+	public void keyPressed(KeyEvent e){
+		int key = ( e.getModifiers() << 7) | e.getKeyCode();
+
+		Runnable shortcutAction = shortCutMap.get(key);
+		if(shortcutAction!=null){
+			LOG.trace("Action found for shortcut {} " + e.getKeyCode());
+			shortcutAction.run();
+		}else{
+			LOG.trace("No action found for shortcut {} " + e.getKeyCode());
+		}
+	}
+
+
 
 
 
@@ -274,39 +409,10 @@ public class WavPanelImpl extends JPanel
 		frame.setSize(800, 400);
 //		frame.pack();
 		frame.setVisible(true);
-		
-		
-		LOG.trace("Trace");
-		LOG.info("What'S up?" );
-		LOG.warn("Warning");
-		LOG.error("Error? What'S up?" );
-		LOG.error("FATAL ? "+ LOG.getName());
 	}
 
 
 
-	@Override
-	public void keyPressed(KeyEvent e) {
-		KeyStroke ks = KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_DOWN_MASK);
-		if(ks.getKeyCode() == e.getKeyCode()){
-			
-			model.addIntervalSelection(model.getActiveIntervalSelection());
-//			model.getActiveIntervalSelection().clear();
-			this.repaint();
-		}
-	}
-
-
-
-	@Override
-	public void keyReleased(KeyEvent arg0) {
-	}
-
-
-
-	@Override
-	public void keyTyped(KeyEvent e) {
-	}
 
 
 

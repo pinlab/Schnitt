@@ -15,12 +15,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.KeyStroke;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +36,27 @@ import info.pinlab.snd.trs.Interval;
 
 /**
  * Swing's JPanel implementation of WavPanel. 
+ * 
+ * 
+ * <pre>
+ * {@code 
+		WavPanelModel model = new WavGraphics();
+ 
+  		WavClip wav = new WavClip(WavPanelImpl.class.getResourceAsStream("sample.wav"));
+		model.setSampleArray(
+				wav.toIntArray(), 
+				,(int)wav.getAudioFormat().getSampleRate());
+		
+		WavPanelImpl panel = new WavPanelImpl();
+		panel.setWavPanelModel(model);	
+		
+		JFrame frame = new JFrame("WavPanel test");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.add(panel);
+		frame.setSize(800, 400);
+		frame.setVisible(true);
+		}
+ * </pre>
  * 
  * @author kinoko
  *
@@ -69,7 +90,7 @@ public class WavPanelImpl extends JPanel
 	
 	//-- COLORS in RGB --//
 	private Color bgCol = Color.WHITE; //new Color(243,243,248); //Color.BLACK;
-	private Color fontCol = new Color(126, 179, 102);
+//	private Color fontCol = new Color(126, 179, 102);
 //	private Color bgColForActiveLabel = new Color(255, 59, 0); //-- redish
 	private Color bgColForPassiveLabel = new Color(204, 215, 119);  //-- grayish 
 	
@@ -79,10 +100,7 @@ public class WavPanelImpl extends JPanel
 	private Color selCol = new Color(214, 255, 161); // greenish;
 	private Color selBorderLineCol = new Color(100, 100, 100); // gray
 	
-	
-	
-	KeyStroke KeyForAddSelection    = null;
-	KeyStroke KeyForRemoveSelection = null;
+	GeneralPath path = null;
 
 	private final Map<Integer, Runnable> shortCutMap ;
 	
@@ -206,53 +224,54 @@ public class WavPanelImpl extends JPanel
 	
 	@Override
 	public void mousePressed(MouseEvent e) {
-		final int x = e.getX();
-		model.setCursorPosToPx(x);
-//		model.getActiveIntervalSelection().clear();
-		
-		model.getActiveIntervalSelection().setSelectionStartPx(x);
-		model.getActiveIntervalSelection().setSelectionEndPx(x);
-		model.getActiveIntervalSelection().isAdjusting(true);
-		
+		final int px = e.getX();
+		if(e.isShiftDown()) { //  e.getModifiers() & InputEvent.SHIFT_DOWN_MASK) != 0){ //-- shift is pushed
+			model.getActiveIntervalSelection().setSelectionEndPx(px);
+		}else{
+			model.setCursorPosToPx(px);
+			model.getActiveIntervalSelection().setSelectionStartPx(px);
+			model.getActiveIntervalSelection().setSelectionEndPx(px);
+			model.getActiveIntervalSelection().isAdjusting(true);
+		}
 		repaint();
 	}
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		int x = e.getX();
-		model.setCursorPosToPx(e.getX());
+		int px = e.getX();
+		px = px < 0 ? 0 : px;  
+		px = px > this.getWidth() ? this.getWidth() : px;  
+		model.setCursorPosToPx(px);
     	
 		model.getActiveIntervalSelection().isAdjusting(false);
-		model.getActiveIntervalSelection().setSelectionEndPx(x);
+		model.getActiveIntervalSelection().setSelectionEndPx(px);
 		repaint();
 	}
 	
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		int endPx = e.getX();
+		endPx = endPx < 0 ? 0 : endPx;  
+		endPx = endPx > this.getWidth() ? this.getWidth() : endPx;  
+		
 		model.setCursorPosToPx(endPx);
 		model.getActiveIntervalSelection().setSelectionEndPx(endPx);
     	repaint();
 	}
 	
-	public void mouseMoved(MouseEvent e){
-//		System.out.println(e.getX());
-	}
+	public void mouseMoved(MouseEvent e){	}
 	public void mouseClicked(MouseEvent e){	}
 	
-	
 	private GeneralPath calcPolyLine(){
-		GeneralPath path = new GeneralPath(GeneralPath.WIND_NON_ZERO) ;
+		final GeneralPath path = new GeneralPath(GeneralPath.WIND_NON_ZERO) ;
 		
 		int w = this.getWidth();
 		model.setViewWidthInPx(w);
 		model.setViewHeightInPx(this.getHeight());
 		
 		final double [] minMaxs = model.getWaveCurvePointsCondensed();
-//		LOG.info("Len: " + minMaxs.length);
 		
 		path.moveTo(0, minMaxs[0]);
 		for(int i = 0 ; i < (minMaxs.length/2) ; i++){
-//			System.out.println(minMaxs[i*2]);
 			path.lineTo(i, minMaxs[i*2+0]);
 			path.lineTo(i, minMaxs[i*2+1]);
 		}
@@ -265,7 +284,6 @@ public class WavPanelImpl extends JPanel
 
 	
 	
-	GeneralPath path = null;
 	
 	@Override
 	public void paintComponent(Graphics g) {
@@ -287,7 +305,6 @@ public class WavPanelImpl extends JPanel
 		g.setColor(Color.RED);
 		g.drawLine(0, pixelH/2, pixelW, pixelH/2);
 
-
 		
 		//-- ACTIVE SELECTION --//
 		IntervalSelection selection = model.getActiveIntervalSelection();
@@ -298,29 +315,43 @@ public class WavPanelImpl extends JPanel
 		//-- left is the axis -> right is moving 
 		int axis = left;
 		int right = selection.getSelectionEndPx();
-		double axisT = selection.getSelectionStartInSec();
-		if(left>right){ //-- swap
-			left  = left + right;
-			right = left - right;
-			left  = left - right;
-		}
-		//-- active selection
-		g2.setColor(selCol);
-		g2.fillRect(left, 0, right-left, pixelH);
-		g2.setColor(selBorderLineCol);
-		g2.drawLine(left, 0, left, pixelH);
-		g2.drawLine(right, 0, right, pixelH);
+		if (left!=right){ //-- same -> no selection 
+			double axisT = selection.getSelectionStartInSec();
+			if(left>right){ //-- swap
+				left  = left + right;
+				right = left - right;
+				left  = left - right;
+			}
+			//-- active selection
+			g2.setColor(selCol);
+			g2.fillRect(left, 0, right-left, pixelH);
+			g2.setColor(selBorderLineCol);
+			g2.drawLine(left, 0, left, pixelH);
+			g2.drawLine(right, 0, right, pixelH);
 		
-		//-- time stamps
-		g2.setFont(timeLabelFont);
-		g2.drawString(String.format("%.3f", axisT), axis + 2, pixelH-1);
-
+			//-- time stamp
+			
+			String labelRight = String.format("%.3f", model.getActiveIntervalSelection().getSelectionEndInSec());
+			Rectangle2D  rect =  timeLabelFont.getStringBounds(labelRight, g2.getFontRenderContext());
+			
+			g2.setFont(timeLabelFont);
+			if(axis<right){
+				g2.drawString(String.format("%.3f", axisT), axis + 2, (int)Math.ceil(rect.getHeight()));
+			}else{
+				g2.drawString(String.format("%.3f", axisT), axis - (int)Math.ceil(rect.getWidth()+1), (int)Math.ceil(rect.getHeight()));
+			}
+		}
+		
 		
 		//-- NON-ACTIVE SELECTIONS -> LABELS  --//
 		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alphaForPassiveLabel));
 		for(IntervalSelection interval : model.getInterVals()){
 			left = interval.getSelectionStartPx();
 			right = interval.getSelectionEndPx();
+
+			String labelLeft = String.format("%.3f", interval.getSelectionStartInSec());
+			String labelRight = String.format("%.3f", interval.getSelectionEndInSec());
+			Rectangle2D  rect =  timeLabelFont.getStringBounds(labelRight, g2.getFontRenderContext());
 
 			g2.setColor(bgColForPassiveLabel);
 			g2.fillRect(left, 40, right-left, pixelH-80);
@@ -329,8 +360,21 @@ public class WavPanelImpl extends JPanel
 			g2.drawLine(right, 40, right, pixelH-40);
 			g2.drawLine(left, 40, right, 40);
 			g2.drawLine(left, pixelH-40, right, pixelH-40);
-		}
+			
+			
+			//-- bottom-left
+			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alphaForActiveLabel)); 
+			g2.setColor(selBorderLineCol);
+			g2.setFont(timeLabelFont);
+			g2.drawString(labelLeft, left+1, pixelH-40-1);
 		
+			//-- top-right
+			g2.setFont(timeLabelFont);
+			g2.drawString(labelRight, 
+					right - (int)Math.ceil(rect.getWidth()+1) //-- adjust  text width
+					, 40+(int)Math.ceil(rect.getHeight())+1 //-- adjust for text height
+					);
+		}
 		
 //		int labW = right-left; 
 //		int fontH = 0;
@@ -348,6 +392,7 @@ public class WavPanelImpl extends JPanel
 //		yPad = g2.getFontMetrics().getDescent() > ((boxHeight - fontH)/2)  ? g.getFontMetrics().getDescent()+labelMargin : ((boxHeight - fontH)/2) + labelMargin;
 		
 		
+		
 		//-- CURSOR --//
 		final int cursorX = model.getCursorPositionInPx();
 		g.setColor(cursorCol);
@@ -355,6 +400,18 @@ public class WavPanelImpl extends JPanel
 		
 		g.setFont(timeLabelFont);
 		g.drawString(String.format("%.3f", model.getCursorPositionInSec()), cursorX + 2, pixelH-1);
+		
+		
+		//-- WINDOW time labels --//
+		g.setColor(Color.DARK_GRAY);
+		g.setFont(timeLabelFont);
+		g.drawString(String.format("%.3f", model.getSecFromPx(0)), 0+ 2, pixelH-1);
+		
+		String labelRight = String.format("%.3f", model.getSecFromPx(pixelW));
+		Rectangle2D  rect =  timeLabelFont.getStringBounds(labelRight, g2.getFontRenderContext());
+		g.drawString(labelRight
+				, pixelW-(int)Math.ceil(rect.getWidth()+1)
+				, (int)Math.ceil(rect.getHeight())    );
 	}
 	
 
@@ -393,8 +450,8 @@ public class WavPanelImpl extends JPanel
 
 
 	public static void main(String[] args) throws Exception{
-//		WavClip wav = new WavClip(WavPanelImpl.class.getResourceAsStream("sample.wav"));
-		WavClip wav = new WavClip(WavPanelImpl.class.getResourceAsStream("longsample.wav"));
+		WavClip wav = new WavClip(WavPanelImpl.class.getResourceAsStream("sample.wav"));
+//		WavClip wav = new WavClip(WavPanelImpl.class.getResourceAsStream("longsample.wav"));
 //		WavClip wav = new WavClip(WavPanelImpl.class.getResourceAsStream("verylongsample.wav"));
 		
 		WavPanelModel model = new WavGraphics();

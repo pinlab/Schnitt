@@ -2,7 +2,6 @@ package info.pinlab.snd.gui;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -133,7 +132,7 @@ public class WavGraphics implements WavPanelModel{
 	@Override	
 	public int getCursorPositionInPx(){
 		return (int)Math.round(
-				this.panelWidthInPx * cursorPosInSample / (double)this.viewSizeInSample
+				this.panelWidthInPx * (cursorPosInSample-this.viewStartSampleIx) / (double)this.viewSizeInSample
 				);
 	}
 	
@@ -164,8 +163,9 @@ public class WavGraphics implements WavPanelModel{
 	public void setCursorPosToPx(int px){
 		if(px<0)px=0;
 		if(px>this.panelWidthInPx)px=this.panelWidthInPx;
-		cursorPosInSample = this.viewSizeInSample * (px /(double) this.panelWidthInPx);
+		cursorPosInSample = this.viewStartSampleIx + this.viewSizeInSample * (px /(double) this.panelWidthInPx);
 	}
+	
 	
 	@Override
 	public void setCursorPosToSampleIx(int ix){
@@ -373,24 +373,20 @@ public class WavGraphics implements WavPanelModel{
 		this.viewEndSampleIx = this.viewEndSampleIx >= this.samples.length ? (this.samples.length-1) : this.viewEndSampleIx;
 		
 		viewSizeInSample = this.viewEndSampleIx - this.viewStartSampleIx;
-		this.activeSelection.clear();
-		this.activeSelection.isAdjusting(false);
-		
-		this.setCursorPosToMs((int)(end+start)/2*1000);
 	}
 
 	@Override
 	public void zoomOut() {
 		this.viewStartSampleIx = 0;
 		this.viewEndSampleIx   = (this.samples.length-1);
-		this.viewSizeInSample = this.samples.length;
+		this.viewSizeInSample  = this.samples.length;
 	}
 	
 	
 	@Override
 	public double getSecFromPx(int px){
 		final int visibleSampleN = (this.viewEndSampleIx-this.viewStartSampleIx);
-		return (visibleSampleN *  (px /(double) this.panelWidthInPx))
+		return (this.viewStartSampleIx + (visibleSampleN *  (px /(double) this.panelWidthInPx)))
 				/ hz  // -- in seconds
 				;
 	}
@@ -405,7 +401,9 @@ public class WavGraphics implements WavPanelModel{
 	
 
 	@Override
-	public void addTier(Tier tier) {
+	public void addTier(Tier tier){
+		
+		
 	}
 
 	@Override

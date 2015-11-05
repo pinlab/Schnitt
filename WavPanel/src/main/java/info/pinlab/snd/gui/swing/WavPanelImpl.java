@@ -18,6 +18,7 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -470,6 +471,13 @@ public class WavPanelImpl extends JPanel
 		frame.setSize(800, 400);
 //		frame.pack();
 		frame.setVisible(true);
+		
+		Scanner scanner = new Scanner(System.in);
+		while(scanner.hasNext()){
+				String line = scanner.next();
+				System.out.println(">" + line);
+		}
+		
 	}
 
 

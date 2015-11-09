@@ -2,15 +2,31 @@ package info.pinlab.snd.vad;
 
 public enum VadError {
 	
-	
-	TSIL (0, "sil",    "correctly detected silence"),
-	TSP  (1, "speech", "correctly detected speech"),
-	NDS  (2, "false",   "noise detected as speech within silence"),
-	MSC  (3, "midclip", "mid speech clipping"),
-	OVER (4, "tail", "overlong speech detection"),
-	FEC  (5, "clip",  "clipping front part"),
+	//-- targ  -----
+	//-- hypo  -----
+	TN (0, "sil",    "correctly detected silence"),
+	//-- targ  +++++
+	//-- hypo  +++++
+	TP (1, "speech", "correctly detected speech"),
+	//-- targ  -----------
+	//-- hypo  ---+++++---
+	FP  (2, "extra",  "noise detected as speech within silence"),
+	//-- targ  +++++++++++
+	//-- hypo  ++++---++++
+	FN  (3, "clip",   "incorrectly silence mid speech"),
+	//-- targ  +++++++----
+	//-- hypo  +++++++++++
+	FP_TAIL (4, "tail",   "overlong speech detection"),
+	//-- targ  -----++++++
+	//-- hypo  --+++++++++
+	FP_HEAD (5, "head",   "too early speech detection"),
+	//-- targ  ---++++++++
+	//-- hypo  ------+++++
+	FN_HEAD (6, "headclip",   "clipping front part"),
+	//-- targ  ++++++++++-
+	//-- hypo  +++++++----
+	FN_TAIL (7, "tailclip",   "clipping end part"),
 	;
-	
 	
 	public final int ix;
 	public final String label;
@@ -21,6 +37,4 @@ public enum VadError {
 		this.label = label;
 		this.brief = brief;
 	}
-	
-	
 }

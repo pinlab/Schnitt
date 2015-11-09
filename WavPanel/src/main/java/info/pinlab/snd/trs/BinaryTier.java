@@ -87,7 +87,7 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 	 */
 	@Override
 	public void addInterval(double from, double to, Boolean b){
-		System.out.println(from +" - " + to);
+//		System.out.println(from +" - " + to);
 		if(from > to){// wrong order! switch them
 			LOG.trace("Wrong timestamps order {}-{} ! Switching!", from, to);
 			from  = from + to;
@@ -112,9 +112,12 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 				}
 				if(floor!=null){
 //					System.out.println(floor.getKey());
-					if(floor.getValue()){// if it's true!
-						//-- don't put from!
-					}else{
+					Boolean floorVal = floor.getValue();
+					if(floorVal==null){
+//						points.remove(floor.getKey());
+					}else if (floorVal) { //-- floor is TRUE
+						//-- don't put from! --
+					}else{ 
 						points.put(from, b);
 					}
 				}
@@ -146,7 +149,9 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 		Entry<Double, Boolean> ceil = points.ceilingEntry(to);
 		if(ceil==null){
 			if(b){
-				points.put(to, notB);
+				points.put(to, null);
+			}else{
+				points.put(to, null);
 			}
 		}else{
 			if(ceil.getValue()!=notB){

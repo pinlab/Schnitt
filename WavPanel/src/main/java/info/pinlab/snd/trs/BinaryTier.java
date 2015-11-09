@@ -1,8 +1,6 @@
 package info.pinlab.snd.trs;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 
 
 /**
@@ -45,14 +43,14 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 	
 	public BinaryTier(){
 		super();
-		super.points.put(0.0d, false);
+		super.points.put(0.0d, null);
 //		points = new TreeMap<Double, Boolean>();
 //		points.put(0.0d, false);
 	}
 	
 	
 	public double getDuration(){
-		return points.lastKey();
+		return points.lastKey()-points.firstKey();
 	}
 
 	
@@ -87,76 +85,109 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 	 */
 	@Override
 	public void addInterval(double from, double to, Boolean b){
-//		System.out.println(from +" - " + to);
 		if(from > to){// wrong order! switch them
-			LOG.trace("Wrong timestamps order {}-{} ! Switching!", from, to);
+			LOG.trace("Wrong timestamps order {}-{}..switching!", from, to);
 			from  = from + to;
 			to    = from - to;
 			from  = from - to;
 		}
+		if(b==null)b = false; //-- null means right edge of the last interval -> let's not use it 
 		
-		if(b==null)b = false;
-		//-- remove in-between values:
-		List<Double> toDelete = new ArrayList<Double>();
-		Double higherKey = points.higherKey(from);
-		if(higherKey==null){
-			if(points.containsKey(from)){
-				higherKey = from;
-			}
-		}
-		if(higherKey==null){
-			if(b){
-				Entry<Double, Boolean> floor = points.floorEntry(from);
-				if(points.containsKey(from)){
-					floor = points.lowerEntry(from);
-				}
-				if(floor!=null){
-//					System.out.println(floor.getKey());
-					Boolean floorVal = floor.getValue();
-					if(floorVal==null){
-//						points.remove(floor.getKey());
-					}else if (floorVal) { //-- floor is TRUE
-						//-- don't put from! --
-					}else{ 
-						points.put(from, b);
+//		//-- HIGHER side 
+		Double leftOfTo = points.floorKey(to);
+		if(leftOfTo==null){ //-- no left point...
+			points.put(to, null);
+		}else{ // higher than 'to'
+			Boolean leftOfToVal = points.get(leftOfTo);
+			if(leftOfTo >= from){
+				if(leftOfToVal==null){ //-- end before 'to'
+					points.remove(leftOfTo);
+					points.put(to, null);
+				}else{ //-- leftOfToVal has a value
+					if(leftOfToVal==b){//-- same as b
+						//-- do nothing!
+						points.remove(to);
+					}else{
+						points.put(to, leftOfToVal);
 					}
 				}
-				points.put(to, !b);
+			}else{ //-- 
+				if(leftOfToVal!=null){ //-- inserting into an interval
+					if(leftOfToVal==b){ //-- same interval
+						//-- don't add this interval
+						return;
+					}else{
+						points.put(to, leftOfToVal);
+					}
+				}else{
+					points.put(to,null);
+				}
 			}
-			return;
 		}
-		
-		
-		while(higherKey!=null && higherKey <= to){
-//			System.out.println(val + "\t" + to + " " + (val<=to));
-			toDelete.add(higherKey);
-			higherKey = points.higherKey(higherKey); 
-		}
-		for(Double delValue : toDelete){
-//			System.out.println("DEL " + toDelete);
-			points.remove(delValue);
-		}
-		
 
-		Entry<Double, Boolean> floor = points.floorEntry(from);
-		if(floor!=null && floor.getValue()==b){
-			//-- same value -> ignore 'from' points
-		}else{
-			points.put(from, b);
-		}
 		
-		boolean notB = !b;
-		Entry<Double, Boolean> ceil = points.ceilingEntry(to);
-		if(ceil==null){
-			if(b){
-				points.put(to, null);
-			}else{
-				points.put(to, null);
-			}
+		Double lower = points.lowerKey(from);
+		if(lower==null){ //-- 'from' is lower than anything
+			points.put(from, b);
 		}else{
-			if(ceil.getValue()!=notB){
-				points.put(to, notB);
+			Boolean lowerVal = points.get(lower);
+			if(lowerVal==null){ //-- 'from' is after last interval
+				Double lower2 = points.lowerKey(lower);
+				if(lower2==null){
+					if(b){ //-- adding 'true'
+						points.put(lower, false);
+						points.put(from, true);
+					}else{
+						//-- don't add
+						points.put(lower, false);
+					}
+				}else{
+					lowerVal = points.get(lower2);
+					if(lowerVal==null) lowerVal=false;
+					if(lowerVal && b){ //-- both 'true'
+						// tier: ++++|
+						// add :         |+++
+						//     : ++++|---|+++
+						points.put(lower, false);
+						points.put(from, true);
+					}
+					if(lowerVal && !b){  
+						// tier: ++++|
+						// add :         |---
+						//     : ++++|-------
+						points.put(lower, false);
+						//dont'add  'from'.'false'
+					}
+					if(!lowerVal && b){  
+						// tier: ----|
+						// add :         |+++
+						//     : --------|+++
+						points.remove(lower);
+						points.put(from,  true);
+					}
+					if(!lowerVal && !b){  
+						// tier: ----|
+						// add :         |---
+						//     : ------------
+						points.remove(lower);
+					}
+				}
+			}else{ // lowerVal!=null 'lower' before 'from' 
+				if(lowerVal == b ){ 
+					//-- don't add interval if it is the same as 'lower's
+					points.remove(from);
+				}else{
+					points.put(from, b);
+				}
 			}
+		}		
+		
+//		
+		
+		Double pt = points.higherKey(from);
+		while(pt!=null && pt < to){
+			points.remove(pt);
+			pt=points.higherKey(pt);;
 		}
 	}
 	
@@ -171,19 +202,24 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 	public String debugPrint(){
 		StringBuffer sb = new StringBuffer();
 		
-		double prev= -1;
-		boolean prevLab = false;
-		for(double pt : super.points.keySet()){
-			if(pt > 0.0d){
-				sb	.append(prev).append(" - ")
-					.append(pt).append(" ")
-					.append(prevLab)
-					.append('\n');
-			}
-			prev = pt;
-			prevLab = super.points.get(pt);
+		for(Double d : super.points.keySet()){
+			String line = String.format("%3.4f\t%s", d, super.points.get(d));
+			sb.append(line).append("\n");
 		}
 		return sb.toString();
+//		double prev= -1;
+//		boolean prevLab = false;
+//		for(double pt : super.points.keySet()){
+//			if(pt > 0.0d){
+//				sb	.append(prev).append(" - ")
+//					.append(pt).append(" ")
+//					.append(prevLab)
+//					.append('\n');
+//			}
+//			prev = pt;
+//			prevLab = super.points.get(pt);
+//		}
+//		return sb.toString();
 	}
 
 

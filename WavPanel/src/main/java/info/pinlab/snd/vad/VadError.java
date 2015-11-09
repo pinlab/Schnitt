@@ -10,22 +10,22 @@ public enum VadError {
 	TP (1, "speech", "correctly detected speech"),
 	//-- targ  -----------
 	//-- hypo  ---+++++---
-	FP  (2, "extra",  "noise detected as speech within silence"),
+	FP_CLIP  (2, "extra",  "noise detected as speech within silence"),
 	//-- targ  +++++++++++
 	//-- hypo  ++++---++++
-	FN  (3, "clip",   "incorrectly silence mid speech"),
+	FN_CLIP  (3, "clip",   "incorrectly silence mid speech"),
 	//-- targ  +++++++----
 	//-- hypo  +++++++++++
-	FP_TAIL (4, "tail",   "overlong speech detection"),
+	FP_TAIL  (4, "tail",   "overlong speech detection"),
 	//-- targ  -----++++++
 	//-- hypo  --+++++++++
-	FP_HEAD (5, "head",   "too early speech detection"),
+	FP_HEAD  (5, "head",   "too early speech detection"),
 	//-- targ  ---++++++++
 	//-- hypo  ------+++++
-	FN_HEAD (6, "headclip",   "clipping front part"),
+	FN_HEAD  (6, "headclip",   "clipping front part"),
 	//-- targ  ++++++++++-
 	//-- hypo  +++++++----
-	FN_TAIL (7, "tailclip",   "clipping end part"),
+	FN_TAIL  (7, "tailclip",   "clipping end part"),
 	;
 	
 	public final int ix;

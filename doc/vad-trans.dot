@@ -1,0 +1,31 @@
+digraph VAD {
+    rankdir=LR;
+
+    SIL[label="sil"]
+    VOICE[label="voice"]
+    Clipped[color="red",fontcolor="red",label="FN"];
+    Overhead[color="red",fontcolor="red",label="FP"];
+    CUT[color="red",fontcolor="red", label="FN"];
+    BRIDGE[color="red",fontcolor="red",label="FP"];
+
+/*    SIL -> VOICE[label=<ON<sub>Targ,Hypo</sub>>] */
+/*    VOICE -> SIL[label=<OFF<sub>Targ,Hypo</sub>>] */
+
+    SIL -> Clipped  [label=<ON<sub>Targ</sub>>];
+    Clipped -> VOICE[label=<ON<sub>Hypo</sub>:w<sub>fec</sub>>];
+    Clipped -> SIL[label=<OFF<sub>Targ</sub>:w<sub>wc</sub>>];
+
+    SIL -> Overhead[label=<ON<sub>Hypo</sub>>];
+    Overhead -> SIL[label=<OFF<sub>Hypo</sub>:w<sub>nds1</sub>>];       
+    Overhead -> VOICE[label=<ON<sub>Targ</sub>:w<sub>head</sub>>];       
+
+    VOICE -> CUT[label=<OFF<sub>Hypo</sub>>];
+    CUT -> VOICE[label=<ON<sub>Hypo</sub>:w<sub>msc</sub>>];
+    CUT -> SIL[label=<OFF<sub>Targ</sub>:w<sub>over</sub>>];
+
+    VOICE -> BRIDGE[label=<OFF<sub>Targ</sub>>];
+    BRIDGE-> VOICE [label=<ON<sub>Targ</sub>:w<sub>nds2</sub>>];
+    BRIDGE-> SIL [label=<OFF<sub>Hypo</sub>:w<sub>rec</sub>>];
+
+}  
+

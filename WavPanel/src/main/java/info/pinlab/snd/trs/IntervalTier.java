@@ -17,8 +17,8 @@ public interface IntervalTier<T> extends Tier, Iterator<Interval<T>>{
 	
 	public Interval<T> getIntervalX(int x);
 	
-	public void addInterval(double from, double to, T label);
-	public void addInterval(Interval<T> interval);
+	public IntervalTier<T> addInterval(double from, double to, T label);
+	public IntervalTier<T> addInterval(Interval<T> interval);
 
 	/**
 	 * Concat operation to be implemented for type T. 

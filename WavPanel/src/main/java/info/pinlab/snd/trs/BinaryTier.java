@@ -72,8 +72,8 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 	
 	
 	@Override
-	public void addInterval(Interval<Boolean> interval){
-		addInterval(interval.startT, interval.endT, (boolean)(interval.label==null? false: interval.label));
+	public IntervalTier<Boolean> addInterval(Interval<Boolean> interval){
+		return addInterval(interval.startT, interval.endT, (boolean)(interval.label==null? false: interval.label));
 	}
 
 	
@@ -84,7 +84,7 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 	 * @param value
 	 */
 	@Override
-	public void addInterval(double from, double to, Boolean b){
+	public IntervalTier<Boolean> addInterval(double from, double to, Boolean b){
 		if(from > to){// wrong order! switch them
 			LOG.trace("Wrong timestamps order {}-{}..switching!", from, to);
 			from  = from + to;
@@ -115,7 +115,7 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 				if(leftOfToVal!=null){ //-- inserting into an interval
 					if(leftOfToVal==b){ //-- same interval
 						//-- don't add this interval
-						return;
+						return this;
 					}else{
 						points.put(to, leftOfToVal);
 					}
@@ -123,7 +123,7 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 					points.put(to,null);
 				}
 			}
-		}
+		}//-- leftOfTo > 'to'
 
 		
 		Double lower = points.lowerKey(from);
@@ -181,7 +181,6 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 				}
 			}
 		}		
-		
 //		
 		
 		Double pt = points.higherKey(from);
@@ -189,6 +188,7 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 			points.remove(pt);
 			pt=points.higherKey(pt);;
 		}
+		return this;
 	}
 	
 	/**

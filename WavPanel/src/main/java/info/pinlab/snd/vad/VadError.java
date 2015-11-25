@@ -5,39 +5,39 @@ public enum VadError {
 	
 	//-- targ  -----
 	//-- hypo  -----
-	TN (0, "sil",    "correctly detected silence"),
+	TN (0, "<sil>",    "correctly detected silence"),
 	//-- targ  +++++
 	//-- hypo  +++++
-	TP (1, "speech", "correctly detected speech"),
+	TP (1, "<speech>", "correctly detected speech"),
 	
 	
 	//-- targ  ---+++++---
 	//-- hypo  -----------
-	WC (2, "w-clip",  "word clipe (voice not recognized at all)"),
+	WC (2, "w-clip",  "word clip (voice not recognized at all)"),
 
 	//-- targ  -----------
 	//-- hypo  ---+++++---
-	NDS_1 (2, "extra",  "noise detected as speech within silence"),
+	NDS_1 (3, "extra",  "noise detected as speech within silence"),
 	//-- targ  +++-----+++
 	//-- hypo  +++++++++++
-	NDS_2 (2, "extra",  "noise detected as speech within silence"),
+	NDS_2 (4, "extra",  "noise detected as speech within silence"),
 	
 	
 	//-- targ  +++++++++++
 	//-- hypo  ++++---++++
-	MSC  (3, "clip",   "incorrectly silence mid speech"),
+	MSC  (4, "clip",   "mid speech clip: incorrect silence within speech"),
 	//-- targ  +++++++----
 	//-- hypo  +++++++++++
-	TAIL  (4, "tail",   "overlong speech detection"),
+	TAIL  (5, "tail",   "overlong speech detection"),
 	//-- targ  -----++++++
 	//-- hypo  --+++++++++
-	HEAD  (5, "head",   "too early speech detection"),
+	HEAD  (6, "head",   "too early speech detection"),
 	//-- targ  ---++++++++
 	//-- hypo  ------+++++
-	FEC  (6, "headclip",   "front end clipping"),
+	FEC  (7, "headclip",   "front end clipping"),
 	//-- targ  ++++++++++-
 	//-- hypo  +++++++----
-	REC  (7, "tailclip",   "rear end clipping"),
+	REC  (8, "tailclip",   "rear end clipping"),
 	;
 	
 	
@@ -53,4 +53,10 @@ public enum VadError {
 		this.label = label;
 		this.brief = brief;
 	}
+	
+	@Override
+	public String toString(){
+		return this.name();
+	}
+	
 }

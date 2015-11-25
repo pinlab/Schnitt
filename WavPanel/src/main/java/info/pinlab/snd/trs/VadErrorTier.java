@@ -1,7 +1,6 @@
 package info.pinlab.snd.trs;
 
 import java.util.List;
-import java.util.TreeMap;
 
 import info.pinlab.snd.vad.VadError;
 
@@ -17,14 +16,10 @@ public class VadErrorTier extends AbstractIntervalTier<VadError> {
 	BinaryTier hypo = null;
 	
 	private static final int NUM_OF_ARCS = 4;
-	private static final int TARG_ON  = 1;
-	private static final int TARG_OFF = 2;
-	private static final int HYPO_ON    = 3;
-	private static final int HYPO_OFF   = 4;
-//	private static final int BOTH_ON    = 5;
-//	private static final int BOTH_OFF   = 6;
-//	private static final int TARG_ON_HYP_OFF  = 7;
-//	private static final int TARG_OFF_HYP_ON  = 8;
+	private static final int TARG_ON   = 0;
+	private static final int TARG_OFF  = 1;
+	private static final int HYPO_ON   = 2;
+	private static final int HYPO_OFF  = 3;
 
 	private static final int NUM_OF_STATES = 6;
 	private static int SIL   = 0;
@@ -34,8 +29,8 @@ public class VadErrorTier extends AbstractIntervalTier<VadError> {
 	private static int FN_1  = 4;
 	private static int FN_2  = 5;
 	
-	private static final int[][] VadErrorFsa = new int[NUM_OF_STATES][NUM_OF_ARCS];
-	private static final VadError[][] VadErrorType = new VadError[NUM_OF_STATES][NUM_OF_ARCS];
+	static final int[][] VadErrorFsa = new int[NUM_OF_STATES][NUM_OF_ARCS];
+	static final VadError[][] VadErrorType = new VadError[NUM_OF_STATES][NUM_OF_ARCS];
 	
 	
 	static{
@@ -71,16 +66,27 @@ public class VadErrorTier extends AbstractIntervalTier<VadError> {
 		//  FN_2                    OVER       MSC 
 		//  FP_1         HEAD                          NDS_1
 		//	FP_2        NDS_2                           OVER       	 
+		VadErrorType[SIL][TARG_ON] = VadError.TN; 
+		VadErrorType[SIL][HYPO_ON] = VadError.TN; 
+		VadErrorType[SIL][TARG_OFF] = VadError.TN; 
+		VadErrorType[SIL][HYPO_OFF] = VadError.TN; 
+
+		
+		VadErrorType[VOICE][TARG_OFF] = VadError.TP; 
+		VadErrorType[VOICE][HYPO_OFF] = VadError.TP; 
+		
 		VadErrorType[FN_1][TARG_OFF] = VadError.WC; 
 		VadErrorType[FN_1][HYPO_ON]  = VadError.FEC; 
-		VadErrorType[FN_2][TARG_OFF] = VadError.REC; 
-		VadErrorType[FN_2][HYPO_ON]  = VadError.MSC; 
-		
 		VadErrorType[FP_1][TARG_ON]  = VadError.HEAD; 
 		VadErrorType[FP_1][HYPO_OFF] = VadError.NDS_1; 
+
+		VadErrorType[FN_2][TARG_OFF] = VadError.REC; 
+		VadErrorType[FN_2][HYPO_ON]  = VadError.MSC; 
 		VadErrorType[FP_2][TARG_ON]  = VadError.NDS_2; 
 		VadErrorType[FP_2][HYPO_OFF] = VadError.TAIL;
 	}
+	
+	
 	
 	
 	
@@ -92,39 +98,88 @@ public class VadErrorTier extends AbstractIntervalTier<VadError> {
 		this.target = target;
 		this.hypo = hypo;
 		
-		TreeMap<Double, Integer> conflatedTier = new TreeMap<Double, Integer>(); 
+		int STATE = SIL;
+
+		int targIx, hypoIx;
+		targIx=hypoIx=0;
 		
-		Interval<Boolean> inter=null; 
-		for(int i = 0; i < target.size();i++){
-			inter = target.getIntervalX(i);
-			conflatedTier.put(inter.startT, inter.label ? TARGET_ON : TARGET_OFF);
-		}
-//		if(inter!=null){
-//			conflatedTier.put(inter.endT, TARGET_OFF);
-//		}
+
 		
+		VadError err = null;
+		double errT = -1;
+		double prevErrT = -1;
 		
-		for(int i = 0; i < hypo.size() ;i++){
-			inter = hypo.getIntervalX(i);
-			Integer targetPt = conflatedTier.get(inter.startT);
-			if(targetPt==null){
-				conflatedTier.put(inter.startT, inter.label ? HYPO_ON : HYPO_OFF);
-			}else{
-				switch (targetPt) {
-				case TARGET_ON:
-					conflatedTier.put(inter.startT, inter.label ? BOTH_ON : TARG_ON_HYP_OFF);
-					break;
-				case TARGET_OFF:
-					conflatedTier.put(inter.startT, inter.label ? TARG_OFF_HYP_ON : BOTH_OFF);
-					break;
-				default:
-					break;
+		//-- calculate the first T
+		Interval<Boolean> targInterval = target.getIntervalX(0);
+		Interval<Boolean> hypoInterval = hypo.getIntervalX(0);
+
+		if(targInterval!=null){
+			if(hypoInterval != null){
+				if( targInterval.startT < hypoInterval.startT){
+					prevErrT = targInterval.startT;
+				}else{
+					prevErrT = hypoInterval.startT;
 				}
+			}else{
+				prevErrT = targInterval.startT;
+			}
+		}else{
+			if(hypoInterval != null){
+				prevErrT = hypoInterval.startT;
+			}else{ //-- both NULL!!!
+				//-- this cannot be reached!
+				LOG.error("Both hypo and target tiers are empty!");
+				return;
 			}
 		}
-		for(Double key: conflatedTier.keySet()){
-			System.out.println(key +"\t" + conflatedTier.get(key));
+		errT = prevErrT;
+		
+		while (true){
+			targInterval = target.getIntervalX(targIx);
+			hypoInterval = hypo.getIntervalX(hypoIx);
+
+			if(targInterval == null && hypoInterval==null){
+				break;
+			}
+			
+			
+			if(hypoInterval != null && 
+					(targInterval==null || hypoInterval.startT < targInterval.startT)) {
+				errT = hypoInterval.startT;
+				if(hypoInterval.label != null && hypoInterval.label){//--hypo ON
+					err = VadErrorType[STATE][HYPO_ON];
+					STATE = VadErrorFsa[STATE][HYPO_ON];
+				}else{ //-- hypo off
+					err = VadErrorType[STATE][HYPO_OFF];
+					if(err!=null){
+						super.points.put(hypoInterval.startT, err);
+					}
+					STATE = VadErrorFsa[STATE][HYPO_OFF];
+				}
+				hypoIx++;
+			}else{
+				errT = targInterval.startT;
+//				System.out.println(errT);
+				if(targInterval.label != null && targInterval.label){
+					err = VadErrorType[STATE][TARG_ON];
+					STATE = VadErrorFsa[STATE][TARG_ON];
+				}else{
+					err = VadErrorType[STATE][TARG_OFF];
+					STATE = VadErrorFsa[STATE][TARG_OFF];
+				}
+				targIx++;
+			}
+			if(err!=null){
+				super.points.put(prevErrT, err);
+			}
+//			double dur = errT-prevErrT;
+//			System.out.println(errT + "\t" + "STATE: " + STATE + "\t" + err + "\t" + dur);
+			prevErrT = errT;
 		}
+		if(err!=null){
+			super.points.put(prevErrT, err);
+		}
+		
 	}
 	
 	public void setTargetTier(BinaryTier tier){
@@ -134,6 +189,25 @@ public class VadErrorTier extends AbstractIntervalTier<VadError> {
 		this.hypo = tier;
 	}
 	
+	@Override
+	public String toString(){
+		StringBuffer sb = new StringBuffer();
+		
+		double prev= -1;
+		VadError prevLab = null;
+		for(double pt : super.points.keySet()){
+			if(pt > 0.0d){
+				sb	.append(prev).append(" - ")
+					.append(pt).append(" ")
+					.append(prevLab)
+					.append('\n');
+			}
+			prev = pt;
+			prevLab = super.points.get(pt);
+		}
+		return sb.toString();
+	}
+
 	
 	
 	/**

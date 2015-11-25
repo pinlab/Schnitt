@@ -280,7 +280,7 @@ implements TableModelListener, ListSelectionListener{
 				};
 				
 				
-				WavTableData model = new WavTableData();
+//				WavTableData model = new WavTableData();
 				for(String wav: wavs){
 					try{
 						tableData.addWavFile(wav);

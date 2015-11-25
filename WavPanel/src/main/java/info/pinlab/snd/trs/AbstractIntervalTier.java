@@ -76,36 +76,53 @@ public abstract class AbstractIntervalTier<T> implements IntervalTier<T>{
 	@Override
 	public Interval<T> getIntervalX(int x){
 		 Set<Entry<Double, T>> entries = points.entrySet();
-		 if(x >= entries.size()){
+		 if(x > entries.size()){
 			 LOG.warn("No tier index {}, tier size: {}", x, points.size());
 			 return null;
 		 }
 		 
 		 Iterator<Entry<Double, T>> it = entries.iterator();
-		 for(int i = 0 ; i< x ; i++){
+		 for(int i = 0 ; i < x ; i++){
 			 it.next();
 		 }
-		 Entry<Double, T> timeLabelPair = it.next();
-		 Double endT = null;
 		 if(it.hasNext()){
-			 endT = it.next().getKey();
+			 Entry<Double, T> timeLabelPair = it.next();
+			 Double endT = null;
+			 if(it.hasNext()){
+				 endT = it.next().getKey();
+			 }else{
+				 endT = null;
+			 }
+			 return new Interval<T>(timeLabelPair.getKey(), endT, timeLabelPair.getValue());
 		 }else{
 			 return null;
 		 }
-		 return new Interval<T>(timeLabelPair.getKey(), endT, timeLabelPair.getValue());
 	}
 
 
 	
+//	@Override
+//	public Double [] getTs(){
+//		Double [] timeStamps = new Double[points.size()/2];
+//		points.keySet().toArray(timeStamps);
+//		return timeStamps;
+//	}
+	
+	
+	
+	public Entry<Double, T> getCeil(Double t){
+		return  points.ceilingEntry(t);
+	}
+	
 	
 	
 	@Override
-	public void addInterval(Interval<T> interval) {
-		addInterval(interval.startT, interval.endT, interval.label);
+	public IntervalTier<T> addInterval(Interval<T> interval) {
+		return addInterval(interval.startT, interval.endT, interval.label);
 	}
 	
 	@Override
-	public void addInterval(double from, double to, T label){
+	public IntervalTier<T> addInterval(double from, double to, T label){
 		LOG.trace("Adding interval {}-{} '{}'", from, to, label);
 		
 		Double floor = points.floorKey(from);
@@ -167,8 +184,8 @@ public abstract class AbstractIntervalTier<T> implements IntervalTier<T>{
 			for(Double mark : marksToDelete){
 				points.remove(mark);
 			}
-			
 		}
+		return this;
 	}
 	
 	

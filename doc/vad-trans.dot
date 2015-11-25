@@ -11,21 +11,21 @@ digraph VAD {
 /*    SIL -> VOICE[label=<ON<sub>Targ,Hypo</sub>>] */
 /*    VOICE -> SIL[label=<OFF<sub>Targ,Hypo</sub>>] */
 
-    SIL -> Clipped  [label=<ON<sub>Targ</sub>>];
-    Clipped -> VOICE[label=<ON<sub>Hypo</sub>:w<sub>fec</sub>>];
-    Clipped -> SIL[label=<OFF<sub>Targ</sub>:w<sub>wc</sub>>];
+    SIL -> Clipped  [label=<Targ<sub>ON</sub>>];
+    Clipped -> VOICE[label=<Hypo<sub>ON</sub>:w<sub>fec</sub>>];
+    Clipped -> SIL[label=<Targ<sub>OFF</sub>:w<sub>wc</sub>>];
 
-    SIL -> Overhead[label=<ON<sub>Hypo</sub>>];
-    Overhead -> SIL[label=<OFF<sub>Hypo</sub>:w<sub>nds1</sub>>];       
-    Overhead -> VOICE[label=<ON<sub>Targ</sub>:w<sub>head</sub>>];       
+    SIL -> Overhead[label=<Hypo<sub>ON</sub>>];
+    Overhead -> SIL[label=<Hypo<sub>OFF</sub>:w<sub>nds1</sub>>];       
+    Overhead -> VOICE[label=<Targ<sub>ON</sub>:w<sub>head</sub>>];       
 
-    VOICE -> CUT[label=<OFF<sub>Hypo</sub>>];
-    CUT -> VOICE[label=<ON<sub>Hypo</sub>:w<sub>msc</sub>>];
-    CUT -> SIL[label=<OFF<sub>Targ</sub>:w<sub>over</sub>>];
+    VOICE -> CUT[label=<Hypo<sub>OFF</sub>>];
+    CUT -> VOICE[label=<Hypo<sub>On</sub>:w<sub>msc</sub>>];
+    CUT -> SIL[label=<Targ<sub>OFF</sub>:w<sub>rec</sub>>];
 
-    VOICE -> BRIDGE[label=<OFF<sub>Targ</sub>>];
-    BRIDGE-> VOICE [label=<ON<sub>Targ</sub>:w<sub>nds2</sub>>];
-    BRIDGE-> SIL [label=<OFF<sub>Hypo</sub>:w<sub>rec</sub>>];
+    VOICE -> BRIDGE[label=<Targ<sub>OFF</sub>>];
+    BRIDGE-> VOICE [label=<Targ<sub>ON</sub>:w<sub>nds2</sub>>];
+    BRIDGE-> SIL [label=<Hypo<sub>OFF</sub>:w<sub>tail</sub>>];
 
 }  
 

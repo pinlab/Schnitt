@@ -17,11 +17,11 @@ import info.pinlab.snd.trs.Tier;
 public class WavPanelControl {
 	public static Logger logger = LoggerFactory.getLogger(WavPanelControl.class); 
 	private WavPanelUI view = null;
-	private WavClip wav = null;
+//	private WavClip wav = null;
 	private int hz = 0;
 	private Map<String, Tier> tiers = new HashMap<String, Tier>();
 
-	private int [] samples = null;
+//	private int [] samples = null;
 
 	
 	
@@ -63,9 +63,9 @@ public class WavPanelControl {
 
 	
 	public void setWavClip(WavClip wav){
-		this.wav = wav;
+//		this.wav = wav;
 		//-- set all samples
-		samples = WavUtil.getIntArray(wav);
+//		samples = WavUtil.getIntArray(wav);
 //		samples = this.wav.toIntArray();
 		this.hz = (int)wav.getAudioFormat().getSampleRate();
 		if(view!=null){

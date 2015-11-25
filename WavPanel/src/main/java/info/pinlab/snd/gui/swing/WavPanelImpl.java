@@ -59,7 +59,7 @@ import info.pinlab.snd.trs.Interval;
 		}
  * </pre>
  * 
- * @author kinoko
+ * @author Gabor Pinter
  *
  */
 public class WavPanelImpl extends JPanel 
@@ -346,6 +346,9 @@ public class WavPanelImpl extends JPanel
 		
 		//-- NON-ACTIVE SELECTIONS -> LABELS  --//
 		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alphaForPassiveLabel));
+		int selectionMarginTop = 40;
+		int selectionHeight = 40;//pixelH-2*selectionMarginTop;
+		
 		for(IntervalSelection interval : model.getInterVals()){
 			left = interval.getSelectionStartPx();
 			right = interval.getSelectionEndPx();
@@ -355,25 +358,25 @@ public class WavPanelImpl extends JPanel
 			Rectangle2D  rect =  timeLabelFont.getStringBounds(labelRight, g2.getFontRenderContext());
 
 			g2.setColor(bgColForPassiveLabel);
-			g2.fillRect(left, 40, right-left, pixelH-80);
+			g2.fillRect(left, selectionMarginTop, right-left, selectionHeight);
 			g2.setColor(selBorderLineCol);
-			g2.drawLine(left,  40, left, pixelH-40);
-			g2.drawLine(right, 40, right, pixelH-40);
-			g2.drawLine(left, 40, right, 40);
-			g2.drawLine(left, pixelH-40, right, pixelH-40);
+			g2.drawLine(left,  selectionMarginTop, left, pixelH-selectionMarginTop);
+			g2.drawLine(right, selectionMarginTop, right, pixelH-selectionMarginTop);
+			g2.drawLine(left,  selectionMarginTop, right, selectionMarginTop);
+			g2.drawLine(left, pixelH-selectionMarginTop, right, pixelH-selectionMarginTop);
 			
 			
 			//-- bottom-left
 			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alphaForActiveLabel)); 
 			g2.setColor(selBorderLineCol);
 			g2.setFont(timeLabelFont);
-			g2.drawString(labelLeft, left+1, pixelH-40-1);
+			g2.drawString(labelLeft, left+1,  selectionMarginTop+(int)Math.ceil(rect.getHeight())+1 );
 		
 			//-- top-right
 			g2.setFont(timeLabelFont);
 			g2.drawString(labelRight, 
 					right - (int)Math.ceil(rect.getWidth()+1) //-- adjust  text width
-					, 40+(int)Math.ceil(rect.getHeight())+1 //-- adjust for text height
+					, selectionMarginTop+(int)Math.ceil(rect.getHeight())+1 //-- adjust for text height
 					);
 		}
 		

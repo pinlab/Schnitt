@@ -88,10 +88,6 @@ public class VadErrorTier extends AbstractIntervalTier<VadError> {
 	
 	
 	
-	
-	
-	
-	
 	public <T> VadErrorTier(BinaryTier target, BinaryTier hypo){
 		//-- conflate tiers
 		

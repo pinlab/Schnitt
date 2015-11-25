@@ -2,6 +2,7 @@ package info.pinlab.snd.gui;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -11,7 +12,10 @@ import org.slf4j.LoggerFactory;
 
 import info.pinlab.snd.trs.BinaryTier;
 import info.pinlab.snd.trs.Interval;
+import info.pinlab.snd.trs.IntervalTier;
 import info.pinlab.snd.trs.Tier;
+import info.pinlab.snd.trs.VadErrorTier;
+import info.pinlab.snd.vad.VadError;
 
 public class WavGraphics implements WavPanelModel{
 	public static Logger LOG = LoggerFactory.getLogger(WavGraphics.class);
@@ -36,29 +40,89 @@ public class WavGraphics implements WavPanelModel{
 	int sampleFreqMaxVal = 0; 
 
 	
+	private int tierN = 0;
+	private int editableTierIx = 0;
+	
 	private final IntervalSelection activeSelection;
-	BinaryTier tier = new BinaryTier();
+//	BinaryTier tier = new BinaryTier();
 
+	Map<Integer, TierAdapter<?>> tiers = new HashMap<Integer, WavGraphics.TierAdapter<?>>();
+	
+	
+	class TierAdapter<T>{
+		private final IntervalTier<T> tier;
+		boolean isVisible = true;
+		String label;
+		
+		int selectionMarginTop = 50; /*px*/
+		int selectionHeight    = 40; /*px*/
+		
+		TierAdapter(IntervalTier<T> t){
+			//			this.id=cnt++;
+			this.tier = t;
+		}
+		
+		synchronized List<IntervalSelection> getIntervals(){
+			List<IntervalSelection> intervals = new ArrayList<IntervalSelection>();
+			if(this.tier instanceof BinaryTier){
+				BinaryTier btier = (BinaryTier) tier;
+				for(int i = 0; i < tier.size();i++){
+					 Interval<Boolean> inter = btier.getIntervalX(i);
+					if(inter!=null && inter.label!=null && inter.label){
+						Selection selection = new Selection();
+						selection.setSelectionStartSec(inter.startT);
+						selection.setSelectionEndSec(inter.endT);
+						
+						intervals.add(selection);
+					}
+				}
+			}//-- if NOT binary tier...
+			return intervals;
+		}
+		
+	}
+
+	
+	
 	
 	public WavGraphics(){
 		activeSelection = new Selection();
+		BinaryTier tier = new BinaryTier();
+		editableTierIx = addTier(tier);
 	}
+	
+
 	
 	@Override
 	public List<IntervalSelection> getInterVals(){
-		List<IntervalSelection> intervals = new ArrayList<IntervalSelection>();
-		for(int i = 0; i < tier.size();i++){
-			Interval<Boolean> inter = tier.getIntervalX(i);
-			if(inter!=null && inter.label!=null && inter.label){
-				Selection selection = new Selection();
-				selection.setSelectionStartSec(inter.startT);
-				selection.setSelectionEndSec(inter.endT);
-				
-				intervals.add(selection);
-			}
-		}
-		return intervals;
+		return getInterVals(editableTierIx);
 	}
+	
+	@Override
+	public List<IntervalSelection> getInterVals(int tierIx){
+		TierAdapter<?> tierAdapter = tiers.get(tierIx);
+		if(tierAdapter==null){
+			return null;
+		}
+		return tierAdapter.getIntervals();
+	}
+	
+	
+//	@Override
+//	public List<IntervalSelection> getInterVals(){
+//		List<IntervalSelection> intervals = new ArrayList<IntervalSelection>();
+//		for(int i = 0; i < tier.size();i++){
+//			Interval<Boolean> inter = tier.getIntervalX(i);
+//			if(inter!=null && inter.label!=null && inter.label){
+//				Selection selection = new Selection();
+//				selection.setSelectionStartSec(inter.startT);
+//				selection.setSelectionEndSec(inter.endT);
+//				
+//				intervals.add(selection);
+//			}
+//		}
+//		return intervals;
+//	}
 	
 	
 	private class Selection implements IntervalSelection {
@@ -401,10 +465,24 @@ public class WavGraphics implements WavPanelModel{
 	
 
 	@Override
-	public void addTier(Tier tier){
-		
-		
+	public int addTier(IntervalTier<?> tier){
+		if(tier instanceof BinaryTier){
+			TierAdapter<Boolean> ta = new TierAdapter<Boolean>((BinaryTier)tier);
+			tiers.put(tierN, ta);
+			tierN++;
+			editableTierIx = tierN-1; 
+			return editableTierIx; //-- return Tier's ID 
+		}
+		if(tier instanceof VadErrorTier){
+			TierAdapter<VadError> ta = new TierAdapter<VadError>((VadErrorTier)tier);
+			tiers.put(tierN, ta);
+			tierN++;
+			return (tierN-1); //-- return Tier's ID 
+		}
+		return -1;
 	}
+	
+	
 
 	@Override
 	public IntervalSelection getActiveIntervalSelection() {
@@ -419,17 +497,49 @@ public class WavGraphics implements WavPanelModel{
 		Interval<Boolean> inter = new Interval<Boolean>(
 				selection.getSelectionStartInSec()
 				,selection.getSelectionEndInSec(), true);
-		tier.addInterval(inter);
+		
+		TierAdapter<?> tierAdapter = tiers.get(editableTierIx);
+		if(tierAdapter.tier instanceof BinaryTier){
+			
+			((BinaryTier)tierAdapter.tier).addInterval((Interval<Boolean>)inter);
+		}else{
+			LOG.error("Can't add interval to a non BinaryTier '" + tierAdapter.tier.getName() +"'!");
+		}
 	}
 
+	
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void addInterval(Interval<?> interval) {
 		if(interval.label instanceof Boolean){
-			tier.addInterval((Interval<Boolean>)interval);
+			TierAdapter<?> tierAdapter = tiers.get(editableTierIx);
+			if(tierAdapter.tier instanceof BinaryTier){
+				System.out.println("Adding : " + interval);
+				((BinaryTier)tierAdapter.tier).addInterval((Interval<Boolean>)interval);
+				System.out.println(tierAdapter.tier);
+			}else{
+				LOG.error("Can't add interval to a non BinaryTier '" + tierAdapter.tier.getName() +"'!");
+			}
 		}
 	}
 
+
+	@Override
+	public int getTierN() {
+		return tierN;
+	}
+
+
+	@Override
+	public Tier getTierByIx(int ix) {
+		TierAdapter<?> tierAdapter = tiers.get(ix);
+		if(tierAdapter==null){
+			return null;
+		}else{
+			return tierAdapter.tier;
+		}
+	}
 
 
 }

@@ -3,10 +3,11 @@ package info.pinlab.snd.gui;
 import java.util.List;
 
 import info.pinlab.snd.trs.Interval;
+import info.pinlab.snd.trs.IntervalTier;
 import info.pinlab.snd.trs.Tier;
 
 public interface WavPanelModel {
-	public void addTier(Tier tier);
+//	public void addTier(Tier tier);
 	public void setSampleArray(int [] samples, int hz);
 	public int getSampleSize();
 	
@@ -31,6 +32,12 @@ public interface WavPanelModel {
 	public double getSecFromSampleX(double x);
 	public int getPxFromSampleIx(int x);
 
+	//-- Intervals
+	public int addTier(IntervalTier<?> t);
+	public int getTierN();
+	public Tier getTierByIx(int ix);
+	
+	
 	
 	//-- Active Selection getters
 //	public boolean hasActiveSelection();
@@ -39,6 +46,8 @@ public interface WavPanelModel {
 	public void addInterval(Interval<?> interval);
 
 	public List<IntervalSelection> getInterVals();
+	public List<IntervalSelection> getInterVals(int tierIx);
+
 
 	//-- ZOOM
 	public void zoomTo(double start, double end);

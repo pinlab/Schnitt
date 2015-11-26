@@ -18,8 +18,8 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
+import javax.lang.model.type.ErrorType;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -28,11 +28,17 @@ import org.slf4j.LoggerFactory;
 
 import info.pinlab.pinsound.WavClip;
 import info.pinlab.snd.WavUtil;
+import info.pinlab.snd.gui.GuiAdapterForTier;
 import info.pinlab.snd.gui.IntervalSelection;
 import info.pinlab.snd.gui.WavGraphics;
 import info.pinlab.snd.gui.WavPanelModel;
 import info.pinlab.snd.gui.WavPanelUI;
+import info.pinlab.snd.trs.BinaryTier;
 import info.pinlab.snd.trs.Interval;
+import info.pinlab.snd.trs.IntervalTier;
+import info.pinlab.snd.trs.Tier;
+import info.pinlab.snd.trs.VadErrorTier;
+import info.pinlab.snd.vad.VadError;
 
 
 /**
@@ -68,11 +74,13 @@ public class WavPanelImpl extends JPanel
 			, KeyListener
 {
 	private static final long serialVersionUID = -1689117249151777252L;
-	private static Logger LOG = LoggerFactory.getLogger(WavPanelImpl.class);
+	public static Logger LOG = LoggerFactory.getLogger(WavPanelImpl.class);
 
 	private WavPanelModel model = null;
 	
 	private static Font timeLabelFont = new Font("Arial", Font.PLAIN, 9);
+	private static Font errLabelFont = new Font("Arial", Font.BOLD, 24);
+	
 	Font labelFont = new Font("Helvetica", Font.PLAIN, 1);
 	
 	
@@ -93,7 +101,7 @@ public class WavPanelImpl extends JPanel
 	private Color bgCol = Color.WHITE; //new Color(243,243,248); //Color.BLACK;
 //	private Color fontCol = new Color(126, 179, 102);
 //	private Color bgColForActiveLabel = new Color(255, 59, 0); //-- redish
-	private Color bgColForPassiveLabel = new Color(204, 215, 119);  //-- grayish 
+//	private Color bgColForPassiveLabel = new Color(204, 215, 119);  //-- grayish 
 	
 	
 	private Color cursorCol = new Color(126, 179, 102); //new Color(119, 127, 0);//Color.white;
@@ -131,7 +139,7 @@ public class WavPanelImpl extends JPanel
 								selection.getSelectionStartInSec(), 
 								selection.getSelectionEndInSec(), 
 								true);
-						model.addInterval(interval);
+						model.addIntervalToActiveTier(interval);
 						WavPanelImpl.this.repaint();
 					}
 				});
@@ -147,7 +155,7 @@ public class WavPanelImpl extends JPanel
 								selection.getSelectionStartInSec(), 
 								selection.getSelectionEndInSec(), 
 								false);
-						model.addInterval(interval);
+						model.addIntervalToActiveTier(interval);
 						WavPanelImpl.this.repaint();
 //						model.addIntervalSelection(model.getActiveIntervalSelection());
 //						WavPanelImpl.this.repaint();
@@ -284,8 +292,6 @@ public class WavPanelImpl extends JPanel
 	public void mouseExited( MouseEvent ignored) {}
 
 	
-	
-	
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -303,7 +309,7 @@ public class WavPanelImpl extends JPanel
 		}
 
 		//-- MID-LINE HORIZONTAL
-		g.setColor(Color.RED);
+		g.setColor(Color.BLACK);
 		g.drawLine(0, pixelH/2, pixelW, pixelH/2);
 
 		
@@ -346,39 +352,82 @@ public class WavPanelImpl extends JPanel
 		
 		//-- NON-ACTIVE SELECTIONS -> LABELS  --//
 		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alphaForPassiveLabel));
-		int selectionMarginTop = 40;
-		int selectionHeight = 40;//pixelH-2*selectionMarginTop;
 		
-		for(IntervalSelection interval : model.getInterVals()){
-			left = interval.getSelectionStartPx();
-			right = interval.getSelectionEndPx();
-
-			String labelLeft = String.format("%.3f", interval.getSelectionStartInSec());
-			String labelRight = String.format("%.3f", interval.getSelectionEndInSec());
-			Rectangle2D  rect =  timeLabelFont.getStringBounds(labelRight, g2.getFontRenderContext());
-
-			g2.setColor(bgColForPassiveLabel);
-			g2.fillRect(left, selectionMarginTop, right-left, selectionHeight);
-			g2.setColor(selBorderLineCol);
-			g2.drawLine(left,  selectionMarginTop, left, pixelH-selectionMarginTop);
-			g2.drawLine(right, selectionMarginTop, right, pixelH-selectionMarginTop);
-			g2.drawLine(left,  selectionMarginTop, right, selectionMarginTop);
-			g2.drawLine(left, pixelH-selectionMarginTop, right, pixelH-selectionMarginTop);
+		
+		for(int tierIx = 0; tierIx < model.getTierN() ; tierIx++ ){
+			//		model.getTierAdapter
+			GuiAdapterForTier<?> tier = model.getTierAdapter(tierIx);
 			
 			
-			//-- bottom-left
-			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alphaForActiveLabel)); 
-			g2.setColor(selBorderLineCol);
-			g2.setFont(timeLabelFont);
-			g2.drawString(labelLeft, left+1,  selectionMarginTop+(int)Math.ceil(rect.getHeight())+1 );
-		
-			//-- top-right
-			g2.setFont(timeLabelFont);
-			g2.drawString(labelRight, 
-					right - (int)Math.ceil(rect.getWidth()+1) //-- adjust  text width
-					, selectionMarginTop+(int)Math.ceil(rect.getHeight())+1 //-- adjust for text height
-					);
+			int selectionTopY = tier.getSelectionMarginTopInPx();
+			int selectionHeight    = tier.getSelectionHeightInPx();   //40;//pixelH-2*selectionMarginTop;
+			int selectionBottomY =  selectionTopY+selectionHeight;  /* vertically symmetric: pixelH-selectionMarginTop; */
+			int [] rgb = tier.getSelectionFillColorInRgb();
+			Color selBgCol = new Color(rgb[0], rgb[1], rgb[2]);
+
+
+			if(Boolean.class.equals(tier.getTierType())){
+			for(int i = 0 ; i < tier.getSelectionN() ; i++){
+				IntervalSelection sel = tier.getSelectionX(i);
+				left = sel.getSelectionStartPx();
+				right = sel.getSelectionEndPx();
+
+				String labelLeft = String.format("%.3f", sel.getSelectionStartInSec());
+				String labelRight = String.format("%.3f", sel.getSelectionEndInSec());
+				Rectangle2D  rect =  timeLabelFont.getStringBounds(labelRight, g2.getFontRenderContext());
+
+				g2.setColor(selBgCol);
+				g2.fillRect(left, selectionTopY, right-left, selectionHeight);
+				g2.setColor(selBorderLineCol);
+				g2.drawLine(left,  selectionTopY, left,  selectionBottomY);
+				g2.drawLine(right, selectionTopY, right, selectionBottomY);
+				g2.drawLine(left,  selectionTopY, right, selectionTopY);
+				g2.drawLine(left,  selectionBottomY,        right, selectionBottomY);
+
+
+					//-- bottom-left
+					g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alphaForActiveLabel)); 
+					g2.setColor(selBorderLineCol);
+					g2.setFont(timeLabelFont);
+					g2.drawString(labelLeft, left+1,  selectionTopY+(int)Math.ceil(rect.getHeight())+1 );
+	
+					//-- top-right
+					g2.setFont(timeLabelFont);
+					g2.drawString(labelRight, 
+							right - (int)Math.ceil(rect.getWidth()+1) //-- adjust  text width
+							, selectionTopY+(int)Math.ceil(rect.getHeight())+1 //-- adjust for text height
+							);
+				}
+			}
+			
+			if(VadError.class.equals(tier.getTierType())){
+				g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+
+				
+				VadErrorTier errTier = (VadErrorTier)tier.getTier();
+
+				//-- horizontal line for error --//
+				g2.setColor(Color.RED);
+				g2.drawLine(0,  selectionTopY, pixelW,  selectionTopY);
+				g2.drawLine(0,  selectionBottomY, pixelW,  selectionBottomY);
+				g2.setFont(errLabelFont);
+
+				for(int i = 0; i < tier.getSelectionN(); i++){
+					IntervalSelection sel = tier.getSelectionX(i);
+					System.out.println("ERR : " + sel);
+					VadError err = errTier.getIntervalX(i).label;
+
+					left = sel.getSelectionStartPx();
+					right = sel.getSelectionEndPx();
+					g2.drawLine(left,  selectionTopY, left,  selectionBottomY);
+					g2.drawLine(right,  selectionTopY, right,  selectionBottomY);
+
+					g2.drawString(err.name(),left, selectionBottomY); 
+				}
+			}
 		}
+		
+		
 		
 //		int labW = right-left; 
 //		int fontH = 0;
@@ -442,10 +491,10 @@ public class WavPanelImpl extends JPanel
 
 		Runnable shortcutAction = shortCutMap.get(key);
 		if(shortcutAction!=null){
-			LOG.trace("Action found for shortcut {} " + e.getKeyCode());
+//			LOG.trace("Action found for shortcut {} " + e.getKeyCode());
 			shortcutAction.run();
 		}else{
-			LOG.trace("No action found for shortcut {} " + e.getKeyCode());
+//			LOG.trace("No action found for shortcut {} " + e.getKeyCode());
 		}
 	}
 
@@ -465,6 +514,18 @@ public class WavPanelImpl extends JPanel
 //				wav.toIntArray(), 
 				,(int)wav.getAudioFormat().getSampleRate());
 		
+		@SuppressWarnings("unchecked")
+		IntervalTier<Boolean> hypo = (IntervalTier<Boolean>)model.getTierAdapter(0).getTier();
+		
+		BinaryTier target = new BinaryTier();
+		target.addInterval(0.5, 1.5, true);
+		model.addTier(target, Boolean.class);
+
+		
+		VadErrorTier vadTier = new VadErrorTier(target, hypo);
+		model.addTier(vadTier, VadError.class);
+		
+		
 		WavPanelImpl panel = new WavPanelImpl();
 		panel.setWavPanelModel(model);	
 		
@@ -475,11 +536,7 @@ public class WavPanelImpl extends JPanel
 //		frame.pack();
 		frame.setVisible(true);
 		
-		Scanner scanner = new Scanner(System.in);
-		while(scanner.hasNext()){
-				String line = scanner.next();
-				System.out.println(">" + line);
-		}
+
 		
 	}
 

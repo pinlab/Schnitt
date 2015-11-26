@@ -12,8 +12,8 @@ import info.pinlab.snd.vad.VadError;
  *
  */
 public class VadErrorTier extends AbstractIntervalTier<VadError> {
-	BinaryTier target = null;
-	BinaryTier hypo = null;
+	IntervalTier<Boolean> target = null;
+	IntervalTier<Boolean> hypo = null;
 	
 	private static final int NUM_OF_ARCS = 4;
 	private static final int TARG_ON   = 0;
@@ -88,7 +88,7 @@ public class VadErrorTier extends AbstractIntervalTier<VadError> {
 	
 	
 	
-	public <T> VadErrorTier(BinaryTier target, BinaryTier hypo){
+	public <T> VadErrorTier(IntervalTier<Boolean> target, IntervalTier<Boolean> hypo){
 		//-- conflate tiers
 		
 		this.target = target;

@@ -1,7 +1,5 @@
 package info.pinlab.snd.gui;
 
-import java.util.List;
-
 import info.pinlab.snd.trs.Interval;
 import info.pinlab.snd.trs.IntervalTier;
 import info.pinlab.snd.trs.Tier;
@@ -33,21 +31,25 @@ public interface WavPanelModel {
 	public int getPxFromSampleIx(int x);
 
 	//-- Intervals
-	public int addTier(IntervalTier<?> t);
+	public <T> GuiAdapterForTier<T> addTier(IntervalTier<T> tier, Class<T> cls);
+//	public int addTier(IntervalTier<?> t);
 	public int getTierN();
 	public Tier getTierByIx(int ix);
 	
 	
 	
 	//-- Active Selection getters
-//	public boolean hasActiveSelection();
 	public IntervalSelection getActiveIntervalSelection();
-	public void addIntervalSelection(IntervalSelection selection);
-	public void addInterval(Interval<?> interval);
+	public void addIntervalToActiveTier(Interval<?> interval);
 
-	public List<IntervalSelection> getInterVals();
-	public List<IntervalSelection> getInterVals(int tierIx);
+//	public List<IntervalSelection> getInterValsFromActiveTier();
+//	public List<IntervalSelection> getInterValsFromTierX(int tierIx);
 
+	
+	//-- Tiers
+	public int getTierAdapterN();
+	public GuiAdapterForTier<?> getTierAdapter(int ix);
+	
 
 	//-- ZOOM
 	public void zoomTo(double start, double end);

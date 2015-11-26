@@ -2,7 +2,6 @@ package info.pinlab.snd.gui;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -39,100 +38,196 @@ public class WavGraphics implements WavPanelModel{
 	int sampleFreqMax = 0;
 	int sampleFreqMaxVal = 0; 
 
-	
-	private int tierN = 0;
-	private int editableTierIx = 0;
-	
-	private final IntervalSelection activeSelection;
-//	BinaryTier tier = new BinaryTier();
 
-	Map<Integer, TierAdapter<?>> tiers = new HashMap<Integer, WavGraphics.TierAdapter<?>>();
+	//-- Tiers
+	private int activeTierX = 0;
+	private final IntervalSelection activeSelection;
+	List<GuiAdapterForTier<?>> tiers = new ArrayList<GuiAdapterForTier<?>>();
+
+	//-- SELECTION Graphics
+	static int marginFromTop = 20; 
+	static int defaultSelectionHeight = 50;
+	static int defaultSelectionMarginTop = 20;
 	
+	static int[][] defaultFillColorsInRgb = new int[][]{
+		{204, 215, 119},
+		{100, 141, 214},
+		{214, 100, 100},
+	};
+
 	
-	class TierAdapter<T>{
+	int tierN = 0; 
+	
+
+
+	abstract class AbstractTierAdapter<T> implements GuiAdapterForTier<T>{
+		Class<T> clazz;
 		private final IntervalTier<T> tier;
 		boolean isVisible = true;
+		boolean isActive  = false;
+		boolean isEditable= false;
+		
 		String label;
 		
-		int selectionMarginTop = 50; /*px*/
-		int selectionHeight    = 40; /*px*/
+		//-- 
+		private int selectionMarginTop ;//= 50; /*px*/
+		private int selectionHeight    ;// = 40; /*px*/
 		
-		TierAdapter(IntervalTier<T> t){
-			//			this.id=cnt++;
-			this.tier = t;
+		private int [] selColInRgb = new int []{214, 255, 161}; // greenish;
+		private int [] fillColorInRgb   = new int []{204, 215, 119};  //-- grayish
+		
+		List<IntervalSelection> selections = new ArrayList<IntervalSelection>();
+
+
+		AbstractTierAdapter(IntervalTier<T> tier, Class<T> cls){
+			this.tier = tier;
+			this.clazz = cls;
+			
+			int padding = 2;
+			fillColorInRgb = defaultFillColorsInRgb[tierN]; 
+			//-- shifting down tiers, one by one
+			selectionMarginTop = marginFromTop + tierN*defaultSelectionHeight + tierN*padding;
+			selectionHeight = defaultSelectionHeight;
+//			marginFromTop = selectionMarginTop+ + selectionHeight;
+			
+			System.out.println(selectionMarginTop);
+			
+			tierN++;
 		}
+		
 		
 		synchronized List<IntervalSelection> getIntervals(){
-			List<IntervalSelection> intervals = new ArrayList<IntervalSelection>();
-			if(this.tier instanceof BinaryTier){
-				BinaryTier btier = (BinaryTier) tier;
-				for(int i = 0; i < tier.size();i++){
-					 Interval<Boolean> inter = btier.getIntervalX(i);
-					if(inter!=null && inter.label!=null && inter.label){
-						Selection selection = new Selection();
-						selection.setSelectionStartSec(inter.startT);
-						selection.setSelectionEndSec(inter.endT);
-						
-						intervals.add(selection);
-					}
-				}
-			}//-- if NOT binary tier...
-			return intervals;
+			return selections;
+		}
+
+		@Override
+		synchronized public int getSelectionN(){
+			return selections.size();
 		}
 		
+		@Override
+		synchronized public IntervalSelection getSelectionX(int ix){
+			return selections.get(ix);
+		}
+		@Override
+		public IntervalTier<T> getTier(){
+			return this.tier;
+		}
+		
+		@Override
+		public boolean isVisible() {		return isVisible; 	}
+		@Override
+		public boolean isActive() {			return isActive;	}
+		@Override
+		public boolean isEditable(){		return isEditable;	}
+		@Override
+		public void isVisible(boolean b) {	isVisible(b);		}
+		@Override
+		public int getSelectionMarginTopInPx(){	return selectionMarginTop;	}
+		@Override
+		public int getSelectionHeightInPx() {	return selectionHeight;		}
+		@Override
+		public int[] getSelectionFillColorInRgb(){return fillColorInRgb;	}
+		
+		@Override
+		public Class<T> getTierType(){
+			return clazz;
+		}
 	}
 
+	
+	
+	class BinaryTierAdapter extends AbstractTierAdapter<Boolean> implements GuiAdapterForBinaryTier{
+		
+		BinaryTierAdapter(IntervalTier<Boolean> t){
+			super(t, Boolean.class);
+			//			this.id=cnt++;
+			calcSelections();
+		}
+		
+		private void calcSelections(){
+			selections.clear();
+			for(int i = 0; i < super.tier.size();i++){
+				Interval<Boolean> inter = super.tier.getIntervalX(i);
+				if(inter!=null && inter.label!=null && inter.label){
+					Selection selection = new Selection();
+					selection.setSelectionStartSec(inter.startT);
+					selection.setSelectionEndSec(inter.endT);
+					
+					selections.add(selection);
+				}
+			}
+		}
+		
+		@Override
+		synchronized public void addInterval(Interval<Boolean> interval){
+			super.tier.addInterval(interval);
+			calcSelections();
+		}
+	}
+
+	
+	
+	class VadErrTierAdapter extends AbstractTierAdapter<VadError> implements GuiAdapterForVadErrTier{
+		VadErrTierAdapter(IntervalTier<VadError> t){
+			super(t, VadError.class);
+			calcSelections();
+			
+			System.out.println(t);
+		}
+		
+		
+		private void calcSelections(){
+			selections.clear();
+			for(int i = 0; i < super.tier.size();i++){
+				Interval<VadError> inter = super.tier.getIntervalX(i);
+				if(inter!=null){
+					Selection selection = new Selection(inter.label.name());
+					selection.setSelectionStartSec(inter.startT);
+					selection.setSelectionEndSec(inter.endT);
+					selections.add(selection);
+				}
+			}
+		}
+	}
+	
+	
 	
 	
 	
 	public WavGraphics(){
 		activeSelection = new Selection();
 		BinaryTier tier = new BinaryTier();
-		editableTierIx = addTier(tier);
+		BinaryTierAdapter adapter = (BinaryTierAdapter)addTier(tier, Boolean.class);
+		adapter.isEditable = true;
+		adapter.isActive = true;
 	}
+	
 	
 
 	
-	@Override
-	public List<IntervalSelection> getInterVals(){
-		return getInterVals(editableTierIx);
-	}
-	
-	@Override
-	public List<IntervalSelection> getInterVals(int tierIx){
-		TierAdapter<?> tierAdapter = tiers.get(tierIx);
-		if(tierAdapter==null){
-			return null;
-		}
-		return tierAdapter.getIntervals();
-	}
-	
-	
-//	@Override
-//	public List<IntervalSelection> getInterVals(){
-//		List<IntervalSelection> intervals = new ArrayList<IntervalSelection>();
-//		for(int i = 0; i < tier.size();i++){
-//			Interval<Boolean> inter = tier.getIntervalX(i);
-//			if(inter!=null && inter.label!=null && inter.label){
-//				Selection selection = new Selection();
-//				selection.setSelectionStartSec(inter.startT);
-//				selection.setSelectionEndSec(inter.endT);
-//				
-//				intervals.add(selection);
-//			}
-//		}
-//		return intervals;
-//	}
 	
 	
 	private class Selection implements IntervalSelection {
 		double startSampleIx = 0;
 		double endSampleIx = 0;
 		
+		String label = "";
+
+		public Selection(){};
+
+		public Selection(String label){
+			this.label = label;
+		}
+		
+		
 //		String startLabel = "";
 //		String endLabel = "";
 		volatile private boolean isAdjusting = false; 
 
+		public String getLabel(){
+			return label;
+		}
 		
 		@Override
 		public void setSelectionStartPx(int px) {
@@ -316,7 +411,7 @@ public class WavGraphics implements WavPanelModel{
 		}
 		
 		long t1 = System.currentTimeMillis();
-		LOG.trace("Graph created in {} ms", t1-t0);
+//		LOG.trace("Graph created in {} ms", t1-t0);
 		return minMaxCoordinates;
 	}
 
@@ -464,22 +559,21 @@ public class WavGraphics implements WavPanelModel{
 	
 	
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public int addTier(IntervalTier<?> tier){
-		if(tier instanceof BinaryTier){
-			TierAdapter<Boolean> ta = new TierAdapter<Boolean>((BinaryTier)tier);
-			tiers.put(tierN, ta);
-			tierN++;
-			editableTierIx = tierN-1; 
-			return editableTierIx; //-- return Tier's ID 
+	public <T> GuiAdapterForTier<T> addTier(IntervalTier<T> tier, Class<T> cls){
+		if(Boolean.class.equals(cls)){
+			GuiAdapterForTier<Boolean> ta = new BinaryTierAdapter((IntervalTier<Boolean>)tier);
+//					((BinaryTier)tier, Boolean.class);
+			tiers.add(ta);
+			return (GuiAdapterForTier<T>)ta; //-- return Tier's ID 
 		}
-		if(tier instanceof VadErrorTier){
-			TierAdapter<VadError> ta = new TierAdapter<VadError>((VadErrorTier)tier);
-			tiers.put(tierN, ta);
-			tierN++;
-			return (tierN-1); //-- return Tier's ID 
+		if(VadError.class.equals(cls)){
+			GuiAdapterForTier<VadError> ta = new VadErrTierAdapter((VadErrorTier)tier);
+			tiers.add(ta);
+			return (GuiAdapterForTier<T>)ta; //-- return Tier's ID 
 		}
-		return -1;
+		return null;
 	}
 	
 	
@@ -490,55 +584,57 @@ public class WavGraphics implements WavPanelModel{
 	}
 
 	
-	
-	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public void addIntervalSelection(IntervalSelection selection) {
-		Interval<Boolean> inter = new Interval<Boolean>(
-				selection.getSelectionStartInSec()
-				,selection.getSelectionEndInSec(), true);
-		
-		TierAdapter<?> tierAdapter = tiers.get(editableTierIx);
-		if(tierAdapter.tier instanceof BinaryTier){
-			
-			((BinaryTier)tierAdapter.tier).addInterval((Interval<Boolean>)inter);
-		}else{
-			LOG.error("Can't add interval to a non BinaryTier '" + tierAdapter.tier.getName() +"'!");
+	public  void addIntervalToActiveTier(Interval interval) {
+		if(interval==null){
+			LOG.error("Wrong argument: null Interval");
+			return;
 		}
-	}
-
-	
-	
-	@SuppressWarnings("unchecked")
-	@Override
-	public void addInterval(Interval<?> interval) {
-		if(interval.label instanceof Boolean){
-			TierAdapter<?> tierAdapter = tiers.get(editableTierIx);
-			if(tierAdapter.tier instanceof BinaryTier){
-				System.out.println("Adding : " + interval);
-				((BinaryTier)tierAdapter.tier).addInterval((Interval<Boolean>)interval);
-				System.out.println(tierAdapter.tier);
-			}else{
-				LOG.error("Can't add interval to a non BinaryTier '" + tierAdapter.tier.getName() +"'!");
+		GuiAdapterForTier tierAdapter = tiers.get(activeTierX);
+		if(tierAdapter.isEditable()){
+			if(Boolean.class.equals(tierAdapter.getTierType())){ //-- if binary tier
+				GuiAdapterForBinaryTier binaryTierAdapter = (GuiAdapterForBinaryTier) tierAdapter;
+				//-- check if interval's TYPE PARAM == tier's TYPE PARAM 
+				binaryTierAdapter.addInterval(interval);
 			}
+		}else{
+			LOG.trace("Tier '"+ activeTierX + " is not editable!");
 		}
 	}
 
 
 	@Override
 	public int getTierN() {
-		return tierN;
+		return tiers.size();
 	}
 
 
 	@Override
 	public Tier getTierByIx(int ix) {
-		TierAdapter<?> tierAdapter = tiers.get(ix);
+		GuiAdapterForTier<?> tierAdapter = tiers.get(ix);
 		if(tierAdapter==null){
 			return null;
 		}else{
-			return tierAdapter.tier;
+			return tierAdapter.getTier();
 		}
+	}
+
+
+	@Override
+	public int getTierAdapterN() {
+		return tiers.size();
+	}
+
+
+	
+	@Override
+	public GuiAdapterForTier<?> getTierAdapter(int ix) {
+		if(ix > tiers.size()){
+			LOG.error("Out of bound tier ix '" + ix + "' >= " + tiers.size());
+			return null;
+		}
+		return tiers.get(ix);
 	}
 
 

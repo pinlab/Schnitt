@@ -1,7 +1,5 @@
 package info.pinlab.snd.gui;
 
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.JFrame;
 
@@ -9,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import info.pinlab.pinsound.WavClip;
-import info.pinlab.snd.WavUtil;
 //import info.pinlab.snd.WavUtil;
 import info.pinlab.snd.gui.swing.WavPanelImpl;
 import info.pinlab.snd.trs.Tier;
@@ -18,8 +15,8 @@ public class WavPanelControl {
 	public static Logger logger = LoggerFactory.getLogger(WavPanelControl.class); 
 	private WavPanelUI view = null;
 //	private WavClip wav = null;
-	private int hz = 0;
-	private Map<String, Tier> tiers = new HashMap<String, Tier>();
+//	private int hz = 0;
+//	private Map<String, Tier> tiers = new HashMap<String, Tier>();
 
 //	private int [] samples = null;
 
@@ -67,7 +64,7 @@ public class WavPanelControl {
 		//-- set all samples
 //		samples = WavUtil.getIntArray(wav);
 //		samples = this.wav.toIntArray();
-		this.hz = (int)wav.getAudioFormat().getSampleRate();
+//		this.hz = (int)wav.getAudioFormat().getSampleRate();
 		if(view!=null){
 //			view.setSampleArray(samples, hz);
 		}

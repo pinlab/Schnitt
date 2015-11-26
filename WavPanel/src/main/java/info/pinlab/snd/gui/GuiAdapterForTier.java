@@ -25,4 +25,8 @@ public interface GuiAdapterForTier<T> {
 	
 	public IntervalTier<T> getTier();
 	public Class<T> getTierType();
+	
+	
+	public void refreshSelection();
+	
 }

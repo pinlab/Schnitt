@@ -94,11 +94,17 @@ public class VadErrorTier extends AbstractIntervalTier<VadError> {
 		this.target = target;
 		this.hypo = hypo;
 		
+		refresh();
+	}
+
+	
+	public void refresh(){
+		super.points.clear();
+		
 		int STATE = SIL;
 
 		int targIx, hypoIx;
 		targIx=hypoIx=0;
-		
 
 		
 		VadError err = null;
@@ -177,6 +183,7 @@ public class VadErrorTier extends AbstractIntervalTier<VadError> {
 		}
 		
 	}
+	
 	
 	public void setTargetTier(BinaryTier tier){
 		this.target = tier;

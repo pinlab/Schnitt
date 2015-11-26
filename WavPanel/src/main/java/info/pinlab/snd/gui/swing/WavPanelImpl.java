@@ -19,9 +19,9 @@ import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.lang.model.type.ErrorType;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +36,6 @@ import info.pinlab.snd.gui.WavPanelUI;
 import info.pinlab.snd.trs.BinaryTier;
 import info.pinlab.snd.trs.Interval;
 import info.pinlab.snd.trs.IntervalTier;
-import info.pinlab.snd.trs.Tier;
 import info.pinlab.snd.trs.VadErrorTier;
 import info.pinlab.snd.vad.VadError;
 
@@ -79,7 +78,7 @@ public class WavPanelImpl extends JPanel
 	private WavPanelModel model = null;
 	
 	private static Font timeLabelFont = new Font("Arial", Font.PLAIN, 9);
-	private static Font errLabelFont = new Font("Arial", Font.BOLD, 24);
+	private static Font errLabelFont = new JTextField().getFont().deriveFont(Font.BOLD, 24); 
 	
 	Font labelFont = new Font("Helvetica", Font.PLAIN, 1);
 	
@@ -127,7 +126,9 @@ public class WavPanelImpl extends JPanel
 		
 		shortCutMap = new HashMap<Integer, Runnable>();
 
-		
+//		  System.setProperty("awt.useSystemAAFontSettings","on");
+//		  System.setProperty("swing.aatext", "true");
+		  
 		//-- add selection
 		shortCutMap.put(
 				(InputEvent.CTRL_DOWN_MASK<<1 ) |KeyEvent.VK_A 
@@ -518,7 +519,8 @@ public class WavPanelImpl extends JPanel
 		IntervalTier<Boolean> hypo = (IntervalTier<Boolean>)model.getTierAdapter(0).getTier();
 		
 		BinaryTier target = new BinaryTier();
-		target.addInterval(0.5, 1.5, true);
+		target.addInterval(0.3, 1.0, true);
+		target.addInterval(1.2, 1.5, true);
 		model.addTier(target, Boolean.class);
 
 		

@@ -58,6 +58,9 @@ public class WavGraphics implements WavPanelModel{
 	
 	int tierN = 0; 
 	
+	VadErrTierAdapter vadTierAdapter  = null;
+	BinaryTierAdapter hypoTierAdapter = null;
+	
 
 
 	abstract class AbstractTierAdapter<T> implements GuiAdapterForTier<T>{
@@ -73,7 +76,7 @@ public class WavGraphics implements WavPanelModel{
 		private int selectionMarginTop ;//= 50; /*px*/
 		private int selectionHeight    ;// = 40; /*px*/
 		
-		private int [] selColInRgb = new int []{214, 255, 161}; // greenish;
+//		private int [] selColInRgb = new int []{214, 255, 161}; // greenish;
 		private int [] fillColorInRgb   = new int []{204, 215, 119};  //-- grayish
 		
 		List<IntervalSelection> selections = new ArrayList<IntervalSelection>();
@@ -90,11 +93,16 @@ public class WavGraphics implements WavPanelModel{
 			selectionHeight = defaultSelectionHeight;
 //			marginFromTop = selectionMarginTop+ + selectionHeight;
 			
-			System.out.println(selectionMarginTop);
+//			System.out.println(selectionMarginTop);
 			
 			tierN++;
 		}
 		
+		
+//		public void refreshSelection(){
+//			
+//		}
+
 		
 		synchronized List<IntervalSelection> getIntervals(){
 			return selections;
@@ -142,10 +150,10 @@ public class WavGraphics implements WavPanelModel{
 		BinaryTierAdapter(IntervalTier<Boolean> t){
 			super(t, Boolean.class);
 			//			this.id=cnt++;
-			calcSelections();
+			refreshSelection();
 		}
 		
-		private void calcSelections(){
+		public void refreshSelection(){
 			selections.clear();
 			for(int i = 0; i < super.tier.size();i++){
 				Interval<Boolean> inter = super.tier.getIntervalX(i);
@@ -162,7 +170,7 @@ public class WavGraphics implements WavPanelModel{
 		@Override
 		synchronized public void addInterval(Interval<Boolean> interval){
 			super.tier.addInterval(interval);
-			calcSelections();
+			refreshSelection();
 		}
 	}
 
@@ -171,13 +179,13 @@ public class WavGraphics implements WavPanelModel{
 	class VadErrTierAdapter extends AbstractTierAdapter<VadError> implements GuiAdapterForVadErrTier{
 		VadErrTierAdapter(IntervalTier<VadError> t){
 			super(t, VadError.class);
-			calcSelections();
-			
-			System.out.println(t);
+			refreshSelection();
+//			System.out.println(t);
 		}
 		
 		
-		private void calcSelections(){
+		public void refreshSelection(){
+			((VadErrorTier) super.tier).refresh();
 			selections.clear();
 			for(int i = 0; i < super.tier.size();i++){
 				Interval<VadError> inter = super.tier.getIntervalX(i);
@@ -198,9 +206,9 @@ public class WavGraphics implements WavPanelModel{
 	public WavGraphics(){
 		activeSelection = new Selection();
 		BinaryTier tier = new BinaryTier();
-		BinaryTierAdapter adapter = (BinaryTierAdapter)addTier(tier, Boolean.class);
-		adapter.isEditable = true;
-		adapter.isActive = true;
+		hypoTierAdapter = (BinaryTierAdapter)addTier(tier, Boolean.class);
+		hypoTierAdapter.isEditable = true;
+		hypoTierAdapter.isActive = true;
 	}
 	
 	
@@ -208,7 +216,7 @@ public class WavGraphics implements WavPanelModel{
 	
 	
 	
-	private class Selection implements IntervalSelection {
+	public class Selection implements IntervalSelection {
 		double startSampleIx = 0;
 		double endSampleIx = 0;
 		
@@ -220,14 +228,14 @@ public class WavGraphics implements WavPanelModel{
 			this.label = label;
 		}
 		
+		public String getLabel(){
+			return label;
+		}
 		
 //		String startLabel = "";
 //		String endLabel = "";
 		volatile private boolean isAdjusting = false; 
 
-		public String getLabel(){
-			return label;
-		}
 		
 		@Override
 		public void setSelectionStartPx(int px) {
@@ -411,7 +419,7 @@ public class WavGraphics implements WavPanelModel{
 		}
 		
 		long t1 = System.currentTimeMillis();
-//		LOG.trace("Graph created in {} ms", t1-t0);
+		LOG.trace("Graph created in {} ms", t1-t0);
 		return minMaxCoordinates;
 	}
 
@@ -453,6 +461,10 @@ public class WavGraphics implements WavPanelModel{
 		sampleRangeUpper = (int) Math.abs(sampleMax - sampleFreqMaxVal);
 		sampleRangeLower = (int) Math.abs(sampleMin - sampleFreqMaxVal);
 		sampleHalfRange = sampleRangeUpper > sampleRangeLower ? sampleRangeUpper : sampleRangeLower;  
+		
+		@SuppressWarnings("unchecked")
+		IntervalTier<Boolean> tier = (IntervalTier<Boolean>)tiers.get(0).getTier();
+		tier.addInterval(0.0d, this.samples.length / (double)hz, false);
 		
 		LOG.trace("|-Sample max  : {}", (int) sampleMax);
 		LOG.trace("|-Sample mean : {}", sampleMean);
@@ -570,6 +582,7 @@ public class WavGraphics implements WavPanelModel{
 		}
 		if(VadError.class.equals(cls)){
 			GuiAdapterForTier<VadError> ta = new VadErrTierAdapter((VadErrorTier)tier);
+			vadTierAdapter =  (VadErrTierAdapter) ta;
 			tiers.add(ta);
 			return (GuiAdapterForTier<T>)ta; //-- return Tier's ID 
 		}
@@ -597,6 +610,10 @@ public class WavGraphics implements WavPanelModel{
 				GuiAdapterForBinaryTier binaryTierAdapter = (GuiAdapterForBinaryTier) tierAdapter;
 				//-- check if interval's TYPE PARAM == tier's TYPE PARAM 
 				binaryTierAdapter.addInterval(interval);
+				
+				if(vadTierAdapter!=null){
+					vadTierAdapter.refreshSelection();
+				}
 			}
 		}else{
 			LOG.trace("Tier '"+ activeTierX + " is not editable!");

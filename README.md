@@ -3,5 +3,18 @@
 * Java Swing GUI for visualization, error analysis and editing
 * group project for my MA programming course (Fall, 2015, Kobe University)
 
-![wav panel](https://github.com/kinokocchi/schnitt/blob/master/doc/wavpanel_20151102.png)
+![wav panel](https://github.com/kinokocchi/schnitt/blob/master/doc/wavpanel_20151127.png)
 
+
+
+Type  | Description
+------|------------------------------------------------------
+TN    |true negative; silence detected as silence
+TN    |true positive; speech detected as speech
+WC    |word clipping 
+NDS(1)|noise detected as speech, during silence
+NDS(2)|noise detected as speech, arching 2 speech activities
+FEC 	|front end clipping
+REC 	|rear end clipping
+HEAD 	|overhead: hypo starts before voice activity
+TAIL 	|tail: hypo ends after voice activity ends

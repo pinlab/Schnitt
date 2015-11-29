@@ -63,7 +63,7 @@ import info.pinlab.snd.vad.VadError;
 		frame.setSize(800, 400);
 		frame.setVisible(true);
 		}
- * </pre>
+ * </pre>									
  * 
  * @author Gabor Pinter
  *

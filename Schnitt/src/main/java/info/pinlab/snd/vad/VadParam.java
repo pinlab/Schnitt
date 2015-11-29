@@ -1,14 +1,18 @@
 package info.pinlab.snd.vad;
 
 public class VadParam<T> {
-	final String name;
+	final String name;  //--to use in ini file
+	String label; //-- for example on GUI
+
 	T minT;
 	T maxT;
+	T defaultT;
 	T value;
 	final Class<T>clazz;
-	
+
 	public VadParam(String name, T value, Class<T> cls){
 		this.name = name;
+		this.label = name;
 		this.value = value;
 		clazz =cls;
 	}
@@ -29,13 +33,17 @@ public class VadParam<T> {
 	}
 	
 	
+	
 	public void setMinVal(T value){
 		this.minT = value;
 	}
 	public void setMaxVal(T value){
 		this.maxT = value;
 	}
-	
-	
-
+	public void setDefaultVal(T value){
+		this.defaultT = value;
+	}
+	public void setLabel(String s){
+		this.label = s;
+	}
 }

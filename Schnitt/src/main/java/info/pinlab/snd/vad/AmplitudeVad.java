@@ -10,6 +10,13 @@ import info.pinlab.snd.dsp.AcousticFeatures;
 import info.pinlab.snd.trs.BinaryTier;
 import info.pinlab.snd.trs.PrimitiveDoubleTier;
 
+/**
+ * 
+ * VAD based on amplitude level.
+ * 
+ * @author Gabor Pinter
+ *
+ */
 public class AmplitudeVad implements VoiceActivityDetector {
 	 static List<VadParam<?>> params;
 	
@@ -19,6 +26,8 @@ public class AmplitudeVad implements VoiceActivityDetector {
 	 static{
 		 params = new ArrayList<VadParam<?>>();
 		 VadParam<Double> param = new VadParam<Double>("AMP_THRESH", Double.class);
+		 param.setMinVal(0.0d);
+		 param.setMaxVal(1.0d);
 		 params.add(param);
 		 paramMap.put(param.getParamName(), param);
 	 }

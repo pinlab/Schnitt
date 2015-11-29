@@ -12,8 +12,9 @@ public class PrimitiveDoubleTier implements PointTier {
 	double [] points;
 	
 	
-	public PrimitiveDoubleTier(){
-		
+	public PrimitiveDoubleTier(double [] pts){
+		this.points = new double[pts.length];
+		System.arraycopy(pts, 0, this.points, 0, pts.length);
 	}
 	
 	

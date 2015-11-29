@@ -36,6 +36,15 @@ public interface WavPanelModel {
 	public int getTierN();
 	public Tier getTierByIx(int ix);
 	
+	/**
+	 * Gets selection at given coordinates.
+	 * 
+	 * @param x x coordinate of query point 
+	 * @param y y coordinate of query point
+	 * @return null if no selection at the point
+	 */
+	public IntervalSelection getSelectionAt(int x, int y);
+	
 	
 	
 	//-- Active Selection getters

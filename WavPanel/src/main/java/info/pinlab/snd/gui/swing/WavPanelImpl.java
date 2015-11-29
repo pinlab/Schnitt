@@ -31,6 +31,7 @@ import info.pinlab.snd.WavUtil;
 import info.pinlab.snd.gui.GuiAdapterForTier;
 import info.pinlab.snd.gui.IntervalSelection;
 import info.pinlab.snd.gui.WavGraphics;
+import info.pinlab.snd.gui.WavGraphics.Selection;
 import info.pinlab.snd.gui.WavPanelModel;
 import info.pinlab.snd.gui.WavPanelUI;
 import info.pinlab.snd.trs.BinaryTier;
@@ -234,37 +235,61 @@ public class WavPanelImpl extends JPanel
 	
 	@Override
 	public void mousePressed(MouseEvent e) {
-		final int px = e.getX();
+		final int x = e.getX();
+		final int y = e.getY();
 		if(e.isShiftDown()) { //  e.getModifiers() & InputEvent.SHIFT_DOWN_MASK) != 0){ //-- shift is pushed
-			model.getActiveIntervalSelection().setSelectionEndPx(px);
+			model.getActiveIntervalSelection().setSelectionEndPx(x);
 		}else{
-			model.setCursorPosToPx(px);
-			model.getActiveIntervalSelection().setSelectionStartPx(px);
-			model.getActiveIntervalSelection().setSelectionEndPx(px);
+			//-- check if click is within a selection
+			for(int i = 0 ; i < model.getTierN();i++){
+				GuiAdapterForTier<?> tier = model.getTierAdapter(i);
+				if(y >= tier.getSelectionYTop() && y <= tier.getSelectionYBottom()){
+					IntervalSelection sel = tier.getSelectionForX(x);
+					if(sel!=null){
+						model.setCursorPosToPx(sel.getSelectionEndPx());
+						model.getActiveIntervalSelection().setSelectionStartSec(sel.getSelectionStartInSec());
+						model.getActiveIntervalSelection().setSelectionEndSec(sel.getSelectionEndInSec());
+						model.getActiveIntervalSelection().isAdjusting(false);
+						repaint();
+						return;
+					}
+					break;
+				}
+			}
+			
+			model.setCursorPosToPx(x);
+			model.getActiveIntervalSelection().setSelectionStartPx(x);
+			model.getActiveIntervalSelection().setSelectionEndPx(x);
 			model.getActiveIntervalSelection().isAdjusting(true);
 		}
 		repaint();
 	}
+	
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		int px = e.getX();
-		px = px < 0 ? 0 : px;  
-		px = px > this.getWidth() ? this.getWidth() : px;  
-		model.setCursorPosToPx(px);
-    	
-		model.getActiveIntervalSelection().isAdjusting(false);
-		model.getActiveIntervalSelection().setSelectionEndPx(px);
+		if(model.getActiveIntervalSelection().isAdjusting()){
+			px = px < 0 ? 0 : px;  
+			px = px > this.getWidth() ? this.getWidth() : px;  
+			model.setCursorPosToPx(px);
+	    	
+			model.getActiveIntervalSelection().isAdjusting(false);
+			model.getActiveIntervalSelection().setSelectionEndPx(px);
+		}
+		
 		repaint();
 	}
 	
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		int endPx = e.getX();
-		endPx = endPx < 0 ? 0 : endPx;  
-		endPx = endPx > this.getWidth() ? this.getWidth() : endPx;  
-		
-		model.setCursorPosToPx(endPx);
-		model.getActiveIntervalSelection().setSelectionEndPx(endPx);
+		if(model.getActiveIntervalSelection().isAdjusting()){
+			endPx = endPx < 0 ? 0 : endPx;  
+			endPx = endPx > this.getWidth() ? this.getWidth() : endPx;  
+			
+			model.setCursorPosToPx(endPx);
+			model.getActiveIntervalSelection().setSelectionEndPx(endPx);
+		}
     	repaint();
 	}
 	
@@ -360,9 +385,9 @@ public class WavPanelImpl extends JPanel
 			GuiAdapterForTier<?> tier = model.getTierAdapter(tierIx);
 			
 			
-			int selectionTopY = tier.getSelectionMarginTopInPx();
-			int selectionHeight    = tier.getSelectionHeightInPx();   //40;//pixelH-2*selectionMarginTop;
-			int selectionBottomY =  selectionTopY+selectionHeight;  /* vertically symmetric: pixelH-selectionMarginTop; */
+			int selectionYTop = tier.getSelectionYTop();
+			int selectionBottomY =  tier.getSelectionYBottom();  /* vertically symmetric: pixelH-selectionMarginTop; */
+			int selectionHeight    = selectionBottomY - selectionYTop;   //40;//pixelH-2*selectionMarginTop;
 			int [] rgb = tier.getSelectionFillColorInRgb();
 			Color selBgCol = new Color(rgb[0], rgb[1], rgb[2]);
 
@@ -378,11 +403,11 @@ public class WavPanelImpl extends JPanel
 				Rectangle2D  rect =  timeLabelFont.getStringBounds(labelRight, g2.getFontRenderContext());
 
 				g2.setColor(selBgCol);
-				g2.fillRect(left, selectionTopY, right-left, selectionHeight);
+				g2.fillRect(left, selectionYTop, right-left, selectionHeight);
 				g2.setColor(selBorderLineCol);
-				g2.drawLine(left,  selectionTopY, left,  selectionBottomY);
-				g2.drawLine(right, selectionTopY, right, selectionBottomY);
-				g2.drawLine(left,  selectionTopY, right, selectionTopY);
+				g2.drawLine(left,  selectionYTop, left,  selectionBottomY);
+				g2.drawLine(right, selectionYTop, right, selectionBottomY);
+				g2.drawLine(left,  selectionYTop, right, selectionYTop);
 				g2.drawLine(left,  selectionBottomY,        right, selectionBottomY);
 
 
@@ -390,13 +415,13 @@ public class WavPanelImpl extends JPanel
 					g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alphaForActiveLabel)); 
 					g2.setColor(selBorderLineCol);
 					g2.setFont(timeLabelFont);
-					g2.drawString(labelLeft, left+1,  selectionTopY+(int)Math.ceil(rect.getHeight())+1 );
+					g2.drawString(labelLeft, left+1,  selectionYTop+(int)Math.ceil(rect.getHeight())+1 );
 	
 					//-- top-right
 					g2.setFont(timeLabelFont);
 					g2.drawString(labelRight, 
 							right - (int)Math.ceil(rect.getWidth()+1) //-- adjust  text width
-							, selectionTopY+(int)Math.ceil(rect.getHeight())+1 //-- adjust for text height
+							, selectionYTop+(int)Math.ceil(rect.getHeight())+1 //-- adjust for text height
 							);
 				}
 			}
@@ -409,19 +434,18 @@ public class WavPanelImpl extends JPanel
 
 				//-- horizontal line for error --//
 				g2.setColor(Color.RED);
-				g2.drawLine(0,  selectionTopY, pixelW,  selectionTopY);
+				g2.drawLine(0,  selectionYTop, pixelW,  selectionYTop);
 				g2.drawLine(0,  selectionBottomY, pixelW,  selectionBottomY);
 				g2.setFont(errLabelFont);
 
 				for(int i = 0; i < tier.getSelectionN(); i++){
 					IntervalSelection sel = tier.getSelectionX(i);
-					System.out.println("ERR : " + sel);
 					VadError err = errTier.getIntervalX(i).label;
 
 					left = sel.getSelectionStartPx();
 					right = sel.getSelectionEndPx();
-					g2.drawLine(left,  selectionTopY, left,  selectionBottomY);
-					g2.drawLine(right,  selectionTopY, right,  selectionBottomY);
+					g2.drawLine(left,  selectionYTop, left,  selectionBottomY);
+					g2.drawLine(right,  selectionYTop, right,  selectionBottomY);
 
 					g2.drawString(err.name(),left, selectionBottomY); 
 				}

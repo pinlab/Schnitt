@@ -1,5 +1,11 @@
 package info.pinlab.snd.gui;
 
+
+/**
+ * Interval selection in WavPanel
+ * 
+ * @author Gabor Pinter
+ */
 public interface IntervalSelection {
 	
 	public void setSelectionStartPx(int px);

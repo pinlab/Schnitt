@@ -15,8 +15,8 @@ public interface GuiAdapterForTier<T> {
 	
 	
 	//-- graphics
-	public int getSelectionMarginTopInPx();
-	public int getSelectionHeightInPx();
+	public int getSelectionYTop();
+	public int getSelectionYBottom();
 	
 	/**
 	 * @return 3 ints of RGB 
@@ -25,6 +25,15 @@ public interface GuiAdapterForTier<T> {
 	
 	public IntervalTier<T> getTier();
 	public Class<T> getTierType();
+
+	
+	/**
+	 * returns null if there is no selection under co-ordinate X
+	 * 
+	 * @param x
+	 * @return
+	 */
+	public IntervalSelection getSelectionForX(int x);
 	
 	
 	public void refreshSelection();

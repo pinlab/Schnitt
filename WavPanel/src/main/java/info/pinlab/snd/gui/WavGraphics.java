@@ -73,8 +73,8 @@ public class WavGraphics implements WavPanelModel{
 		String label;
 		
 		//-- 
-		private int selectionMarginTop ;//= 50; /*px*/
-		private int selectionHeight    ;// = 40; /*px*/
+		private int selectionYTop ;//= 50; /*px*/
+		private int selectionYBottom    ;// = 40; /*px*/
 		
 //		private int [] selColInRgb = new int []{214, 255, 161}; // greenish;
 		private int [] fillColorInRgb   = new int []{204, 215, 119};  //-- grayish
@@ -89,19 +89,24 @@ public class WavGraphics implements WavPanelModel{
 			int padding = 2;
 			fillColorInRgb = defaultFillColorsInRgb[tierN]; 
 			//-- shifting down tiers, one by one
-			selectionMarginTop = marginFromTop + tierN*defaultSelectionHeight + tierN*padding;
-			selectionHeight = defaultSelectionHeight;
+			selectionYTop = marginFromTop + tierN*defaultSelectionHeight + tierN*padding;
+			selectionYBottom = selectionYTop+defaultSelectionHeight;
 //			marginFromTop = selectionMarginTop+ + selectionHeight;
-			
 //			System.out.println(selectionMarginTop);
-			
 			tierN++;
 		}
 		
 		
-//		public void refreshSelection(){
-//			
-//		}
+		synchronized public IntervalSelection getSelectionForX(int x){
+			this.refreshSelection();
+			for(int i = 0; i < selections.size();i++){
+				IntervalSelection sel = selections.get(i);
+				if(x >= sel.getSelectionStartPx() && x <= sel.getSelectionEndPx()){
+					return sel;
+				}
+			}
+			return null;
+		}
 
 		
 		synchronized List<IntervalSelection> getIntervals(){
@@ -131,9 +136,9 @@ public class WavGraphics implements WavPanelModel{
 		@Override
 		public void isVisible(boolean b) {	isVisible(b);		}
 		@Override
-		public int getSelectionMarginTopInPx(){	return selectionMarginTop;	}
+		public int getSelectionYTop(){	return selectionYTop;	}
 		@Override
-		public int getSelectionHeightInPx() {	return selectionHeight;		}
+		public int getSelectionYBottom() {	return selectionYBottom;		}
 		@Override
 		public int[] getSelectionFillColorInRgb(){return fillColorInRgb;	}
 		
@@ -198,23 +203,6 @@ public class WavGraphics implements WavPanelModel{
 			}
 		}
 	}
-	
-	
-	
-	
-	
-	public WavGraphics(){
-		activeSelection = new Selection();
-		BinaryTier tier = new BinaryTier();
-		hypoTierAdapter = (BinaryTierAdapter)addTier(tier, Boolean.class);
-		hypoTierAdapter.isEditable = true;
-		hypoTierAdapter.isActive = true;
-	}
-	
-	
-
-	
-	
 	
 	public class Selection implements IntervalSelection {
 		double startSampleIx = 0;
@@ -295,6 +283,23 @@ public class WavGraphics implements WavPanelModel{
 	}
 	
 
+	public WavGraphics(){
+		activeSelection = new Selection();
+		BinaryTier tier = new BinaryTier();
+		hypoTierAdapter = (BinaryTierAdapter)addTier(tier, Boolean.class);
+		hypoTierAdapter.isEditable = true;
+		hypoTierAdapter.isActive = true;
+	}
+	
+	
+	
+	
+	public IntervalSelection getSelectionAt(int x, int y){
+		
+		
+		
+		return null;
+	}
 	
 	@Override	
 	public int getCursorPositionInPx(){

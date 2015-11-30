@@ -13,7 +13,7 @@
 
 Type  | Description
 ------|------------------------------------------------------
-TN    |true negative; silence detected as silence
+TP    |true negative; silence detected as silence
 TN    |true positive; speech detected as speech
 WC    |word clipping 
 NDS(1)|noise detected as speech, during silence

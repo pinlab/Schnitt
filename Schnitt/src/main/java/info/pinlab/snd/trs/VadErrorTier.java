@@ -90,7 +90,7 @@ public class VadErrorTier extends AbstractIntervalTier<VadError> {
 	
 	public <T> VadErrorTier(IntervalTier<Boolean> target, IntervalTier<Boolean> hypo){
 		//-- conflate tiers
-		
+		super(Type.VAD_EVAL);
 		this.target = target;
 		this.hypo = hypo;
 		
@@ -225,6 +225,7 @@ public class VadErrorTier extends AbstractIntervalTier<VadError> {
 		return null;
 	}
 
+	
 	
 	public static void main(String[] args){
 		BinaryTier t1 = new BinaryTier();

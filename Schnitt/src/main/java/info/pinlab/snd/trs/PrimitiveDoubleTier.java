@@ -53,4 +53,13 @@ public class PrimitiveDoubleTier implements PointTier {
 		return 0;
 	}
 
+
+
+	@Override
+	public Type getTierType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
 }

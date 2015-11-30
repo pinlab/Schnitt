@@ -17,11 +17,21 @@ package info.pinlab.snd.trs;
  * @author kinoko
  *
  */
-public interface Tier {
+public interface Tier{
+	enum Type{
+		HYPO,
+		TARG,
+		VAD_EVAL,
+		NOT_SET
+	}
+	
 	public int size();
 	public String getName();
 	public void setName(String name);
 	public double getDuration();
+	
+	public Type getTierType(); //-- set by init
+//	public void setTierType(Type type);
 	
 }
 

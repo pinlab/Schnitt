@@ -14,6 +14,7 @@ import info.pinlab.snd.trs.Interval;
 import info.pinlab.snd.trs.IntervalTier;
 import info.pinlab.snd.trs.Tier;
 import info.pinlab.snd.trs.VadErrorTier;
+import info.pinlab.snd.trs.Tier.Type;
 import info.pinlab.snd.vad.VadError;
 
 public class WavGraphics implements WavPanelModel{
@@ -87,10 +88,33 @@ public class WavGraphics implements WavPanelModel{
 			this.clazz = cls;
 			
 			int padding = 2;
-			fillColorInRgb = defaultFillColorsInRgb[tierN]; 
-			//-- shifting down tiers, one by one
-			selectionYTop = marginFromTop + tierN*defaultSelectionHeight + tierN*padding;
+			
+			int ix = -1;
+			System.out.println(tier.getTierType() +"\t '" + tier.getName() +"'");
+			switch (tier.getTierType()) {
+			case HYPO:
+				ix = 0;
+				break;
+			case TARG:
+				ix = 1;
+				break;
+			case VAD_EVAL:
+				ix = 2;
+				break;
+			default:
+				break;
+			}
+			fillColorInRgb = defaultFillColorsInRgb[ix];
+//			System.out.println(ix);
+//			System.out.println(defaultSelectionHeight);
+			selectionYTop = marginFromTop + ix*defaultSelectionHeight + ix*padding;
 			selectionYBottom = selectionYTop+defaultSelectionHeight;
+			
+			
+			LOG.info("Adding '" + tier.getTierType() + "' tier named '"+ tier.getName()+"'" + " to Y " + selectionYTop + "-" + selectionYBottom);
+			//-- shifting down tiers, one by one
+//			selectionYTop = marginFromTop + tierN*defaultSelectionHeight + tierN*padding;
+//			selectionYBottom = selectionYTop+defaultSelectionHeight;
 //			marginFromTop = selectionMarginTop+ + selectionHeight;
 //			System.out.println(selectionMarginTop);
 			tierN++;
@@ -285,7 +309,7 @@ public class WavGraphics implements WavPanelModel{
 
 	public WavGraphics(){
 		activeSelection = new Selection();
-		BinaryTier tier = new BinaryTier();
+		BinaryTier tier = new BinaryTier(Type.HYPO);
 		hypoTierAdapter = (BinaryTierAdapter)addTier(tier, Boolean.class);
 		hypoTierAdapter.isEditable = true;
 		hypoTierAdapter.isActive = true;
@@ -575,14 +599,28 @@ public class WavGraphics implements WavPanelModel{
 	}
 	
 	
-
+	private GuiAdapterForTier<Boolean> addActiveTier(IntervalTier<Boolean> tier){
+		tiers.remove(0);
+		BinaryTierAdapter ta = new BinaryTierAdapter(tier);
+		ta.isActive = true;
+		ta.isEditable = true;
+		tiers.add(0, ta);
+		return ta;
+	}
+	
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> GuiAdapterForTier<T> addTier(IntervalTier<T> tier, Class<T> cls){
 		if(Boolean.class.equals(cls)){
-			GuiAdapterForTier<Boolean> ta = new BinaryTierAdapter((IntervalTier<Boolean>)tier);
 //					((BinaryTier)tier, Boolean.class);
-			tiers.add(ta);
+			GuiAdapterForTier<Boolean> ta = null;
+			if(Tier.Type.HYPO.equals(tier.getTierType()) && tiers.size()>0){
+				ta = addActiveTier((IntervalTier<Boolean>)tier);
+			}else{
+				ta = new BinaryTierAdapter((IntervalTier<Boolean>)tier);
+				tiers.add(ta);
+			}
 			return (GuiAdapterForTier<T>)ta; //-- return Tier's ID 
 		}
 		if(VadError.class.equals(cls)){

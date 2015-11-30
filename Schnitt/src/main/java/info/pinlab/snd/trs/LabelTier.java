@@ -5,6 +5,16 @@ import java.util.List;
 public class LabelTier extends AbstractIntervalTier<String>{
 
 	
+	public LabelTier() {
+		super(Type.NOT_SET);
+	}
+
+	public LabelTier(Type type) {
+		super(type);
+	}
+
+
+
 	@Override
 	public String combineLabels(List<String> labels){
 		

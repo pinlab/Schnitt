@@ -8,7 +8,8 @@ public class AcousticFeatures {
 	
 	
 	static public PrimitiveDoubleTier getAmplitude(WavClip wav){
-		int [] sample = wav.toIntArray();
+		double [] sample = wav.toDoubleArray();
+		
 		double [] amps = new double[sample.length];
 		//-- calc amplitude
 		for(int i =0; i< sample.length; i++){

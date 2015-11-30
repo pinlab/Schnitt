@@ -4,12 +4,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Set;
-import java.util.TreeMap;
 
 /**
  * 
@@ -23,16 +22,24 @@ public abstract class AbstractIntervalTier<T> implements IntervalTier<T>{
 	public static Logger LOG = LoggerFactory.getLogger(AbstractIntervalTier.class);
 	
 	final TreeMap<Double, T> points;
+	final Tier.Type tierType ;
+	
 	
 	private String name = "";
 	
 	
-	public AbstractIntervalTier() {
+	public AbstractIntervalTier(Type type) {
 		points = new TreeMap<Double, T>();
 		points.put(0.0d, null);
+		this.tierType = type;
 	}
 	
 	
+	
+	public Type getTierType(){
+		return tierType;
+	}
+
 	
 
 	@Override

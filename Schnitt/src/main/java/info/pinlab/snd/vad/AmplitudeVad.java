@@ -9,6 +9,7 @@ import info.pinlab.pinsound.WavClip;
 import info.pinlab.snd.dsp.AcousticFeatures;
 import info.pinlab.snd.trs.BinaryTier;
 import info.pinlab.snd.trs.PrimitiveDoubleTier;
+import info.pinlab.snd.trs.Tier.Type;
 
 /**
  * 
@@ -27,6 +28,7 @@ public class AmplitudeVad implements VoiceActivityDetector {
 		 params = new ArrayList<VadParam<?>>();
 		 VadParam<Double> param = new VadParam<Double>("AMP_THRESH", Double.class);
 		 param.setMinVal(0.0d);
+		 param.setParamVal(0.75d);
 		 param.setMaxVal(1.0d);
 		 params.add(param);
 		 paramMap.put(param.getParamName(), param);
@@ -39,19 +41,55 @@ public class AmplitudeVad implements VoiceActivityDetector {
 	
 	@Override
 	public BinaryTier getVoiceActivity(WavClip wav) {
-		BinaryTier activityTier = new BinaryTier();
+		BinaryTier activityTier = new BinaryTier(Type.HYPO);
+		activityTier.setName("hypo");
 		activityTier.addInterval(0, wav.getDurInMs()/1000.0d, false);
+		double hz = wav.getAudioFormat().getSampleRate(); 
 		
-		PrimitiveDoubleTier tier = AcousticFeatures.getAmplitude(wav);
+		double thresh = 0.4;//((VadParam<Double>)paramMap.get("AMP_THRESH")).getValue();
 		
-		VadParam<Double> par = (VadParam<Double>)paramMap.get("AMP_THRESH");
-		double thresh = par.getValue();
-		
-		PrimitiveDoubleTier amp = AcousticFeatures.getAmplitude(wav);
-		double [] points = amp.getPoints();
-		for(int i  = 0 ; i < points.length ; i++){
-			//-- add logic here
+//		double [] sample = wav.toDoubleArray();
+		int [] sampleAsInt = wav.toIntArray();
+		double [] sample = new double[sampleAsInt.length]; 
+		for(int i = 0 ; i < sampleAsInt.length ; i++){
+			sample[i] = Math.abs(sampleAsInt[i])/ 4000.0d;
 		}
+		
+		
+		
+		int prevIx = 0;
+		boolean isActive = false;
+		int i = 0;
+		for(; i < sample.length;i++){
+			System.out.println(sample[i] + " " + thresh);
+			if(sample[i] >= thresh){
+				if(isActive){ 
+					//-- already 'active' by hypo -> do nothing
+				}else{ //-- it was non-active
+					double from = prevIx / hz;
+					double to = i / hz;
+					activityTier.addInterval(from, to, false);
+					isActive = true;
+					prevIx = i;
+					System.out.println("ON " + from + "-" + to + "  (" + sample[i] + " > " +thresh);
+				}
+			}else{//-- sample < thresh
+				if(isActive){ 
+					isActive = false; 
+					double from = prevIx / hz;
+					double to = i / hz;
+					activityTier.addInterval(from, to, true);
+					prevIx = i;
+					System.out.println("OFF " + from + "-" + to);
+				}else{ //-- it was non-active
+					//-- already 'non-active' by hypo -> do nothing
+				}
+			}
+		}
+		double from = prevIx / hz;
+		double to = i / hz;
+		activityTier.addInterval(from, to, isActive);
+		
 		return activityTier;
 	}
 

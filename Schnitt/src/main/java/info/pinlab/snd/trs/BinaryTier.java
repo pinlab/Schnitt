@@ -40,9 +40,14 @@ import java.util.List;
 public class BinaryTier extends AbstractIntervalTier<Boolean>{
 //	private final TreeMap<Double, Boolean> points ;
 	
-	
+
 	public BinaryTier(){
-		super();
+		super(Type.NOT_SET);
+		super.points.put(0.0d, null);
+	}
+	
+	public BinaryTier(Type t){
+		super(t);
 		super.points.put(0.0d, null);
 //		points = new TreeMap<Double, Boolean>();
 //		points.put(0.0d, false);

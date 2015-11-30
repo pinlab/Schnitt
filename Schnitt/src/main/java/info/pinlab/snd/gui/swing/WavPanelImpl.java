@@ -16,7 +16,9 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JFrame;
@@ -31,13 +33,14 @@ import info.pinlab.snd.WavUtil;
 import info.pinlab.snd.gui.GuiAdapterForTier;
 import info.pinlab.snd.gui.IntervalSelection;
 import info.pinlab.snd.gui.WavGraphics;
-import info.pinlab.snd.gui.WavGraphics.Selection;
 import info.pinlab.snd.gui.WavPanelModel;
 import info.pinlab.snd.gui.WavPanelUI;
 import info.pinlab.snd.trs.BinaryTier;
 import info.pinlab.snd.trs.Interval;
 import info.pinlab.snd.trs.IntervalTier;
+import info.pinlab.snd.trs.Tier.Type;
 import info.pinlab.snd.trs.VadErrorTier;
+import info.pinlab.snd.vad.AmplitudeVad;
 import info.pinlab.snd.vad.VadError;
 
 
@@ -524,32 +527,56 @@ public class WavPanelImpl extends JPanel
 	}
 
 
-
-
-
 	public static void main(String[] args) throws Exception{
+		
+		
+		List<Integer> list = new ArrayList<Integer>();
+		list.add(0);
+		list.add(1);
+		list.add(2);
+		System.out.println(list.size());
+		list.remove(0);
+		list.add(0, 8);		
+		System.out.println(list.size());
+		
+		
 		WavClip wav = new WavClip(WavPanelImpl.class.getResourceAsStream("sample.wav"));
 //		WavClip wav = new WavClip(WavPanelImpl.class.getResourceAsStream("longsample.wav"));
 //		WavClip wav = new WavClip(WavPanelImpl.class.getResourceAsStream("verylongsample.wav"));
 		
 		WavPanelModel model = new WavGraphics();
-//		int [] samples = WavUtil.getIntArray(wav);
-		model.setSampleArray(
-				WavUtil.getIntArray(wav)
-//				wav.toIntArray(), 
-				,(int)wav.getAudioFormat().getSampleRate());
+		model.setSampleArray(wav.toIntArray(), (int)wav.getAudioFormat().getSampleRate());
+//		System.out.println("LENGTH " + samples.length);
+//		model.setSampleArray(
+//				WavUtil.getIntArray(wav)
+////				wav.toIntArray(), 
+//				,(int)wav.getAudioFormat().getSampleRate());
 		
 		@SuppressWarnings("unchecked")
-		IntervalTier<Boolean> hypo = (IntervalTier<Boolean>)model.getTierAdapter(0).getTier();
+//		IntervalTier<Boolean> hypo = (IntervalTier<Boolean>)model.getTierAdapter(0).getTier();
 		
-		BinaryTier target = new BinaryTier();
+		BinaryTier target = new BinaryTier(Type.TARG);
 		target.addInterval(0.3, 1.0, true);
 		target.addInterval(1.2, 1.5, true);
 		model.addTier(target, Boolean.class);
 
 		
+		
+		
+		AmplitudeVad vad = new AmplitudeVad();
+		BinaryTier hypo = vad.getVoiceActivity(wav);
+//		hypo.addInterval(0.5, 1.5, true);
+		
+		
+		
+		
+		
+		model.addTier(hypo, Boolean.class);
+		
 		VadErrorTier vadTier = new VadErrorTier(target, hypo);
 		model.addTier(vadTier, VadError.class);
+		
+		
 		
 		
 		WavPanelImpl panel = new WavPanelImpl();

@@ -46,22 +46,20 @@ public class AmplitudeVad implements VoiceActivityDetector {
 		activityTier.addInterval(0, wav.getDurInMs()/1000.0d, false);
 		double hz = wav.getAudioFormat().getSampleRate(); 
 		
-		double thresh = 0.4;//((VadParam<Double>)paramMap.get("AMP_THRESH")).getValue();
+		double thresh = 0.6;//((VadParam<Double>)paramMap.get("AMP_THRESH")).getValue();
 		
 //		double [] sample = wav.toDoubleArray();
 		int [] sampleAsInt = wav.toIntArray();
 		double [] sample = new double[sampleAsInt.length]; 
 		for(int i = 0 ; i < sampleAsInt.length ; i++){
-			sample[i] = Math.abs(sampleAsInt[i])/ 4000.0d;
+			sample[i] = Math.abs(sampleAsInt[i])/ 16384.0d;
 		}
-		
-		
 		
 		int prevIx = 0;
 		boolean isActive = false;
 		int i = 0;
 		for(; i < sample.length;i++){
-			System.out.println(sample[i] + " " + thresh);
+//			System.out.println(sample[i] + " " + thresh);
 			if(sample[i] >= thresh){
 				if(isActive){ 
 					//-- already 'active' by hypo -> do nothing
@@ -71,7 +69,7 @@ public class AmplitudeVad implements VoiceActivityDetector {
 					activityTier.addInterval(from, to, false);
 					isActive = true;
 					prevIx = i;
-					System.out.println("ON " + from + "-" + to + "  (" + sample[i] + " > " +thresh);
+//					System.out.println("ON " + from + "-" + to + "  (" + sample[i] + " > " +thresh);
 				}
 			}else{//-- sample < thresh
 				if(isActive){ 
@@ -80,7 +78,7 @@ public class AmplitudeVad implements VoiceActivityDetector {
 					double to = i / hz;
 					activityTier.addInterval(from, to, true);
 					prevIx = i;
-					System.out.println("OFF " + from + "-" + to);
+//					System.out.println("OFF " + from + "-" + to);
 				}else{ //-- it was non-active
 					//-- already 'non-active' by hypo -> do nothing
 				}

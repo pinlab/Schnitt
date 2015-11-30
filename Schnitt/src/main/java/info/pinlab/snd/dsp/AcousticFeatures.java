@@ -21,13 +21,10 @@ public class AcousticFeatures {
 	}
 	
 	
-	
-	
 	static public PrimitiveDoubleTier getPitch(WavClip wav){
 //		PrimitiveDoubleTier tier = new PrimitiveDoubleTier();
 		//-- calc amplitude
 		return null;
 	}
-	
 	
 }

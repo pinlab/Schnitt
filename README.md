@@ -1,4 +1,4 @@
-# Project schnittttt
+# Project schnitt
 * voice activity detector (VAD) algorithm for splitting sound files
 * Java Swing GUI for visualization, error analysis and editing
 * group project for my MA programming course (Fall, 2015, Kobe University)

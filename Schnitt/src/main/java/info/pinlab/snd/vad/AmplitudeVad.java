@@ -46,7 +46,7 @@ public class AmplitudeVad implements VoiceActivityDetector {
 		activityTier.addInterval(0, wav.getDurInMs()/1000.0d, false);
 		double hz = wav.getAudioFormat().getSampleRate(); 
 		
-		double thresh = 0.6;//((VadParam<Double>)paramMap.get("AMP_THRESH")).getValue();
+		double thresh = 0.3;//((VadParam<Double>)paramMap.get("AMP_THRESH")).getValue();
 		
 //		double [] sample = wav.toDoubleArray();
 		int [] sampleAsInt = wav.toIntArray();

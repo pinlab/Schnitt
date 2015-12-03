@@ -5,6 +5,7 @@ import java.io.InputStream;
 
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import info.pinlab.pinsound.WavClip;
@@ -13,7 +14,7 @@ public class AmplitudeVadTest {
 
 	static WavClip wav = null;
 	
-	@AfterClass
+	@BeforeClass
 	public static void tearDownAfterClass() throws Exception {
 		InputStream is = AmplitudeVadTest.class.getResourceAsStream("sample.wav");
 		assertTrue(is!=null);

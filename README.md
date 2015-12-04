@@ -2,6 +2,8 @@
 * voice activity detector (VAD) algorithm for splitting sound files
 * Java Swing GUI for visualization, error analysis and editing
 * group project for my MA programming course (Fall, 2015, Kobe University)
+* try [demo.exe](https://github.com/kinokocchi/Schnitt/blob/master/Schnitt/etc/schnitt-wavpanel-demo.exe) [28MB], win 32bit
+ 
 
 
 ### Wave panel

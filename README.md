@@ -3,7 +3,10 @@
 * Java Swing GUI for visualization, error analysis and editing
 * group project for my MA programming course (Fall, 2015, Kobe University)
 * try [Demo.exe](https://github.com/kinokocchi/Schnitt/blob/173ff92b65bccc6d0f262e59af7444b6f299b826/Schnitt/etc/schnitt-wavpanel-demo.exe?raw=true) [28MB], Win 32bit (tested for Win7, Win8)
- 
+   * CTRL-A: add selection as hypo interval
+   * CTRL-D: delete selection
+   * CTRL-N: zoom in
+   * CTRL-Q: zoom out
 
 
 ### Wave panel

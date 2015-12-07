@@ -9,12 +9,12 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import info.pinlab.snd.trs.BinaryTier;
 import info.pinlab.snd.trs.Interval;
 import info.pinlab.snd.trs.IntervalTier;
 import info.pinlab.snd.trs.Tier;
 import info.pinlab.snd.trs.VadErrorTier;
-import info.pinlab.snd.trs.Tier.Type;
+import info.pinlab.snd.vad.BinaryHypoTier;
+import info.pinlab.snd.vad.BinaryTargetTier;
 import info.pinlab.snd.vad.VadError;
 
 public class WavGraphics implements WavPanelModel{
@@ -65,7 +65,7 @@ public class WavGraphics implements WavPanelModel{
 
 
 	abstract class AbstractTierAdapter<T> implements GuiAdapterForTier<T>{
-		Class<T> clazz;
+		final Class<T> clazz;
 		private final IntervalTier<T> tier;
 		boolean isVisible = true;
 		boolean isActive  = false;
@@ -118,6 +118,8 @@ public class WavGraphics implements WavPanelModel{
 //			marginFromTop = selectionMarginTop+ + selectionHeight;
 //			System.out.println(selectionMarginTop);
 			tierN++;
+			tiers.add(this);
+			refreshSelection();
 		}
 		
 		
@@ -131,7 +133,6 @@ public class WavGraphics implements WavPanelModel{
 			}
 			return null;
 		}
-
 		
 		synchronized List<IntervalSelection> getIntervals(){
 			return selections;
@@ -175,13 +176,9 @@ public class WavGraphics implements WavPanelModel{
 	
 	
 	class BinaryTierAdapter extends AbstractTierAdapter<Boolean> implements GuiAdapterForBinaryTier{
-		
 		BinaryTierAdapter(IntervalTier<Boolean> t){
 			super(t, Boolean.class);
-			//			this.id=cnt++;
-			refreshSelection();
 		}
-		
 		public void refreshSelection(){
 			selections.clear();
 			for(int i = 0; i < super.tier.size();i++){
@@ -195,23 +192,22 @@ public class WavGraphics implements WavPanelModel{
 				}
 			}
 		}
-		
 		@Override
 		synchronized public void addInterval(Interval<Boolean> interval){
-			super.tier.addInterval(interval);
-			refreshSelection();
+			if(super.tier.isEditable()){
+				super.tier.addInterval(interval);
+				refreshSelection();
+			}else{
+				LOG.error("Boolean tier is not updatable '" + super.tier.getName() + "'");
+			}
 		}
 	}
-
 	
 	
 	class VadErrTierAdapter extends AbstractTierAdapter<VadError> implements GuiAdapterForVadErrTier{
 		VadErrTierAdapter(IntervalTier<VadError> t){
 			super(t, VadError.class);
-			refreshSelection();
-//			System.out.println(t);
 		}
-		
 		
 		public void refreshSelection(){
 			((VadErrorTier) super.tier).refresh();
@@ -244,8 +240,6 @@ public class WavGraphics implements WavPanelModel{
 			return label;
 		}
 		
-//		String startLabel = "";
-//		String endLabel = "";
 		volatile private boolean isAdjusting = false; 
 
 		
@@ -309,18 +303,15 @@ public class WavGraphics implements WavPanelModel{
 
 	public WavGraphics(){
 		activeSelection = new Selection();
-		BinaryTier tier = new BinaryTier(Type.HYPO);
-		hypoTierAdapter = (BinaryTierAdapter)addTier(tier, Boolean.class);
+		
+		BinaryHypoTier hypo = new BinaryHypoTier();
+		hypoTierAdapter = (BinaryTierAdapter)addTier(hypo); 
 		hypoTierAdapter.isEditable = true;
 		hypoTierAdapter.isActive = true;
 	}
 	
 	
-	
-	
 	public IntervalSelection getSelectionAt(int x, int y){
-		
-		
 		
 		return null;
 	}
@@ -600,7 +591,9 @@ public class WavGraphics implements WavPanelModel{
 	
 	
 	private GuiAdapterForTier<Boolean> addActiveTier(IntervalTier<Boolean> tier){
-		tiers.remove(0);
+		if(tiers.size()>0){
+			tiers.remove(0);
+		}
 		BinaryTierAdapter ta = new BinaryTierAdapter(tier);
 		ta.isActive = true;
 		ta.isEditable = true;
@@ -611,38 +604,17 @@ public class WavGraphics implements WavPanelModel{
 
 	
 	public GuiAdapterForTier<VadError> addTier(VadErrorTier err){
-		return addTier(err, VadError.class);
+		vadTierAdapter =  new VadErrTierAdapter((VadErrorTier)err);;
+		return vadTierAdapter; 
 	}
-	public GuiAdapterForTier<Boolean> addTier(BinaryTier tier){
-		return addTier(tier, Boolean.class);
+	public GuiAdapterForTier<Boolean> addTier(BinaryTargetTier targ){
+		GuiAdapterForTier<Boolean> ta = new BinaryTierAdapter((IntervalTier<Boolean>)targ);
+		return ta;
 	}
-
-	
-	
-	
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> GuiAdapterForTier<T> addTier(IntervalTier<T> tier, Class<T> cls){
-		if(Boolean.class.equals(cls)){
-//					((BinaryTier)tier, Boolean.class);
-			GuiAdapterForTier<Boolean> ta = null;
-			if(Tier.Type.HYPO.equals(tier.getTierType()) && tiers.size()>0){
-				ta = addActiveTier((IntervalTier<Boolean>)tier);
-			}else{
-				ta = new BinaryTierAdapter((IntervalTier<Boolean>)tier);
-				tiers.add(ta);
-			}
-			return (GuiAdapterForTier<T>)ta; //-- return Tier's ID 
-		}
-		if(VadError.class.equals(cls)){
-			GuiAdapterForTier<VadError> ta = new VadErrTierAdapter((VadErrorTier)tier);
-			vadTierAdapter =  (VadErrTierAdapter) ta;
-			tiers.add(ta);
-			return (GuiAdapterForTier<T>)ta; //-- return Tier's ID 
-		}
-		return null;
+	public GuiAdapterForTier<Boolean> addTier(BinaryHypoTier hypo){
+		GuiAdapterForTier<Boolean> ta = addActiveTier((IntervalTier<Boolean>)hypo);
+		return ta;
 	}
-	
 	
 
 	@Override

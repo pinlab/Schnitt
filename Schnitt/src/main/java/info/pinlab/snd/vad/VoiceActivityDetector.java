@@ -10,7 +10,7 @@ public interface VoiceActivityDetector {
 	 * 
 	 * @return {@link BinaryTier} with voice activity as True
 	 */
-	public BinaryTier getVoiceActivity(WavClip wav);
+	public BinaryHypoTier getVoiceActivity(WavClip wav);
 	
 	public List<VadParam<?>> getParams();
 	

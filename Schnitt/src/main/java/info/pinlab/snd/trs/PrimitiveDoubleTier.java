@@ -24,7 +24,6 @@ public class PrimitiveDoubleTier implements PointTier {
 	}
 	
 	
-	
 	@Override
 	public int size() {
 		return 0;
@@ -59,6 +58,22 @@ public class PrimitiveDoubleTier implements PointTier {
 	public Type getTierType() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+
+
+	@Override
+	public boolean isEditable() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+
+	@Override
+	public void isEditable(boolean b) {
+		// TODO Auto-generated method stub
+		
 	}
 
 

@@ -16,9 +16,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.JFrame;
@@ -28,19 +26,12 @@ import javax.swing.JTextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import info.pinlab.pinsound.WavClip;
 import info.pinlab.schnitt.gui.GuiAdapterForTier;
 import info.pinlab.schnitt.gui.IntervalSelection;
-import info.pinlab.schnitt.gui.WavGraphics;
 import info.pinlab.schnitt.gui.WavPanelModel;
 import info.pinlab.schnitt.gui.WavPanelUI;
-import info.pinlab.snd.WavUtil;
-import info.pinlab.snd.trs.BinaryTier;
 import info.pinlab.snd.trs.Interval;
-import info.pinlab.snd.trs.IntervalTier;
-import info.pinlab.snd.trs.Tier.Type;
 import info.pinlab.snd.trs.VadErrorTier;
-import info.pinlab.snd.vad.AmplitudeVad;
 import info.pinlab.snd.vad.VadError;
 
 
@@ -192,39 +183,6 @@ implements  WavPanelUI, ComponentListener
 						WavPanelImpl.this.repaint();
 					}
 				});
-
-		//		System.out.println(String.format("%12d", Integer.parseInt(Integer.toBinaryString(InputEvent.CTRL_DOWN_MASK << 1))));
-		//		System.out.println(String.format("%12d", Long.parseLong(Integer.toBinaryString(InputEvent.ALT_DOWN_MASK  << 1))));
-		//		System.out.println(String.format("%12d", Long.parseLong(Integer.toBinaryString(InputEvent.META_DOWN_MASK << 1))));
-		//		System.out.println(String.format("%12d", Long.parseLong(Integer.toBinaryString(InputEvent.SHIFT_DOWN_MASK<< 1))));
-		//		System.out.println(String.format("%12d", Long.parseLong(Integer.toBinaryString(  (InputEvent.SHIFT_DOWN_MASK|InputEvent.CTRL_DOWN_MASK)  <<1))));
-		//
-		//		System.out.println(String.format("%12d", Integer.parseInt(Integer.toBinaryString(
-		//				KeyEvent.VK_A
-		//				))));
-		//
-		//		
-		//		int key = ((InputEvent.SHIFT_DOWN_MASK|InputEvent.CTRL_DOWN_MASK)<<1) |KeyEvent.VK_A;
-		//		
-		//		System.out.println(String.format("%12d", Long.parseLong(Integer.toBinaryString( 
-		//				((InputEvent.SHIFT_DOWN_MASK|InputEvent.CTRL_DOWN_MASK)<<1) |KeyEvent.VK_A  
-		//				))));
-		//		System.out.println(String.format("%12d", Long.parseLong(Integer.toBinaryString( 
-		//				key  
-		//				))));
-		//
-		//		
-		//		for(int cut : shortCutMap.keySet()){
-		//			System.out.println(String.format("Key %12d", Integer.parseInt(Integer.toBinaryString(
-		//					cut
-		//					))));
-		//		}		
-
-
-		//		for(Integer ks : shortCutMap.keySet()){
-		//			System.out.println(ks);
-		//			System.out.println(ks.getKeyCode());
-		//		}
 
 	}
 
@@ -556,10 +514,6 @@ implements  WavPanelUI, ComponentListener
 
 	}
 	
-	public static void main(String[] args) throws Exception{
-
-
-	}
 }
 
 

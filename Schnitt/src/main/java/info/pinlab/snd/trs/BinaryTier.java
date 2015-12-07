@@ -5,8 +5,12 @@ import java.util.List;
 
 /**
  * 
- * Tier of ONs and OFFs. 
- * Useful e.g. for Voice Activity Detector.
+ * Usable for
+ * <ul>
+ *   <li> ON and OFF values for VAD tier 
+ *   <li> detection of a single segment, or keyword
+ * </ul>
+ * 
  * 
  * <pre>
  * {@code
@@ -35,11 +39,11 @@ import java.util.List;
  * a+b)-----+++------++++++++++------
  *}
  *</pre>
- * @author kinoko
+ *
+ * @author Gabor Pinter
  */
 public class BinaryTier extends AbstractIntervalTier<Boolean>{
-//	private final TreeMap<Double, Boolean> points ;
-	
+	String label = "";
 
 	public BinaryTier(){
 		super(Type.NOT_SET);
@@ -49,32 +53,10 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 	public BinaryTier(Type t){
 		super(t);
 		super.points.put(0.0d, null);
-//		points = new TreeMap<Double, Boolean>();
-//		points.put(0.0d, false);
-	}
-	
-	
-	public double getDuration(){
-		return points.lastKey()-points.firstKey();
 	}
 
 	
-	
-//	public void addInterval(double from, double to){
-//		if(to<from){ //-- switch if wrong order
-//			double tmp = from;
-//			from = to;
-//			to = tmp; 
-//		}
-//		if(from < this.getTierStartTime()){
-//			this.setTierStartTime(from);
-//		}
-//		addInterval(from, to, true);
-//	}
 
-	
-	
-	
 	
 	@Override
 	public IntervalTier<Boolean> addInterval(Interval<Boolean> interval){
@@ -98,53 +80,43 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 		}
 		if(b==null)b = false; //-- null means right edge of the last interval -> let's not use it 
 		
-		Double left = null;
 		
 //		//-- HIGHER side 
 		Double leftOfTo = points.floorKey(to);
 		if(leftOfTo==null){ //-- no left point...
 			points.put(to, null);
-			left = to;
 		}else{ // higher than 'to'
 			Boolean leftOfToVal = points.get(leftOfTo);
 			if(leftOfTo >= from){
 				if(leftOfToVal==null){ //-- end before 'to'
 					points.remove(leftOfTo);
 					points.put(to, null);
-					left = to;
 				}else{ //-- leftOfToVal has a value
 					if(leftOfToVal==b){//-- same as b
 						//-- do nothing!
 						points.remove(to);
-						left = leftOfTo;
 					}else{
 						points.put(to, leftOfToVal);
-						left = to;
 					}
 				}
 			}else{ //-- 
 				if(leftOfToVal!=null){ //-- inserting into an interval
 					if(leftOfToVal==b){ //-- same interval
 						//-- don't add this interval
-						left = leftOfTo;
 						return this;
 					}else{
 						points.put(to, leftOfToVal);
-						left = to;
 					}
 				}else{
-					left = to;
 					points.put(to,null);
 				}
 			}
 		}//-- leftOfTo > 'to'
 
 
-		Double right = null;
 		Double lower = points.lowerKey(from);
 		if(lower==null){ //-- 'from' is lower than anything
 			points.put(from, b);
-			right = to;
 		}else{
 			Boolean lowerVal = points.get(lower);
 			if(lowerVal==null){ //-- 'from' is after last interval
@@ -244,6 +216,17 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 		return labels.get(0);
 	}
 	
+	public void setLabelForTrue(String s){
+		this.label = s;
+	}
+	public String getLabel(){
+		return this.label;
+	}
+	
+	public double getDuration(){
+		return points.lastKey()-points.firstKey();
+	}
+
 	
 	
 	

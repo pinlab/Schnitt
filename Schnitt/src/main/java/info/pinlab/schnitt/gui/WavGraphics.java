@@ -608,6 +608,17 @@ public class WavGraphics implements WavPanelModel{
 		return ta;
 	}
 	
+
+	
+	public GuiAdapterForTier<VadError> addTier(VadErrorTier err){
+		return addTier(err, VadError.class);
+	}
+	public GuiAdapterForTier<Boolean> addTier(BinaryTier tier){
+		return addTier(tier, Boolean.class);
+	}
+
+	
+	
 	
 	@SuppressWarnings("unchecked")
 	@Override

@@ -1,0 +1,30 @@
+digraph VAD {
+    rankdir=LR;
+
+    SIL[label="sil"]
+    VOICE[label="voice"]
+    Clipped[color="red",fontcolor="red",label="FN"];
+    Overhead[color="red",fontcolor="red",label="FP"];
+    CUT[color="red",fontcolor="red", label="FN"];
+    BRIDGE[color="red",fontcolor="red",label="FP"];
+
+/*    SIL -> VOICE[label=<ON<sub>Targ,Hypo</font>>] */
+/*    VOICE -> SIL[label=<OFF<sub>Targ,Hypo</font>>] */
+
+    SIL -> Clipped  [label=<Targ<sub>ON</sub>:<font color="blue">TN</font>>];
+    Clipped -> VOICE[label=<Hypo<sub>ON</sub>:<font color="blue">FEC</font>>];
+    Clipped -> SIL[label=<Targ<sub>OFF</sub>:<font color="blue">WC</font>>];
+
+    SIL -> Overhead[label=<Hypo<sub>ON</sub>:<font color="blue">TN</font>>];
+    Overhead -> SIL[label=<Hypo<sub>OFF</sub>:<font color="blue">NDS_1</font>>];       
+    Overhead -> VOICE[label=<Targ<sub>ON</sub>:<font color="blue">HEAD</font>>];       
+
+    VOICE -> CUT[label=<Hypo<sub>OFF</sub>:<font color="blue">TP</font>>];
+    CUT -> VOICE[label=<Hypo<sub>On</sub>:<font color="blue">MSC</font>>];
+    CUT -> SIL[label=<Targ<sub>OFF</sub>:<font color="blue">REC</font>>];
+
+    VOICE -> BRIDGE[label=<Targ<sub>OFF</sub>:<font color="blue">TP</font>>];
+    BRIDGE-> VOICE [label=<Targ<sub>ON</sub>:<font color="blue">NDS_2</font>>];
+    BRIDGE-> SIL [label=<Hypo<sub>OFF</sub>:<font color="blue">TAIL</font>>];
+}  
+

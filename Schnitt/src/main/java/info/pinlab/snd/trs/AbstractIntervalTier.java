@@ -23,8 +23,8 @@ public abstract class AbstractIntervalTier<T> implements IntervalTier<T>{
 	
 	final TreeMap<Double, T> points;
 	final Tier.Type tierType ;
-	
-	
+
+	private boolean isEditable = true;
 	private String name = "";
 	
 	
@@ -58,6 +58,16 @@ public abstract class AbstractIntervalTier<T> implements IntervalTier<T>{
 		
 	}
 	
+	
+	@Override
+	public boolean isEditable(){
+		return isEditable;
+	}
+	
+	@Override
+	public void isEditable(boolean b){
+		this.isEditable = b;
+	}
 
 	
 	

@@ -31,6 +31,9 @@ public interface Tier{
 	public double getDuration();
 	
 	public Type getTierType(); //-- set by init
+	public boolean isEditable();
+	public void isEditable(boolean b);
+	
 //	public void setTierType(Type type);
 	
 }

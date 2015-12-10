@@ -46,14 +46,13 @@ public class AmplitudeVad implements VoiceActivityDetector {
 	
 	
 	@Override
-	public BinaryTier getVoiceActivity(WavClip wav) {
+	public BinaryHypoTier getVoiceActivity(WavClip wav) {
 		VadParam<?> param = paramMap.get("AMP_THRESH");
 		if(param!=null){
 			thresh = (double) ((VadParam<Double>)param).getValue();
 		}
 		
-		
-		BinaryTier activityTier = new BinaryTier(Type.HYPO);
+		BinaryHypoTier activityTier = new BinaryHypoTier();
 		activityTier.setName("hypo");
 		activityTier.addInterval(0, wav.getDurInMs()/1000.0d, false);
 		double hz = wav.getAudioFormat().getSampleRate(); 

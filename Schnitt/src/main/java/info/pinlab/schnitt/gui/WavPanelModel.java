@@ -5,6 +5,8 @@ import info.pinlab.snd.trs.Interval;
 import info.pinlab.snd.trs.IntervalTier;
 import info.pinlab.snd.trs.Tier;
 import info.pinlab.snd.trs.VadErrorTier;
+import info.pinlab.snd.vad.BinaryHypoTier;
+import info.pinlab.snd.vad.BinaryTargetTier;
 import info.pinlab.snd.vad.VadError;
 
 public interface WavPanelModel {
@@ -34,8 +36,11 @@ public interface WavPanelModel {
 	public int getPxFromSampleIx(int x);
 
 	//-- Intervals
-	public GuiAdapterForTier<Boolean> addTier(BinaryTier tier);
+	public GuiAdapterForTier<Boolean> addTier(BinaryHypoTier hypo);
+	public GuiAdapterForTier<Boolean> addTier(BinaryTargetTier err);
 	public GuiAdapterForTier<VadError> addTier(VadErrorTier err);
+	
+	
 	/**
 	 * Generic addTier method.  
 	 * 
@@ -43,7 +48,7 @@ public interface WavPanelModel {
 	 * @param cls types of interval in the tier 
 	 * @return an adapter around the tier
 	 */
-	public <T> GuiAdapterForTier<T> addTier(IntervalTier<T> tier, Class<T> cls);
+//	public <T> GuiAdapterForTier<T> addTier(IntervalTier<T> tier, Class<T> cls);
 //	public int addTier(IntervalTier<?> t);
 	public int getTierN();
 	public Tier getTierByIx(int ix);

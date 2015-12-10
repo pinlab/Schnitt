@@ -23,11 +23,8 @@ public class Application {
 	
 	Application(WavClip wav){
 		this();
-		wavPanelModel = new WavGraphics();
-		wavPanelModel.setWav(wav);
+		wavPanelModel.setWav(wav); //-- !!
 	}
-	
-	
 	
 	
 	public void start(){
@@ -38,8 +35,8 @@ public class Application {
 	public static void main(String[] args) throws Exception {
 		WavClip wav = new WavClip(Main.class.getResourceAsStream("sample.wav"));
 		
-		new Application(wav).start();
-		
+		Application app = new Application(wav);
+		app.start();
 	}
 	
 }

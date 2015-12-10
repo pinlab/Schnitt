@@ -401,7 +401,7 @@ public class WavGraphics implements WavPanelModel{
 	 * 
 	 * @return min + max values for each pixelpoint
 	 */
-	public double[] getWaveCurvePointsCondensed(){
+	synchronized public double[] getWaveCurvePointsCondensed(){
 		double [] minMaxCoordinates = new double [panelWidthInPx*2];
 		
 		double spanSize = viewSizeInSample / (double)panelWidthInPx;
@@ -445,19 +445,22 @@ public class WavGraphics implements WavPanelModel{
 	}
 
 	@Override
-	public void setWav(WavClip wav){
+	synchronized public void setWav(WavClip wav){
+		if(wav==null){
+			throw new IllegalArgumentException("WavClip can't be null!");
+		}
 		this.setSampleArray(wav.toIntArray(), (int)wav.getAudioFormat().getSampleRate());
 	}
 	
 	@Override
-	public void setSampleArray(int[] samples, int hz) {
-		this.samples = samples;
+	synchronized public void setSampleArray(int[] sampls, int hz) {
+		this.samples = sampls;
 		this.hz = hz;
 		this.viewStartSampleIx = 0;
 		this.viewEndSampleIx = this.samples.length;
 		this.viewSizeInSample = this.viewEndSampleIx - this.viewStartSampleIx;
 		
-		sampleMin=sampleMax=samples[0];
+		sampleMin=sampleMax=this.samples[0];
 
 		Map<Integer, Integer> sampleFreq = new TreeMap<Integer, Integer>();
 		sampleFreqMax = -1;

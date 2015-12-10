@@ -103,3 +103,110 @@ Launcher:	C:\Program Files\Java\jre1.8.0_66\bin\javaw.exe
 Launcher args:	-classpath "C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\etc\test.exe;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\.;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\..;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\audiocore-0.0.4.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\commons-codec-1.8.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\commons-math3-3.2.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\glazedlists_java15-1.9.1.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\hamcrest-core-1.3.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-2.0.5.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-platform-2.0.5-natives-linux.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-platform-2.0.5-natives-osx.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-platform-2.0.5-natives-windows.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\junit-4.12.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jutils-1.0.0.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\logback-classic-1.1.3.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\logback-core-1.1.3.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-2.9.1.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-platform-2.9.1-natives-linux.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-platform-2.9.1-natives-osx.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-platform-2.9.1-natives-windows.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl_util-2.9.1.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\openal-0.0.4.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\slf4j-api-1.7.12.jar" info.pinlab.schnitt.Main
 Args length:	1972/32768 chars
 Exit code:	0
+
+
+Version:	3.8
+CmdLine:	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\etc\test.exe --l4j-debug
+WOW64:		yes
+Working dir:	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\etc\.
+Bundled JRE:	C:\Program Files\Java\jre1.8.0_66
+Check launcher:	C:\Program Files\Java\jre1.8.0_66\bin\javaw.exe (OK)
+Add classpath:	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\*
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\.
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\..
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\audiocore-0.0.4.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\commons-codec-1.8.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\commons-math3-3.2.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\glazedlists_java15-1.9.1.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\hamcrest-core-1.3.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-2.0.5.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-platform-2.0.5-natives-linux.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-platform-2.0.5-natives-osx.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-platform-2.0.5-natives-windows.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\junit-4.12.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jutils-1.0.0.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\logback-classic-1.1.3.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\logback-core-1.1.3.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-2.9.1.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-platform-2.9.1-natives-linux.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-platform-2.9.1-natives-osx.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-platform-2.9.1-natives-windows.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl_util-2.9.1.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\openal-0.0.4.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\slf4j-api-1.7.12.jar
+Launcher:	C:\Program Files\Java\jre1.8.0_66\bin\javaw.exe
+Launcher args:	-classpath "C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\etc\test.exe;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\.;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\..;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\audiocore-0.0.4.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\commons-codec-1.8.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\commons-math3-3.2.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\glazedlists_java15-1.9.1.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\hamcrest-core-1.3.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-2.0.5.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-platform-2.0.5-natives-linux.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-platform-2.0.5-natives-osx.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-platform-2.0.5-natives-windows.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\junit-4.12.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jutils-1.0.0.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\logback-classic-1.1.3.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\logback-core-1.1.3.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-2.9.1.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-platform-2.9.1-natives-linux.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-platform-2.9.1-natives-osx.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-platform-2.9.1-natives-windows.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl_util-2.9.1.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\openal-0.0.4.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\slf4j-api-1.7.12.jar" info.pinlab.schnitt.Main
+Args length:	1972/32768 chars
+Exit code:	0
+
+
+Version:	3.8
+CmdLine:	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\etc\test.exe --l4j-debug
+WOW64:		yes
+Working dir:	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\etc\.
+Bundled JRE:	C:\Program Files\Java\jre1.8.0_66
+Check launcher:	C:\Program Files\Java\jre1.8.0_66\bin\javaw.exe (OK)
+Add classpath:	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\*
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\.
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\..
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\audiocore-0.0.4.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\commons-codec-1.8.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\commons-math3-3.2.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\glazedlists_java15-1.9.1.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\hamcrest-core-1.3.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-2.0.5.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-platform-2.0.5-natives-linux.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-platform-2.0.5-natives-osx.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-platform-2.0.5-natives-windows.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\junit-4.12.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jutils-1.0.0.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\logback-classic-1.1.3.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\logback-core-1.1.3.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-2.9.1.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-platform-2.9.1-natives-linux.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-platform-2.9.1-natives-osx.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-platform-2.9.1-natives-windows.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl_util-2.9.1.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\openal-0.0.4.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\slf4j-api-1.7.12.jar
+Launcher:	C:\Program Files\Java\jre1.8.0_66\bin\javaw.exe
+Launcher args:	-classpath "C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\etc\test.exe;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\.;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\..;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\audiocore-0.0.4.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\commons-codec-1.8.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\commons-math3-3.2.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\glazedlists_java15-1.9.1.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\hamcrest-core-1.3.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-2.0.5.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-platform-2.0.5-natives-linux.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-platform-2.0.5-natives-osx.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-platform-2.0.5-natives-windows.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\junit-4.12.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jutils-1.0.0.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\logback-classic-1.1.3.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\logback-core-1.1.3.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-2.9.1.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-platform-2.9.1-natives-linux.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-platform-2.9.1-natives-osx.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-platform-2.9.1-natives-windows.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl_util-2.9.1.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\openal-0.0.4.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\slf4j-api-1.7.12.jar" info.pinlab.schnitt.Main
+Args length:	1972/32768 chars
+Exit code:	0
+
+
+Version:	3.8
+CmdLine:	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\etc\schnitt-wavpanel-demo.exe --l4j-debug
+WOW64:		yes
+Working dir:	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\etc\.
+32-bit search:	SOFTWARE\JavaSoft\Java Development Kit...
+32-bit search:	SOFTWARE\IBM\Java Development Kit...
+Bundled JRE:	C:\Program Files\Java\jre1.8.0_66
+Check launcher:	C:\Program Files\Java\jre1.8.0_66\bin\javaw.exe (OK)
+Add classpath:	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\*
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\.
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\..
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\audiocore-0.0.4.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\commons-codec-1.8.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\commons-math3-3.2.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\glazedlists_java15-1.9.1.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\hamcrest-core-1.3.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-2.0.5.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-platform-2.0.5-natives-linux.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-platform-2.0.5-natives-osx.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-platform-2.0.5-natives-windows.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\junit-4.12.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jutils-1.0.0.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\logback-classic-1.1.3.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\logback-core-1.1.3.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-2.9.1.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-platform-2.9.1-natives-linux.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-platform-2.9.1-natives-osx.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-platform-2.9.1-natives-windows.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl_util-2.9.1.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\openal-0.0.4.jar
+      "      :	C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\slf4j-api-1.7.12.jar
+Launcher:	C:\Program Files\Java\jre1.8.0_66\bin\javaw.exe
+Launcher args:	-classpath "C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\etc\schnitt-wavpanel-demo.exe;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\.;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\..;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\audiocore-0.0.4.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\commons-codec-1.8.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\commons-math3-3.2.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\glazedlists_java15-1.9.1.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\hamcrest-core-1.3.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-2.0.5.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-platform-2.0.5-natives-linux.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-platform-2.0.5-natives-osx.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jinput-platform-2.0.5-natives-windows.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\junit-4.12.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\jutils-1.0.0.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\logback-classic-1.1.3.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\logback-core-1.1.3.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-2.9.1.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-platform-2.9.1-natives-linux.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-platform-2.9.1-natives-osx.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl-platform-2.9.1-natives-windows.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\lwjgl_util-2.9.1.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\openal-0.0.4.jar;C:\Users\kinoko\workspace\Schnitt\Schnitt\Schnitt\target\lib\slf4j-api-1.7.12.jar" info.pinlab.schnitt.Main
+Args length:	1989/32768 chars
+Exit code:	0

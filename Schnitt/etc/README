@@ -3,3 +3,19 @@ Try:
 - NSIS http://nsis.sourceforge.net/A_slightly_better_Java_Launcher
 
 
+
+Steps
+1. CLI run
+   run from cli: program, with installed java
+   
+2. portable JRE
+   run from cli: progarm, with custom java 
+    - used "jPortable" to get a portable java (for win)
+    - setup manifest (if needed) in pom.xml
+    - if time
+   minimize JRE (it is 150MB now)
+    - not all classes are needed
+    - Packr  -> did not really work...
+     
+3. create installer NSIS
+   

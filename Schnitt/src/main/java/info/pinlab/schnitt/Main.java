@@ -15,9 +15,7 @@ import info.pinlab.snd.vad.BinaryTargetTier;
 public class Main {
 
 	
-	
 	public static void main(String[] args) throws Exception {
-
 		List<Integer> list = new ArrayList<Integer>();
 		list.add(0);
 		list.add(1);
@@ -26,7 +24,6 @@ public class Main {
 		list.remove(0);
 		list.add(0, 8);		
 		System.out.println(list.size());
-
 
 		WavClip wav = new WavClip(Main.class.getResourceAsStream("sample.wav"));
 		//		WavClip wav = new WavClip(WavPanelImpl.class.getResourceAsStream("longsample.wav"));

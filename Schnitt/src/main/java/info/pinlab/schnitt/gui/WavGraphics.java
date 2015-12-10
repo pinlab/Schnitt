@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import info.pinlab.pinsound.WavClip;
 import info.pinlab.snd.trs.Interval;
 import info.pinlab.snd.trs.IntervalTier;
 import info.pinlab.snd.trs.Tier;
@@ -443,6 +444,10 @@ public class WavGraphics implements WavPanelModel{
 		return minMaxCoordinates;
 	}
 
+	@Override
+	public void setWav(WavClip wav){
+		this.setSampleArray(wav.toIntArray(), (int)wav.getAudioFormat().getSampleRate());
+	}
 	
 	@Override
 	public void setSampleArray(int[] samples, int hz) {

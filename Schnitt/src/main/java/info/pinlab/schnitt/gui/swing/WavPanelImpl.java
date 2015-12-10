@@ -500,7 +500,7 @@ implements  WavPanelUI, ComponentListener
 
 
 	
-	
+	@Override
 	public void startGui(){
 		WavPanelImpl panel = new WavPanelImpl();
 		panel.setWavPanelModel(model);	

@@ -33,8 +33,8 @@ public class Main {
 		//		WavClip wav = new WavClip(WavPanelImpl.class.getResourceAsStream("verylongsample.wav"));
 
 		WavPanelModel model = new WavGraphics();
-		model.setSampleArray(wav.toIntArray(), (int)wav.getAudioFormat().getSampleRate());
-
+		model.setWav(wav);
+		
 
 		
 		BinaryTargetTier target = new BinaryTargetTier();

@@ -1,4 +1,4 @@
-package info.pinlab.snd.vad;
+package info.pinlab.schnitt.io;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

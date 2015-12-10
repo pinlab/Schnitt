@@ -12,16 +12,13 @@ public class ManualTestZeroLine {
 		InputStream is = ManualTestZeroLine.class.getResourceAsStream(wavFileName);
 		WavClip wav = new WavClip(is);
 		
-
 		
 		WavPanelModel model = new WavGraphics();
-		model.setSampleArray(wav.toIntArray(), (int)wav.getAudioFormat().getSampleRate());
-
+		model.setWav(wav);
 		
 		WavPanelImpl panel = new WavPanelImpl();
 		panel.setWavPanelModel(model);
 		panel.startGui();
-
 		
 	}
 

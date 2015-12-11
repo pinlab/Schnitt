@@ -18,8 +18,8 @@
 
 Type  | Description
 ------|------------------------------------------------------
-TP    |true negative; silence detected as silence
-TN    |true positive; speech detected as speech
+TP    |true positive; speech detected as speech
+TN    |true negative; silence detected as silence
 WC    |word clipping 
 NDS(1)|noise detected as speech, during silence
 NDS(2)|noise detected as speech, arching 2 speech activities

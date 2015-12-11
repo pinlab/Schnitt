@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-# schnitt
-Testing pull request!
-VAD-based audio cutter with a swing GUI.
-=======
 # Project Schnitt
 * voice activity detector (VAD) algorithm for splitting sound files
 * Java Swing GUI for visualization, error analysis and editing
@@ -38,6 +33,5 @@ TAIL 	|tail: hypo ends after voice activity ends
 The following FDA (more precisely Finite State Transducer) is implemented.
 ![wav panel](https://github.com/kinokocchi/schnitt/blob/master/doc/vad-trans.png)
 
->>>>>>> upstream/master
 
 

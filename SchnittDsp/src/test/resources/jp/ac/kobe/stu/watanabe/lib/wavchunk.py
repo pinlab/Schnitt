@@ -1,0 +1,159 @@
+import numpy as np
+import scipy.fftpack # for DCT
+import logging
+
+import wave
+import sys, os
+
+import math, struct
+import sigproc
+
+
+"""
+def hz2mel(hz):
+    return 2595 * np.log10(1+hz / 700.0)
+
+
+def mel2hz(mel):
+    return 700*(10**(mel/2595.0)-1)
+
+"""
+def hz2mel(f):
+    return 1127.01048 * np.log(f / 700.0 + 1.0)
+
+def mel2hz(m):
+    return 700.0 * (np.exp(m / 1127.01048) - 1.0)
+
+def read_wav(path):
+    wav_f = wave.open(path, "r")
+    hz = wav_f.getframerate()
+    frames = wav_f.readframes(wav_f.getnframes())
+    frames = np.frombuffer(frames, dtype="int16") # / 32768.0  #(-1, 1) normalize
+    wav_f.close()
+    return frames, float(hz)
+
+def melFilterBank(hz, fft, ch):
+    hz_max = hz/2
+    mel_max = hz2mel(hz_max)
+    n_max = fft / 2
+    pass
+
+def get_filterbanks(nfilt=20,nfft=512,samplerate=16000,lowfreq=0,highfreq=None):
+    """Compute a Mel-filterbank. The filters are stored in the rows, the columns correspond
+    to fft bins. The filters are returned as an array of size nfilt * (nfft/2 + 1)
+    :param nfilt: the number of filters in the filterbank, default 20.
+    :param nfft: the FFT size. Default is 512.
+    :param samplerate: the samplerate of the signal we are working with. Affects mel spacing.
+    :param lowfreq: lowest band edge of mel filters, default 0 Hz
+    :param highfreq: highest band edge of mel filters, default samplerate/2
+    :returns: A numpy array of size nfilt * (nfft/2 + 1) containing filterbank. Each row holds 1 filter.
+    """
+    highfreq= highfreq or samplerate/2
+    # compute points evenly spaced in mels
+    lowmel = hz2mel(lowfreq)
+    highmel = hz2mel(highfreq)
+    melpoints = np.linspace(lowmel,highmel,nfilt+2)
+    # our points are in Hz, but we use fft bins, so we have to convert
+    # from Hz to fft bin number
+    bin = np.floor((nfft+1)*mel2hz(melpoints)/samplerate)
+    fbank = np.zeros([nfilt,nfft/2+1])
+    for j in xrange(0,nfilt):
+        for i in xrange(int(bin[j]),int(bin[j+1])):
+            fbank[j,i] = (i - bin[j])/(bin[j+1]-bin[j])
+        for i in xrange(int(bin[j+1]),int(bin[j+2])):
+            fbank[j,i] = (bin[j+2]-i)/(bin[j+2]-bin[j+1])
+    return fbank 
+
+class WavChunk:
+    def __init__(self, samples, hz, chunk_id=None):
+        self.logger = logging.getLogger("__main__")
+        self.samples = samples
+        self.hz = hz
+        self.chunk_id = chunk_id
+    def get_id(self):
+        return self.chunk_id
+    def do_preemp(self, preamp):
+        """ apply pre-emphasis """
+        self.samples = sigproc.preemphasis(self.samples, preamp)
+    def do_hanning(self):
+        """ apply Hanning window to the whole interval """
+        hann = np.hanning(len(self.samples))
+        self.samples=self.samples*hann
+    def do_hamming(self):
+        """ apply Hanning window to the whole interval """
+        hamm = np.hamming(len(self.samples))
+        self.samples=self.samples*hamm
+    def do_mfcc(self, fft_n, mffc_ch):
+        """ produces magnitude-> pow.spec on a freq scale """
+        self.nfft = fft_n
+        self.nmffc = mffc_ch
+        self.mag = sigproc.magspec(self.samples, self.nfft)
+        self.powspec2 = np.square(self.mag)
+        self.powspec1 = sigproc.powspec(self.samples,self.nfft)        
+        self.bank = get_filterbanks(nfilt=self.nmffc, nfft=self.nfft, samplerate=self.hz)
+        self.mfc = np.dot(self.powspec1, self.bank.T)
+        return self.mfc
+    def do_mfcc2(self, samples, fft_n, mffc_ch):
+        """ produces magnitude-> pow.spec on a freq scale """
+        self.samples = samples
+        self.nfft = fft_n
+        self.nmffc = mffc_ch
+        self.bank = get_filterbanks(nfilt=self.nmffc, nfft=self.nfft, samplerate=self.hz)
+        self.mfc = np.dot(np.array(self.samples), self.bank.T)        
+        return self.mfc
+    def do_dct(self, sz=None, exclude_zero=None):
+        """ calc coefficients from  """
+        self.log_mfc = np.log(self.mfc)
+        self.dct = scipy.fftpack.dct(self.log_mfc, type=2)
+        # truncation if needed
+        start_ix = 0
+        end_ix   = len(self.dct)
+        if sz:
+            end_ix  =sz
+        if exclude_zero: 
+            start_ix=1
+            
+        if sz or exclude_zero:
+            self.dct = self.dct[start_ix:end_ix]
+#        self.dct = self.dct[1:(sz+1)]
+        return self.dct
+
+    def extract(self, start, end, chunk_id=None):
+        """ extracts interval start-end """
+        x1 = int(math.floor(self.hz*start))
+        x2 = int(math.ceil(self.hz*end))
+        return WavChunk(self.samples[x1:(x2+0)], self.hz, chunk_id)
+        
+    def extract_mid(self, len_ms, chunk_id=None):
+        """ extracts ms long mid part """
+        sample_n = int(len_ms*self.hz/1000)
+        x1 = (len(self.samples)-sample_n)/2
+        x2 = x1 + sample_n 
+        return WavChunk(self.samples[x1:x2], self.hz, chunk_id)
+        
+    def get_dur(self):
+        return len(self.samples)/self.hz 
+
+    def write_wav(self, path): 
+        outwav = wave.open(path, 'w')
+        #                (ch, sampwidth, framerate, nframes, comptype, compname)
+        outwav.setparams((1, 2, self.hz, len(self.samples), 'NONE', 'not compressed'))
+        self.logger.debug("Wav written to '%s'" % path)
+        i = 0
+        for s in self.samples:
+            i +=1
+#            outwav.writeframesraw( struct.pack('<h', s*32768) )
+            outwav.writeframesraw(struct.pack('<h', s) )
+        outwav.writeframes('')
+        outwav.close()
+    def write_mfc(self, path): 
+        self.logger.debug("MFCC written to '" + path +"'")
+        np.savetxt(path, [self.mfc], delimiter=',', newline='\n')
+
+    def write_dct(self, path): 
+        self.logger.debug("DCT written to '" + path +"'")
+        np.savetxt(path, [self.dct], delimiter=',', newline='\n')
+
+
+
+

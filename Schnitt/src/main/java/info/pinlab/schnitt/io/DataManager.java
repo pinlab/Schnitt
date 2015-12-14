@@ -1,6 +1,7 @@
 package info.pinlab.schnitt.io;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 public interface DataManager {
@@ -11,7 +12,7 @@ public interface DataManager {
 	 * @param file
 	 * @return 
 	 */
-	AudioWithTiers readFile(File file);
+	AudioWithTiers readFile(String file) throws IOException;
 	
 	
 	/**
@@ -21,7 +22,14 @@ public interface DataManager {
 	 * @param isRrecursive  if directories to be checked recursively
 	 * @return a list of {@link AudioWithTiers} objects
 	 */
-	List<AudioWithTiers> parseDir(File dir, boolean isRrecursive);
+	List<AudioWithTiers> parseDir(String dir, boolean isRrecursive);
 
+	/**
+	 * Non-recursive directory read.
+	 * 
+	 * @param dir
+	 * @return
+	 */
+	List<AudioWithTiers> parseDir(String dir);
 	
 }

@@ -54,7 +54,9 @@ public class AudioWithTiers{
 	public WavClip getWav(){
 		return this.wav;
 	}
-
+	public BinaryTier getTarg(){
+		return target;
+	}
 
 	public void setVadErrTier(VadErrorTier err){
 		this.err = err;

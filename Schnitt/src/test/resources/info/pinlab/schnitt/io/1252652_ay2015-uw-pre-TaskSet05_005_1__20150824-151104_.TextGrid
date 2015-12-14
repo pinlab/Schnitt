@@ -1,0 +1,138 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 92.025 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "vad" 
+        xmin = 0 
+        xmax = 92.025 
+        intervals: size = 31 
+        intervals [1]:
+            xmin = 0 
+            xmax = 31.1046875 
+            text = "" 
+        intervals [2]:
+            xmin = 31.1046875 
+            xmax = 33.6711875 
+            text = "s" 
+        intervals [3]:
+            xmin = 33.6711875 
+            xmax = 34.495980636693865 
+            text = "" 
+        intervals [4]:
+            xmin = 34.495980636693865 
+            xmax = 34.87775 
+            text = "<GB>" 
+        intervals [5]:
+            xmin = 34.87775 
+            xmax = 40.14725 
+            text = "s" 
+        intervals [6]:
+            xmin = 40.14725 
+            xmax = 41.51891487055316 
+            text = "" 
+        intervals [7]:
+            xmin = 41.51891487055316 
+            xmax = 42.3089375 
+            text = "<GB>" 
+        intervals [8]:
+            xmin = 42.3089375 
+            xmax = 43.20231678567874 
+            text = "" 
+        intervals [9]:
+            xmin = 43.20231678567874 
+            xmax = 45.663875 
+            text = "s" 
+        intervals [10]:
+            xmin = 45.663875 
+            xmax = 46.682493962219986 
+            text = "" 
+        intervals [11]:
+            xmin = 46.682493962219986 
+            xmax = 47.1438125 
+            text = "<GB>" 
+        intervals [12]:
+            xmin = 47.1438125 
+            xmax = 51.01330167186143 
+            text = "" 
+        intervals [13]:
+            xmin = 51.01330167186143 
+            xmax = 51.8045 
+            text = "<GB>" 
+        intervals [14]:
+            xmin = 51.8045 
+            xmax = 67.11540785196964 
+            text = "" 
+        intervals [15]:
+            xmin = 67.11540785196964 
+            xmax = 67.58625 
+            text = "<GB>" 
+        intervals [16]:
+            xmin = 67.58625 
+            xmax = 68.67087500000001 
+            text = "s" 
+        intervals [17]:
+            xmin = 68.67087500000001 
+            xmax = 70.20518750000001 
+            text = "" 
+        intervals [18]:
+            xmin = 70.20518750000001 
+            xmax = 72.3561875 
+            text = "s" 
+        intervals [19]:
+            xmin = 72.3561875 
+            xmax = 73.4794375 
+            text = "" 
+        intervals [20]:
+            xmin = 73.4794375 
+            xmax = 75.9800625 
+            text = "s" 
+        intervals [21]:
+            xmin = 75.9800625 
+            xmax = 79.3838953053751 
+            text = "" 
+        intervals [22]:
+            xmin = 79.3838953053751 
+            xmax = 79.66543750000001 
+            text = "<GB>" 
+        intervals [23]:
+            xmin = 79.66543750000001 
+            xmax = 80.64600000000002 
+            text = "s" 
+        intervals [24]:
+            xmin = 80.64600000000002 
+            xmax = 81.29623988095777 
+            text = "" 
+        intervals [25]:
+            xmin = 81.29623988095777 
+            xmax = 82.54725 
+            text = "s" 
+        intervals [26]:
+            xmin = 82.54725 
+            xmax = 85.26906840065414 
+            text = "" 
+        intervals [27]:
+            xmin = 85.26906840065414 
+            xmax = 85.97612500000001 
+            text = "s" 
+        intervals [28]:
+            xmin = 85.97612500000001 
+            xmax = 87.84130652696602 
+            text = "" 
+        intervals [29]:
+            xmin = 87.84130652696602 
+            xmax = 88.46287500000001 
+            text = "<GB>" 
+        intervals [30]:
+            xmin = 88.46287500000001 
+            xmax = 89.7239375 
+            text = "s" 
+        intervals [31]:
+            xmin = 89.7239375 
+            xmax = 92.025 
+            text = "" 

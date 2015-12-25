@@ -17,7 +17,7 @@ import info.pinlab.pinsound.WavClip;
 public class Main {
 	public static void main(String[] args) throws Exception {
 		final String HOME;
-		final String filePath = "workspace/SchnittDsp/src/main/resources/jp/ac/kobe/stu/watanabe/test.wav";
+		final String filePath = "workspace/schnitt/SchnittDsp/src/main/resources/jp/ac/kobe/stu/watanabe/test.wav";
 		final String wavFileIn;
 
 		final int fftn = 512;

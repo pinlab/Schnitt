@@ -1,7 +1,7 @@
 package jp.ac.kobe.stu.watanabe;
 
 /**
- * Execute Discrete cosinet transform
+ * Execute Discrete cosine transform
  * 
  * @author snoopy
  * 

@@ -91,9 +91,7 @@ public class AcousticFrontEndFactoryImp implements AcousticFrontEndFactory {
 	 */
 	@Override
 	public AcousticFrontEnd build() {
-		
-		
-		return new AcousticFrontEndImp(this.FFT_N, this.MFCC_CH, this.windowType, this.winLen, this.stepLength,
-				this.HZ);
+		return new AcousticFrontEndImp(fftN, mfccCh, winType,
+				this.frameLenInMs, this.frameShiftInMs, hz);	
 	}
 }

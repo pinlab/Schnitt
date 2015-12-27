@@ -1,8 +1,6 @@
 package info.pinlab.snd.vad;
 
 import info.pinlab.snd.trs.BinaryTier;
-import info.pinlab.snd.trs.Interval;
-import info.pinlab.snd.trs.IntervalTier;
 
 /**
  * 

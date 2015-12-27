@@ -7,10 +7,6 @@ package info.pinlab.snd.dsp;
  *
  */
 public class MelFilterBank {
-
-	public double[] ampSamples;
-	public double[][] melFilterBankedAmp;
-	public double[] sumOfFilteredAmp;
 	private final int hz;
 	private final int fftN;
 	private final int mfccChN;
@@ -29,11 +25,10 @@ public class MelFilterBank {
 	 * @param fs     sampling rate (frame/sec) in Hz
 	 * @param mfcc_ch
 	 */
-	public MelFilterBank(int fft_n, int fs, int mfcc_ch) {
-		this.hz = fs;
-		this.mfccChN = mfcc_ch;
-		this.fftN = fft_n;
-		
+	public MelFilterBank(AcousticContext context) {
+		this.hz = context.hz;
+		this.mfccChN = context.mfccCh;
+		this.fftN = context.fftN;
 		
 		this.fmax = hz / 2; // Nyquist
 		this.melMax = 1127.01048 * Math.log(fmax / 700.0 + 1.0); // Mel-Nyquist
@@ -103,23 +98,20 @@ public class MelFilterBank {
 	 * @param samples
 	 * @return mfcc_ch number of mfc coefficients
 	 */
-	public double[] doMelFilterBank(double[] samples) {
-		this.ampSamples = samples;
-
-
+	public double[] process(double[] samples) {
 		// FilteredAmp = Amplitude array that is applied mel-FilterBank from CH1
 		// = MFCC_CH to
-		melFilterBankedAmp = new double[mfccChN][fftN / 2];
+		double[][] melFilterBankedAmp = new double[mfccChN][fftN / 2];
 		for (int c = 0; c < mfccChN; c++) {
 			for (int i = 0; i < fftN / 2; i++) {
-				melFilterBankedAmp[c][i] = ampSamples[i] * filterBank[c][i];
+				melFilterBankedAmp[c][i] = samples[i] * filterBank[c][i];
 			}
 		}
 
 		/*
 		 * Calculating Sum of FilteredAmp
 		 */
-		sumOfFilteredAmp = new double[mfccChN];
+		double[] sumOfFilteredAmp = new double[mfccChN];
 		double sumValue = 0;
 		for (int c = 0; c < mfccChN; c++) {
 			sumValue = 0;

@@ -53,7 +53,8 @@ public class AcousticFrontEndImp implements AcousticFrontEnd {
 	 * @param step
 	 * @param hz
 	 */
-	public AcousticFrontEndImp(int fftN, int mfccCh, WindowType win, int winLen, int step, int hz) {
+	public AcousticFrontEndImp(int fftN, int mfccCh, 
+			WindowType win, int winLen, int step, int hz) {
 		this.FFT_N = fftN;
 		this.MFCC_CH = mfccCh;
 		this.windowType = win;
@@ -147,12 +148,12 @@ public class AcousticFrontEndImp implements AcousticFrontEnd {
 	 */
 	private double[] windowFrames(double[] preEmphedSamples) {
 		windowedSamp = new double[FFT_N];
-		if (windowType == "Hunning") {
+		
+		if (WindowType.HANNING.equals(this.windowType)) {
 			for (int n = 0; n < FFT_N; n++) {
 				windowedSamp[n] = (0.5 - (0.5 * Math.cos(2 * Math.PI * n / (FFT_N - 1)))) * preEmphedSamples[n];
 			}
 		}
-
 		return windowedSamp;
 	}
 
@@ -188,7 +189,7 @@ public class AcousticFrontEndImp implements AcousticFrontEnd {
 	private double[] doMfcc(double[] ampSamples) {
 		MelFilterBank melFilter = new MelFilterBank(FFT_N, HZ, MFCC_CH);
 		double[] mfc = new double[MFCC_CH];
-		mfc = melFilter.doMelFilterBank(ampSamples);
+		mfc = melFilter.process(ampSamples);
 
 		for (int c = 0; c < MFCC_CH; c++) {
 			// Log-transfer Sum of FilteredBanked Amplitude

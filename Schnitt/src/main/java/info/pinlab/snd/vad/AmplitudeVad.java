@@ -6,10 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import info.pinlab.pinsound.WavClip;
-import info.pinlab.snd.dsp.AcousticFeatures;
-import info.pinlab.snd.trs.BinaryTier;
-import info.pinlab.snd.trs.PrimitiveDoubleTier;
-import info.pinlab.snd.trs.Tier.Type;
 
 /**
  * 
@@ -45,6 +41,7 @@ public class AmplitudeVad implements VoiceActivityDetector {
 	
 	
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public BinaryHypoTier getVoiceActivity(WavClip wav) {
 		VadParam<?> param = paramMap.get("AMP_THRESH");

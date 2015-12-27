@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.util.Arrays;
 
 import javax.sound.sampled.AudioFormat;
 
@@ -51,6 +52,7 @@ public class AudioFrameReader{
 
 	interface AudioFrameConsumer{
 		public void consume(int[] samples);
+		public void end();
 	}
 
 
@@ -114,13 +116,6 @@ public class AudioFrameReader{
 	}
 
 
-//	public void setFrameLenInMs(int ms){
-//		
-//		
-//		frameLenInMs = ms;
-//		frameLenInByte = (frameLenInMs*hz*bytePerSample)/1000;   /* */; //-- 10ms x 16kHz x depth (16bit -> 2byte)
-//	}
-
 
 	private class AudioByteReader implements Runnable{
 		@Override
@@ -133,7 +128,7 @@ public class AudioFrameReader{
 							pos.write(b);
 //							try{
 ////								System.out.println(Thread.currentThread());
-//								Thread.sleep(10);
+//								Thread.currentThread().sleep(10);
 //							}catch(InterruptedException e){};
 						}
 					}
@@ -170,6 +165,8 @@ public class AudioFrameReader{
 		
 		int [] prevFrame ; 
 		
+		int frameN = 0;
+		
 		Framer(int frameLenInByte){
 			this.frameLenInByte = frameLenInByte;
 			frameLenInSample = frameLenInByte/context.bytePerSample;
@@ -204,7 +201,8 @@ public class AudioFrameReader{
 						if(frameConsumer != null){
 							final int [] frame = getIntsFrom16bitLe(buff);
 							frameConsumer.consume(frame);
-							
+							frameN++;
+							System.out.println("Framer of " + frameN);
 							//-- copy 2nd half of samples into prevFrame
 							prevFrame = new int[frameLenInSample];
 							System.arraycopy(frame, frameHalfLenInSample, prevFrame, 0, frameHalfLenInSample);
@@ -234,6 +232,9 @@ public class AudioFrameReader{
 							
 							System.arraycopy(frame, frameHalfLenInSample, 
 											prevFrame, 0, frameHalfLenInSample);
+							frameN++;
+							System.out.println("Framer of " + frameN);
+
 						}
 						off = 0;
 						len = frameLenInByte;
@@ -246,7 +247,9 @@ public class AudioFrameReader{
 			}
 			
 			
-			
+			if(frameConsumer != null){
+				frameConsumer.end();
+			}
 		}
 	}
 
@@ -263,7 +266,6 @@ public class AudioFrameReader{
 			pos.close();
 		}catch(IOException e){}
 	}
-
 
 
 
@@ -285,15 +287,21 @@ public class AudioFrameReader{
 		pipe.setAudioFrameConsumer(new AudioFrameConsumer() {
 			@Override
 			public void consume(int[] samples) {
-				System.out.println(" size: " + samples.length);
+//				System.out.println(" size: " + samples.length);
 				for(int i = 0; i < samples.length ; i++){
-//					System.out.println("\t[" + (samples[0]*(samples.length-1)+i-1) + "]  " + samples[i]);
+					
 					System.out.print(samples[i]+" ");
 //					if((i+1)==samples.length/2){
 //						System.out.print(" |  ");
 //					}
 				}
-				System.exit(0);
+				System.out.println("");
+//				System.exit(0);
+			}
+
+			@Override
+			public void end() {
+				System.out.println("DONE!");
 			}
 		});
 		pipe.start();

@@ -1,5 +1,7 @@
 package info.pinlab.snd.dsp;
 
+import info.pinlab.snd.dsp.ParameterSheet.BaseParams;
+import info.pinlab.snd.dsp.ParameterSheet.ProcessorParameter;
 
 /**
  * 
@@ -19,9 +21,44 @@ public class MelFilter extends AbstractFrameProcessor{
 
 	private double[][] filterBank ;
 
+	
 
+	enum MfccParams implements ProcessorParameter{
+		MFCC_CH(26),
+		FFT_N(128),
+		;
+		
+		final String id;
+		final String label;
+		final Object defVal;
+		MfccParams(Object defVal){
+			this.id = FrameProducer.class.getName()+"." +this.toString().toUpperCase();
+			this.label = id.toUpperCase();
+			this.defVal = defVal;
+		}
 
-	public MelFilter(AcousticContext context) {
+		@Override
+		public String getUniqName(){return id;			}
+		@Override
+		public String getLabel() {	return label;		}
+		@Override
+		public boolean getBoolean(){return (boolean)defVal;	}
+		@Override
+		public int getInt() {		return (int)defVal;	}
+		@Override
+		public double getDouble(){	return (int) defVal;}
+		@Override
+		public Object get(){		return defVal;		}
+	}
+	
+	
+	public static ProcessorParameter[] getProcessorParams(){
+		return MfccParams.values();
+	}
+
+	
+	
+	public MelFilter(ParameterSheet context) {
 		super(context);
 	};
 
@@ -46,9 +83,9 @@ public class MelFilter extends AbstractFrameProcessor{
 
 	@Override
 	synchronized public void init() {
-		this.hz = context.hz;
-		this.mfccChN = context.mfccCh;
-		this.fftN = context.fftN;
+		hz = context.getInt(BaseParams.HZ);
+		mfccChN = context.getInt(MfccParams.MFCC_CH);
+		fftN = context.getInt(MfccParams.FFT_N);
 
 		this.fmax = hz / 2; // Nyquist
 		this.melMax = 1127.01048 * Math.log(fmax / 700.0 + 1.0); // Mel-Nyquist
@@ -119,7 +156,7 @@ public class MelFilter extends AbstractFrameProcessor{
 	 * @return mfcc_ch number of mfc coefficients
 	 */
 	@Override
-	public double[] innerProcess(double[] samples) {
+	public double[] process(double[] samples) {
 		// FilteredAmp = Amplitude array that is applied mel-FilterBank from CH1
 		// = MFCC_CH to
 		double[][] melFilterBankedAmp = new double[mfccChN][fftN / 2];

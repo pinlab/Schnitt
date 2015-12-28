@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.util.Arrays;
 
 import javax.sound.sampled.AudioFormat;
 
 import info.pinlab.pinsound.WavClip;
+import info.pinlab.snd.dsp.ParameterSheet.BaseParams;
 
 
 /**
@@ -33,10 +33,12 @@ public class FrameProducer{
 	private final PipedOutputStream pos ;
 	private final PipedInputStream pis ;
 
+	private final int hz;
+	private final int bytePerSample;
 	
-	AcousticContext context;
+	private final ParameterSheet context;
 	
-	int hz = 16000;
+//	int hz = 16000;
 //	int bytePerSample = 2;
 	int buffSizeInMs = 5*1000;
 	int buffSizeInByte = buffSizeInMs; 
@@ -49,37 +51,33 @@ public class FrameProducer{
 	private WavClip wav = null;
 	private AudioFrameConsumer frameConsumer = null;
 
-
+	
+	
 	interface AudioFrameConsumer{
 		public void consume(int[] samples);
 		public void end();
 	}
 
 
-	public FrameProducer(int frameLenInMs){
-		this(new AcousticContext.AcousticContextBuilder().setFrameLenInMs(frameLenInMs).build());
-	}
-	
-	public FrameProducer(){
-		this(new AcousticContext.AcousticContextBuilder().build());
-	}
+//	public FrameProducer(int frameLenInMs){
+//		this(new ProcessorParameters.AcousticContextBuilder().setFrameLenInMs(frameLenInMs).build());
+//	}
+//	
+//	public FrameProducer(){
+//		this(new ProcessorParameters.AcousticContextBuilder().build());
+//	}
 
-	public FrameProducer(AcousticContext context){
-//		if(af!=null){
-//			if(af.getChannels()>1){
-//				throw new IllegalArgumentException("Only mono sound is allowed");
-//			}
-//			hz = (int)af.getSampleRate();
-//			bytePerSample = af.getSampleSizeInBits()/8;
-//		}
-		
+	public FrameProducer(ParameterSheet context){
 		this.context = context;
+		hz = context.getInt(BaseParams.HZ);
+		bytePerSample = context.getInt(BaseParams.BYTE_PER_SAMPE); 
+				
 //		this.frameLenInMs = frameLenInMs;
 //		frameLenInByte = (this.frameLenInMs*hz*2)/1000;
 
 		
 		pos = new PipedOutputStream();
-		pis = new PipedInputStream(context.hz*context.bytePerSample); //-- 1 second buffer
+		pis = new PipedInputStream(hz * bytePerSample); //-- 1 second buffer
 		try{
 			pis.connect(pos);
 		}catch(IOException ignore){};
@@ -95,7 +93,7 @@ public class FrameProducer{
 		frameConsumer = consumer;
 	}
 
-
+	
 	public void setFileSource(WavClip wav){
 		if(wav==null){
 			throw new IllegalArgumentException("WavClip can't be null!");
@@ -104,8 +102,8 @@ public class FrameProducer{
 		if(af.getChannels()>1){
 			throw new IllegalArgumentException("WavClip can only be mono!");
 		}
-		if(context.hz != (int)af.getSampleRate()){
-			throw new IllegalArgumentException("WavClip has wrong sampling rate("+ af.getSampleRate() +"vs " + context.hz + ")");
+		if(hz != (int)af.getSampleRate()){
+			throw new IllegalArgumentException("WavClip has wrong sampling rate("+ af.getSampleRate() +"vs " + hz + ")");
 		}
 		
 //		hz = (int)af.getSampleRate();
@@ -153,7 +151,7 @@ public class FrameProducer{
 		writeThread = new Thread(new AudioByteReader(), "Sample Byte Reader");
 		writeThread.start();
 
-		framerThread = new Thread(new Framer(context.frameLenInByte), "Sample Consumer");
+		framerThread = new Thread(new Framer(context.getInt(BaseParams.FRAME_LEN_BYTE)), "Sample Consumer");
 		framerThread.start();
 	}
 
@@ -169,16 +167,16 @@ public class FrameProducer{
 		
 		Framer(int frameLenInByte){
 			this.frameLenInByte = frameLenInByte;
-			frameLenInSample = frameLenInByte/context.bytePerSample;
+			frameLenInSample = frameLenInByte/bytePerSample;
 			frameHalfLenInSample = frameLenInSample / 2;
 		}
 
 		int [] getIntsFrom16bitLe(byte [] buff){
 			int [] samples = new int[frameLenInSample];
 			for(int i = 0; i < samples.length ; i++){
-				samples[i] = buff[(i*context.bytePerSample+1)];
+				samples[i] = buff[(i*bytePerSample+1)];
 				samples[i] = samples[i] << 8;
-				samples[i] |=  buff[(i*context.bytePerSample+0)];
+				samples[i] |=  buff[(i*bytePerSample+0)];
 			}
 			return samples;
 		}
@@ -279,7 +277,7 @@ public class FrameProducer{
 		}
 		System.out.println("***************");
 		
-		AcousticContext context = new AcousticContext.AcousticContextBuilder().setFrameLenInMs(1).build();
+		ParameterSheet context = new ParameterSheet.ParameterSheetBuilder().setFrameLenInMs(1).build();
 		
 		FrameProducer pipe = new FrameProducer(context);
 //		AudioFrameReader pipe = new AudioFrameReader(1, wav.getAudioFormat());

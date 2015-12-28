@@ -22,8 +22,8 @@ public interface FrameProcessor{
 	
 	
 	public void init();
-	public void process(DoubleFrame frame);
-	public double [] innerProcess(double [] arr);
+	public void processWrapper(DoubleFrame frame);
+	public double [] process(double [] arr);
 	
 }
 

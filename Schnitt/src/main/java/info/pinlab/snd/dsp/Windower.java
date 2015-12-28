@@ -2,7 +2,8 @@ package info.pinlab.snd.dsp;
 
 public interface Windower{
 	public enum WindowType{
-		HANNING, HAMMING
+		HANNING, HAMMING,
+		NONE
 	}
 
 	/**

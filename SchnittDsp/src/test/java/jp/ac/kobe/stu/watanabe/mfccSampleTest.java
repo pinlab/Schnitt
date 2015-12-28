@@ -1,6 +1,6 @@
 package jp.ac.kobe.stu.watanabe;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -8,16 +8,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import info.pinlab.pinsound.WavClip;
-import jp.ac.kobe.stu.watanabe.AcousticFrontEnd;
-import jp.ac.kobe.stu.watanabe.AcousticFrontEndFactory;
-import jp.ac.kobe.stu.watanabe.AcousticFrontEndFactoryImp;
 
 public class mfccSampleTest {
 //	Default

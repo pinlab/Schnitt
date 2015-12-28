@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DoubleFrame {
-	long startSampleId;
+public class DoubleFrame implements Frame {
+	long startSampleIx;
 	long startT;
 	int nextId;
 	int prevId;
@@ -27,12 +27,12 @@ public class DoubleFrame {
 	public DoubleFrame(double [] s, String key, long startSampleIx){
 		data = new HashMap<String, double[]>();
 		data.put(key, s);
-		this.startSampleId = startSampleIx;
+		this.startSampleIx = startSampleIx;
 	}
 	
 	
 	public void setStartSempleIx(long ix){
-		startSampleId = ix;
+		startSampleIx = ix;
 	}
 	public void setStartSampleT(long t){
 		startT = t;
@@ -45,6 +45,10 @@ public class DoubleFrame {
 	
 	public void put(double [] arr, String key){
 		data.put(key, arr);
+	}
+	@Override
+	public long getStartSampleIx() {
+		return startSampleIx;
 	}
 }
 

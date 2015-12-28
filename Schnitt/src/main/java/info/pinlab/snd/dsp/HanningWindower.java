@@ -1,10 +1,11 @@
 package info.pinlab.snd.dsp;
 
+import info.pinlab.snd.dsp.ParameterSheet.BaseParams;
 
 /**
  * 
  * In-place windower.
- * The FrameProcessor method: {@link #innerProcess(double[])} returns null.
+ * The FrameProcessor method: {@link #process(double[])} returns null.
  *
  *<pre>
  * predecessorKey : "sample"
@@ -185,7 +186,7 @@ public class HanningWindower extends AbstractFrameProcessor implements Windower{
 	double [] filter;
 
 	
-	public HanningWindower(AcousticContext context){
+	public HanningWindower(ParameterSheet context){
 		super(context);
 	}
 	
@@ -199,8 +200,8 @@ public class HanningWindower extends AbstractFrameProcessor implements Windower{
 	}
 
 	@Override
-	public void init() {
-		int size = context.frameLenInSample;
+	public void init(){
+		int size = context.getInt(BaseParams.FRAME_LEN_SAMPLE);
 		filter = new double[size];
 		if(size==160){
 			for(int i = 0; i < size ; i++){
@@ -214,7 +215,7 @@ public class HanningWindower extends AbstractFrameProcessor implements Windower{
 	}
 
 	@Override
-	public double[] innerProcess(double[] arr) {
+	public double[] process(double[] arr) {
 		for(int i = 0; i < filter.length ; i++){
 			arr[i] *= filter[i];
 		}
@@ -223,7 +224,7 @@ public class HanningWindower extends AbstractFrameProcessor implements Windower{
 
 	@Override
 	public void filter(double[] samples) {
-		innerProcess(samples);
+		process(samples);
 	}
 	
 	

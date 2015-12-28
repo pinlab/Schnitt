@@ -2,7 +2,7 @@ package info.pinlab.snd.dsp;
 
 public class Fft extends AbstractFrameProcessor {
 
-	public Fft(AcousticContext context){
+	public Fft(ParameterSheet context){
 		super(context);
 	};
 	
@@ -23,7 +23,7 @@ public class Fft extends AbstractFrameProcessor {
 	}
 
 	@Override
-	public double[] innerProcess(double[] arr) {
+	public double[] process(double[] arr) {
 		return null;
 	}
 

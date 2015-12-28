@@ -1,9 +1,9 @@
 package info.pinlab.snd.vad;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+
 import java.io.InputStream;
 
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;

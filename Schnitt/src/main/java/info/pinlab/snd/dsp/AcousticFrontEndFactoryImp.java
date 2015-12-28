@@ -1,6 +1,6 @@
 package info.pinlab.snd.dsp;
 
-import info.pinlab.snd.dsp.Window.WindowType;
+import info.pinlab.snd.dsp.Windower.WindowType;
 
 public class AcousticFrontEndFactoryImp implements AcousticFrontEndFactory {
 	//-- default values --//
@@ -9,7 +9,7 @@ public class AcousticFrontEndFactoryImp implements AcousticFrontEndFactory {
 	public static int MFCC_CH = 26;
 	public static int FRAME_LEN_MS = 20;
 	public static int FRAME_SHIFT_LEN_MS = 10;
-	public static WindowType WIN_TYPE = Window.WindowType.HANNING;
+	public static WindowType WIN_TYPE = Windower.WindowType.HANNING;
 	
 	private int hz = HZ;
 	private int fftN = FFT_N;

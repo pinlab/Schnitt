@@ -7,7 +7,8 @@ import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
 
-import info.pinlab.snd.dsp.Window.WindowType;
+import info.pinlab.snd.dsp.AcousticContext.AcousticContextBuilder;
+import info.pinlab.snd.dsp.Windower.WindowType;
 
 /**
  * 
@@ -187,9 +188,17 @@ public class AcousticFrontEndImp implements AcousticFrontEnd {
 	 * 
 	 */
 	private double[] doMfcc(double[] ampSamples) {
-		MelFilterBank melFilter = new MelFilterBank(FFT_N, HZ, MFCC_CH);
+		AcousticContext context = new AcousticContextBuilder()
+		.setFftN(this.FFT_N)
+		.setHz(this.HZ)
+		.setMfccCh(this.MFCC_CH)
+		.build();
+		MelFilter melFilter = new MelFilter(context);
 		double[] mfc = new double[MFCC_CH];
-		mfc = melFilter.process(ampSamples);
+		
+		DoubleFrame frame = new DoubleFrame(ampSamples, "sample", 0);
+		melFilter.process(frame);
+		mfc = frame.get("mfc");
 
 		for (int c = 0; c < MFCC_CH; c++) {
 			// Log-transfer Sum of FilteredBanked Amplitude

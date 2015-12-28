@@ -1,8 +1,21 @@
 package info.pinlab.snd.dsp;
 
-public class HanningWindow implements Window{
+
+/**
+ * 
+ * In-place windower.
+ * The FrameProcessor method: {@link #innerProcess(double[])} returns null.
+ *
+ *<pre>
+ * predecessorKey : "sample"
+ * key            : "sample"
+ * </pre>
+ * 
+ * @author Gabor Pinter
+ */
+public class HanningWindower extends AbstractFrameProcessor implements Windower{
 	static double [] HANN_160 = new double [160];
-	
+	static double [] HANN_320 = new double [320];
 	static{
 		HANN_160[0] = 0.00000000000000000000e+00;
 		HANN_160[1] = 3.90345323214080774932e-04;
@@ -166,9 +179,25 @@ public class HanningWindow implements Window{
 		HANN_160[159] = 0.00000000000000000000e+00;
 	}
 	
-	final double [] filter;
+	double [] filter;
+
 	
-	public HanningWindow (int size){
+	public HanningWindower(AcousticContext context){
+		super(context);
+	}
+	
+	@Override
+	public String getPredecessorKey() {
+		return "sample";
+	}
+	@Override
+	public String getKey() {
+		return "sample";
+	}
+
+	@Override
+	public void init() {
+		int size = context.frameLenInSample;
 		filter = new double[size];
 		if(size==160){
 			for(int i = 0; i < size ; i++){
@@ -182,34 +211,25 @@ public class HanningWindow implements Window{
 	}
 
 	@Override
-	public void filter(double[] samples) {
+	public double[] innerProcess(double[] arr) {
 		for(int i = 0; i < filter.length ; i++){
-			samples[i] *= filter[i];
+			arr[i] *= filter[i];
 		}
+		return null;
+	}
+
+	@Override
+	public void filter(double[] samples) {
+		innerProcess(samples);
 	}
 	
 	
-	
-	
-	public static void main(String[] args) {
-		HanningWindow hann = new HanningWindow(11);
-		double [] t = new double [11];
-		for(int i = 0 ; i < t.length ; i++){
-			t[i] = 1;
-		}
-		
-		for(int i = 0 ; i < t.length ; i++){
-			System.out.println(t[i]);
-		}
-
-		hann.filter(t);
-		
-		for(int i = 0 ; i < t.length ; i++){
-			System.out.println(t[i]);
-		}
-		
+	@Override
+	public WindowType getWindowType() {
+		return Windower.WindowType.HANNING;
 	}
 
-
-
+	
+	
+	
 }

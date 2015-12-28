@@ -1,6 +1,6 @@
 package info.pinlab.snd.dsp;
 
-import info.pinlab.snd.dsp.Window.WindowType;
+import info.pinlab.snd.dsp.Windower.WindowType;
 
 public interface AcousticFrontEndFactory {
 

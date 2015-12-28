@@ -2,7 +2,7 @@ package info.pinlab.snd.dsp;
 
 import javax.sound.sampled.AudioFormat;
 
-import info.pinlab.snd.dsp.Window.WindowType;
+import info.pinlab.snd.dsp.Windower.WindowType;
 
 /**
  * Collection of acoustic related configuration
@@ -19,7 +19,7 @@ public class AcousticContext{
 	public static int MFCC_CH = 26;
 	public static int FRAME_LEN_MS = 20;
 	public static int FRAME_SHIFT_MS = 10;
-	public static WindowType WIN_TYPE = Window.WindowType.HANNING;
+	public static WindowType WIN_TYPE = Windower.WindowType.HANNING;
 	
 	public final int hz ;
 	public final boolean isBigEndian;

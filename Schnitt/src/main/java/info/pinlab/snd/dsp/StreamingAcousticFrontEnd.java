@@ -1,6 +1,8 @@
 package info.pinlab.snd.dsp;
 
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 import info.pinlab.pinsound.WavClip;
@@ -25,11 +27,12 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 	private final AcousticContext context;
 	private final double sampleMax;
 	private int frameN = 0;
-	private MelFilterBank melFilter;
-
 	private final AudioFrameReader frameReader; 
 
 	Thread processorThread;
+
+
+	private final FrameProcessor [] pipeline;
 
 
 	public StreamingAcousticFrontEnd(AcousticContext context){
@@ -42,10 +45,30 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 		inDeque = new ConcurrentLinkedDeque<DoubleFrame>();
 		outDeque = new ConcurrentLinkedDeque<DoubleFrame>();
 
-		melFilter = new MelFilterBank(context);
+		pipeline = new FrameProcessor[1];
+		try {
+			//-- INIT frame processors here!
+
+			HanningWindower hannWindower = FrameProcessorFactory.create(HanningWindower.class, context);
+			MelFilter melFilter = FrameProcessorFactory.create(MelFilter.class, context);
+
+			pipeline[0] = hannWindower;
 
 
-		processorThread = new Thread(new FeatureProcessor());
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		}
+
 
 	}
 
@@ -56,53 +79,60 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 			arr[i] = samples[i]/sampleMax;
 		}
 		int id = frameN*(context.frameLenInSample/2);
-		DoubleFrame frame = new DoubleFrame(arr, id);
+		DoubleFrame frame = new DoubleFrame(arr, "sample", id);
 		frameN++;		
-		inDeque.add(frame);
+		synchronized (inDeque) {
+			inDeque.add(frame);
+			inDeque.notify();
+		}
+
 	}
 
 	@Override
 	public void end(){
 		System.out.println("END!");
-
-//		processorThread.interrupt();
-//		synchronized (this) {
-//			notify();
-//		}
+		//		processorThread.interrupt();
+		//		synchronized (this) {
+		//			notify();
+		//		}
 	}
 
-	private class FeatureProcessor implements Runnable{
 
+	private class FeatureProcessor implements Runnable{
+		
 		@Override
 		public void run(){
 			int frameN = 0;
-			
-//			System.out.println("RUN");
-//			synchronized (processorThread){
-				LOOP: while(true){
-//					System.out.println("  loop ");
-					DoubleFrame frame = inDeque.pollFirst();
-					if(frame==null){
-//						System.out.println("  null frame");
+			LOOP: while(true){
+				DoubleFrame frame = inDeque.pollFirst();
+				if(frame==null){
+					synchronized (inDeque) {
 						try {
-							Thread.sleep(20);
-//							processorThread.wait();
-							continue LOOP;
-						} catch (InterruptedException ignore){	}
+							inDeque.wait();
+						} catch (InterruptedException ignore) {
+							ignore.printStackTrace();
+						}
 					}
-					System.out.println(frameN++);
-					double [] mfc = melFilter.process(frame.getSamples());
-					frame.setFeatrues(mfc);
-
-					//-- at the end:
-					outDeque.addFirst(frame);
+					continue LOOP;
 				}
-//			}
+				System.out.println(frameN++);
+
+				//-- do the pipeline
+				for(FrameProcessor processor : pipeline){
+					processor.process(frame);
+				}
+
+				//-- at the end:
+				outDeque.addFirst(frame);
+				System.out.println(Arrays.toString(frame.get("sample")));
+			}
 		}
 	}
 
 
 	public void setWav(WavClip wav){
+		processorThread = new Thread(new FeatureProcessor());
+
 		frameReader.setFileSource(wav);
 	}
 
@@ -110,23 +140,21 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 	public void start(){
 		processorThread.start();
 		frameReader.start();
-	}s
+	}
 
 
 	public static void main(String[] args) throws Exception{
 		InputStream is = StreamingAcousticFrontEnd.class.getResourceAsStream("sample.wav");
 		WavClip wav = new WavClip(is);
 
-		AcousticContext context = new AcousticContextBuilder().setFrameLenInMs(1).build();
+		AcousticContext context = new AcousticContextBuilder().setFrameLenInMs(10).build();
 		System.out.println(context.frameLenInSample);
-		
+
 		StreamingAcousticFrontEnd fe = new StreamingAcousticFrontEnd(context);
 
 		fe.setWav(wav);
 		fe.start();
-		
-		Thread.sleep(5000);
-		System.out.println("DONE!");
+
 	}
 
 }

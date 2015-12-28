@@ -1,32 +1,50 @@
 package info.pinlab.snd.dsp;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 public class DoubleFrame {
-	int startSampleId;
+	long startSampleId;
+	long startT;
 	int nextId;
 	int prevId;
 	
-	final double [] samples;
-	double[] features; 
+	private final Map<String, double []> data;
 	
-	DoubleFrame(double [] s, int startSampleId){
-		samples = s;
-	}
-	public int getDim(){
-		return samples.length;
-	}
 	
-	public double[] getSamples(){
-		return samples;
+	static double [] zeros(int len){
+		return new double[len];
 	}
-	
-	public void setFeatrues(double [] feat){
-		features = feat;
+	static double[] ones(int len){
+		double [] arr = new double[len];
+		Arrays.fill(arr, 1);
+		return arr;
 	}
+
 	
-	public double [] getFeatrues(){
-		return features;
+	
+	public DoubleFrame(double [] s, String key, long startSampleIx){
+		data = new HashMap<String, double[]>();
+		data.put(key, s);
+		this.startSampleId = startSampleIx;
 	}
 	
 	
+	public void setStartSempleIx(long ix){
+		startSampleId = ix;
+	}
+	public void setStartSampleT(long t){
+		startT = t;
+	}
 	
+	public double [] get(String key){
+		return data.get(key);
+	}
+	
+	
+	public void put(double [] arr, String key){
+		data.put(key, arr);
+	}
 }
+

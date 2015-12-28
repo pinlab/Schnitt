@@ -145,7 +145,6 @@ public class MelFilter extends AbstractFrameProcessor{
 			sumOfFilteredAmp[c] = sumValue;
 		}
 		return sumOfFilteredAmp;
-//		frame.setFeatrues(sumOfFilteredAmp);
 	}
 	
 

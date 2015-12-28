@@ -14,6 +14,9 @@ package info.pinlab.snd.dsp;
  * @author Gabor Pinter
  */
 public class HanningWindower extends AbstractFrameProcessor implements Windower{
+//	"info.pinlab.snd.dsp.HanningWindower.frameLen"
+	
+	
 	static double [] HANN_160 = new double [160];
 	static double [] HANN_320 = new double [320];
 	static{

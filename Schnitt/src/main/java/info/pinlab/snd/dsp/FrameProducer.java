@@ -28,7 +28,7 @@ pipe.start()
  * 
  * @author Gabor Pinter
  */
-public class AudioFrameReader{
+public class FrameProducer{
 
 	private final PipedOutputStream pos ;
 	private final PipedInputStream pis ;
@@ -56,15 +56,15 @@ public class AudioFrameReader{
 	}
 
 
-	public AudioFrameReader(int frameLenInMs){
+	public FrameProducer(int frameLenInMs){
 		this(new AcousticContext.AcousticContextBuilder().setFrameLenInMs(frameLenInMs).build());
 	}
 	
-	public AudioFrameReader(){
+	public FrameProducer(){
 		this(new AcousticContext.AcousticContextBuilder().build());
 	}
 
-	public AudioFrameReader(AcousticContext context){
+	public FrameProducer(AcousticContext context){
 //		if(af!=null){
 //			if(af.getChannels()>1){
 //				throw new IllegalArgumentException("Only mono sound is allowed");
@@ -270,7 +270,7 @@ public class AudioFrameReader{
 
 
 	public static void main(String[] args) throws Exception{
-		InputStream is = AudioFrameReader.class.getResourceAsStream("sample.wav");
+		InputStream is = FrameProducer.class.getResourceAsStream("sample.wav");
 		WavClip wav = new WavClip(is);
 
 		int [] s = wav.toIntArray();
@@ -281,7 +281,7 @@ public class AudioFrameReader{
 		
 		AcousticContext context = new AcousticContext.AcousticContextBuilder().setFrameLenInMs(1).build();
 		
-		AudioFrameReader pipe = new AudioFrameReader(context);
+		FrameProducer pipe = new FrameProducer(context);
 //		AudioFrameReader pipe = new AudioFrameReader(1, wav.getAudioFormat());
 		pipe.setFileSource(wav);
 		pipe.setAudioFrameConsumer(new AudioFrameConsumer() {

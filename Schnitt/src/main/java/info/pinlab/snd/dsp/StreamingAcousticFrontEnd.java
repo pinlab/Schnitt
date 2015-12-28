@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 import info.pinlab.pinsound.WavClip;
 import info.pinlab.snd.dsp.AcousticContext.AcousticContextBuilder;
-import info.pinlab.snd.dsp.AudioFrameReader.AudioFrameConsumer;
+import info.pinlab.snd.dsp.FrameProducer.AudioFrameConsumer;
 
 /**
  * 
@@ -27,7 +27,7 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 	private final AcousticContext context;
 	private final double sampleMax;
 	private int frameN = 0;
-	private final AudioFrameReader frameReader; 
+	private final FrameProducer frameReader; 
 
 	Thread processorThread;
 
@@ -38,7 +38,7 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 	public StreamingAcousticFrontEnd(AcousticContext context){
 		this.context = context;
 
-		frameReader = new AudioFrameReader(context);
+		frameReader = new FrameProducer(context);
 		frameReader.setAudioFrameConsumer(this);
 
 		sampleMax = Math.pow(2, (context.bytePerSample*8));

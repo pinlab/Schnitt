@@ -14,8 +14,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.3</version>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.7</source>
+					<target>1.7</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -31,22 +31,43 @@
 				</executions>
 			</plugin>
 
-				<!--
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.6</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<classpathPrefix>jar/</classpathPrefix>
-							<mainClass>info.pinlab.schnitt.Main</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>package-jar</id>
+						<phase>package</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>
+								${env.JAVA_HOME}/bin/javapackager
+							</executable>
+							<arguments>
+								<argument>-createjar</argument>
+								<argument>-appclass</argument>
+								<argument>info.pinlab.shcnitt.Main</argument>
+								<argument>-srcdir</argument>
+								<argument>./target/classes</argument>
+								<argument>-outdir</argument>
+								<argument>./target</argument>
+								<argument>-outfile</argument>
+								<argument>
+									${project.artifactId}-app
+								</argument>
+								<argument>-v</argument>
+							</arguments>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
-				 Build an executable JAR -->
+
+			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-jar-plugin</artifactId> 
+				<version>2.6</version> <configuration> <archive> <manifest> <addClasspath>true</addClasspath> 
+				<classpathPrefix>jar/</classpathPrefix> <mainClass>info.pinlab.schnitt.Main</mainClass> 
+				</manifest> </archive> </configuration> </plugin> Build an executable JAR -->
 
 
 			<plugin>

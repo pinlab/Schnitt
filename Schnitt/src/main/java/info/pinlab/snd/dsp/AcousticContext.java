@@ -32,7 +32,7 @@ public class AcousticContext{
 	public final int bytePerSample;
 	public final int frameLenInSample;
 	
-	AcousticContext(int hz, int bytePerSample, boolean isBigEndian,
+	private AcousticContext(int hz, int bytePerSample, boolean isBigEndian,
 			 int frameInMs, int frameShiftInMs, WindowType win,
 			 int fftN, int mfccCh){
 		this.hz = hz;

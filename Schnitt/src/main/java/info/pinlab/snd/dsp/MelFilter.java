@@ -9,10 +9,19 @@ import info.pinlab.snd.dsp.ParameterSheet.ProcessorParameter;
  *
  */
 public class MelFilter extends AbstractFrameProcessor{
-	private int hz;
-	private int fftN;
-	private int mfccChN;
+	public static final String HZ = "HZ";
+	public static final String FFT_N = "FFT_N";
+	public static final String MFCC_CH = "MFCC_CH";
+	
+	
+	@ParamInt(label=HZ)
+	public int hz = 16000;
+	@ParamInt(label=FFT_N)
+	public int fftN = 128; //-- default value
+	@ParamInt(label=MFCC_CH)
+	public int mfccChN = 26; //-- default value
 
+	
 	private double fmax; // Nyquist
 	private double melMax; // Mel-Nyquist
 	private int nmax; // Maximum Number of Frequency Index
@@ -22,7 +31,8 @@ public class MelFilter extends AbstractFrameProcessor{
 	private double[][] filterBank ;
 
 	
-
+	
+	
 	enum MfccParams implements ProcessorParameter{
 		MFCC_CH(26),
 		FFT_N(128),
@@ -56,9 +66,16 @@ public class MelFilter extends AbstractFrameProcessor{
 		return MfccParams.values();
 	}
 
+
+	public MelFilter(int hz, int fftN, int mfccChN){
+		super(null);
+		this.hz = hz;
+		this.fftN = fftN;
+		this.mfccChN = mfccChN;
+		init();
+	}
 	
-	
-	public MelFilter(ParameterSheet context) {
+	public MelFilter(ParameterSheet context){
 		super(context);
 	};
 
@@ -83,10 +100,14 @@ public class MelFilter extends AbstractFrameProcessor{
 
 	@Override
 	synchronized public void init() {
-		hz = context.getInt(BaseParams.HZ);
-		mfccChN = context.getInt(MfccParams.MFCC_CH);
-		fftN = context.getInt(MfccParams.FFT_N);
-
+		if(context!=null){
+			hz = context.getInt(BaseParams.HZ);
+			mfccChN = context.getInt(MfccParams.MFCC_CH);
+			fftN = context.getInt(MfccParams.FFT_N);
+		}
+		
+		System.out.println("init: " + mfccChN);
+		
 		this.fmax = hz / 2; // Nyquist
 		this.melMax = 1127.01048 * Math.log(fmax / 700.0 + 1.0); // Mel-Nyquist
 		this.nmax = fftN / 2; // Maximum Number of Frequency Index

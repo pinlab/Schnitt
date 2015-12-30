@@ -190,17 +190,11 @@ public class HanningWindower extends AbstractFrameProcessor implements Windower{
 		super(context);
 	}
 	
-	@Override
-	public String getPredecessorKey() {
-		return "sample";
-	}
-	@Override
-	public String getKey() {
-		return "sample";
-	}
 
 	@Override
 	public void init(){
+		super.setKey("sample");
+		super.setPredecessorKey("sample");
 		int size = context.getInt(BaseParams.FRAME_LEN_SAMPLE);
 		filter = new double[size];
 		if(size==160){

@@ -34,6 +34,18 @@ public class LabelTier extends AbstractIntervalTier<String>{
 		}
 	}
 
+	@Override
+	public IntervalTier<String> addInterval(double from, double to, String label) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IntervalTier<String> addInterval(Interval<String> interval) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 
 
 }

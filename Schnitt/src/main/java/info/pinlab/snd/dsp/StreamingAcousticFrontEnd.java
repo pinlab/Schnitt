@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 import info.pinlab.pinsound.WavClip;
 import info.pinlab.snd.dsp.FrameProducer.AudioFrameConsumer;
-import info.pinlab.snd.dsp.ParameterSheet.BaseParams;
+//import info.pinlab.snd.dsp.FrameProducer.AudioFrameConsumer;
 import info.pinlab.snd.dsp.ParameterSheet.ParameterSheetBuilder;
 
 /**
@@ -39,12 +39,12 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 	public StreamingAcousticFrontEnd(ParameterSheet context){
 		this.context = context;
 
-		frameShiftInSample = context.getInt(BaseParams.FRAME_LEN_SAMPLE)/2;
+		frameShiftInSample = context.get(FEParam.FRAME_LEN_SAMPLE)/2;
 		
 		frameReader = new FrameProducer(this.context);
 		frameReader.setAudioFrameConsumer(this);
 		
-		sampleMax = (Math.pow(2, (this.context.getInt(BaseParams.BYTE_PER_SAMPE)*8)))/2;
+		sampleMax = (Math.pow(2, (this.context.get(FEParam.BYTE_PER_SAMPE)*8)))/2;
 		inDeque = new ConcurrentLinkedDeque<Frame>();
 		outDeque = new ConcurrentLinkedDeque<DoubleFrame>();
 
@@ -53,9 +53,8 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 			//-- INIT frame processors here!
 
 			HanningWindower hannWindower = FrameProcessorFactory.create(HanningWindower.class, this.context);
-			MelFilter melFilter = FrameProcessorFactory.create(MelFilter.class, this.context);
-
-			FrameProcessorFactory.create(Fft.class, this.context);
+//			MelFilter melFilter = FrameProcessorFactory.create(MelFilter.class, this.context);
+//			FrameProcessorFactory.create(Fft.class, this.context);
 			pipeline[0] = hannWindower;
 
 
@@ -106,6 +105,7 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 		
 		@Override
 		public void run(){
+			int hz = context.get(FEParam.HZ);
 			LOOP: while(true){
 				Frame frame = inDeque.pollFirst();
 				if(frame==null){
@@ -120,7 +120,7 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 				}
 				
 				if(frame instanceof DoubleFrame){
-					System.out.println(frame.getStartSampleIx());
+					System.out.println("> " + (frame.getStartSampleIx()/(double)hz));
 					//-- do the pipeline
 					DoubleFrame dblFrame = (DoubleFrame)frame;
 					for(FrameProcessor processor : pipeline){
@@ -136,7 +136,7 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 				}
 				//-- any other frames? are possible?
 				
-				//-- not double frame
+				//-- not DoubleFrame: (must be end frame)
 				break LOOP;
 //				System.out.println(Arrays.toString(frame.get("sample")));
 			}
@@ -163,16 +163,17 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 
 		ParameterSheet context = new ParameterSheetBuilder()
 				.addParametersFromClass(MelFilter.class)
-				.setParameter(MelFilter.HZ_, 8000)
-				.setFrameLenInMs(1).build();
+				.setAudioFormat(wav.getAudioFormat())
+				.setFrameLenInMs(50).build();
 		
-		System.out.println(context.getInteger(ParameterSheetBuilder.PARAM_FRAME_LEN_SAMPLE));
-		System.out.println(context.getInt(BaseParams.FRAME_LEN_SAMPLE));
+//		System.out.println(context.get(FEParam.HZ));
+//		System.out.println(context.get(FEParam.FRAME_LEN_MS));
+//		System.out.println(context.get(FEParam.FRAME_LEN_SAMPLE));
 
 		StreamingAcousticFrontEnd fe = new StreamingAcousticFrontEnd(context);
 
-//		fe.setWav(wav);
-//		fe.start();
+		fe.setWav(wav);
+		fe.start();
 	}
 
 }

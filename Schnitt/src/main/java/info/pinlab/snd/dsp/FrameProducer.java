@@ -8,7 +8,6 @@ import java.io.PipedOutputStream;
 import javax.sound.sampled.AudioFormat;
 
 import info.pinlab.pinsound.WavClip;
-import info.pinlab.snd.dsp.ParameterSheet.BaseParams;
 
 
 /**
@@ -69,8 +68,8 @@ public class FrameProducer{
 
 	public FrameProducer(ParameterSheet context){
 		this.context = context;
-		hz = context.getInt(BaseParams.HZ);
-		bytePerSample = context.getInt(BaseParams.BYTE_PER_SAMPE); 
+		hz = context.get(FEParam.HZ);
+		bytePerSample = context.get(FEParam.BYTE_PER_SAMPE); 
 				
 //		this.frameLenInMs = frameLenInMs;
 //		frameLenInByte = (this.frameLenInMs*hz*2)/1000;
@@ -151,7 +150,7 @@ public class FrameProducer{
 		writeThread = new Thread(new AudioByteReader(), "Sample Byte Reader");
 		writeThread.start();
 
-		framerThread = new Thread(new Framer(context.getInt(BaseParams.FRAME_LEN_BYTE)), "Sample Consumer");
+		framerThread = new Thread(new Framer(context.get(FEParam.FRAME_LEN_BYTE)), "Sample Consumer");
 		framerThread.start();
 	}
 

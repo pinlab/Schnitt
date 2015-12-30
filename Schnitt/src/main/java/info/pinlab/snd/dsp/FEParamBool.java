@@ -1,7 +1,7 @@
 package info.pinlab.snd.dsp;
 
-public class FEParamInt extends FEParam{
-	private int value;
+public class FEParamBool extends FEParam{
+	private boolean value;
 
 	/**
 	 * 
@@ -9,13 +9,12 @@ public class FEParamInt extends FEParam{
 	 * @param value
 	 * @param clazz
 	 */
-	public FEParamInt (String key, int value, Class<?> clazz){
+	public FEParamBool(String key, boolean value, Class<?> clazz){
 		super(key, clazz);
 		this.value = value;
 	}
 	
-	public int getValue(){
+	public boolean getValue(){
 		return value;
 	}
-	
 }

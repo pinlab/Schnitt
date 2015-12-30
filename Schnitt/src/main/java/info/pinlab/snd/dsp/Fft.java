@@ -8,7 +8,6 @@ import org.apache.commons.math3.transform.TransformType;
 import info.pinlab.snd.dsp.ParameterSheet.ProcessorParameter;
 
 public class Fft extends AbstractFrameProcessor {
-	private int hz;
 	private int fftN;
 	private int nyqFreq;
 	

@@ -131,7 +131,7 @@ public class ParameterSheet{
 
 
 	public int getInteger(String param){
-		return (int)rawParamValues.get(param);
+		return 0;//(int)rawParamValues.get(param);
 	}
 	
 	
@@ -192,6 +192,9 @@ public class ParameterSheet{
 		}
 
 
+		
+		
+		
 		/**
 		 * Adds parameters from FrameProcessor. Parameters are annotated by {@link ProcessorParam} 
 		 * 
@@ -209,34 +212,57 @@ public class ParameterSheet{
 		}
 		
 		public ParameterSheetBuilder addParametersFromClass(Class<?> clazz){
-			try{
+//			try{
 				for(Field field : clazz.getFields()){
+//					System.out.println("  >" + field);
+					if(FEParam.class.isAssignableFrom(field.getType())){
+						System.out.println(" PARAM FIELD!1 " + field);
+					}
+					if(FEParamInt.class.isAssignableFrom(field.getType())){
+						try {
+							FEParamInt param = (FEParamInt) field.get(null);
+							System.out.println(param);
+						} catch (IllegalArgumentException e) {
+							e.printStackTrace();
+						} catch (IllegalAccessException e) {
+							e.printStackTrace();
+						}
+					}
+					
+					
 					for(Annotation anno : field.getAnnotations()){
 						if(anno instanceof ParamInt){
 							String paramLabel = field.getName();
 							String paramId    = clazz.getName() + "#" + paramLabel;
 							System.out.println(paramId);
-							int defVal = field.getInt(null);
-							rawParams.put(paramLabel, defVal);
-							System.out.println(paramLabel + " = " + defVal);
+//							int defVal = field.getInt(null);
+//							rawParams.put(paramLabel, defVal);
+//							System.out.println(paramLabel + " = " + defVal);
 						}
 
 					}
 				}
-			} catch (IllegalAccessException ignore) {		}
+//			} catch (IllegalAccessException ignore) {		}
 			return this;
 		}
 
 
-		public void addParameter(ProcessorParameter param){
+		public ParameterSheetBuilder addParameter(ProcessorParameter param){
 			params.put(param, param.get());
+			return this;
 		}
 
-		public void setParameter(ProcessorParameter param, Object val){
+		public ParameterSheetBuilder setParameter(ProcessorParameter param, Object val){
 			params.put(param, val);
+			return this;
 		}
 
+		public ParameterSheetBuilder setParameter(FEParamInt param, int val){
+			return this;
+		}
 
+		
+		
 
 		public ParameterSheetBuilder setAudioFormat(AudioFormat af){
 			setHz((int)af.getSampleRate());
@@ -260,12 +286,12 @@ public class ParameterSheet{
 		public ParameterSheetBuilder setFrameLenInMs(int frameLenInMs){
 			rawParams.put(PARAM_FRAME_LEN_MS,    frameLenInMs);
 			rawParams.put(PARAM_FRAME_SHIFT_MS,  frameLenInMs/2);
-			int sampleLen = frameLenInMs*((int)rawParams.get(PARAM_HZ))/1000;
-			rawParams.put(PARAM_FRAME_LEN_SAMPLE,sampleLen);
-			rawParams.put(PARAM_FRAME_LEN_BYTE,  
-					(int)rawParams.get(PARAM_FRAME_LEN_SAMPLE)
-					*(int)rawParams.get(PARAM_BYTE_PER_SAMPE)
-					);
+//			int sampleLen = frameLenInMs*((int)rawParams.get(PARAM_HZ))/1000;
+//			rawParams.put(PARAM_FRAME_LEN_SAMPLE,sampleLen);
+//			rawParams.put(PARAM_FRAME_LEN_BYTE,  
+//					(int)rawParams.get(PARAM_FRAME_LEN_SAMPLE)
+//					*(int)rawParams.get(PARAM_BYTE_PER_SAMPE)
+//					);
 
 			
 			params.put(BaseParams.FRAME_LEN_MS, frameLenInMs);

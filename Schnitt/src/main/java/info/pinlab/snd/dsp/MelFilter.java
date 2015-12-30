@@ -14,8 +14,13 @@ public class MelFilter extends AbstractFrameProcessor{
 	public static final String MFCC_CH = "MFCC_CH";
 	
 	
+	//-- default values 
+	public static final FEParamInt HZ_ = new FEParamInt("HZ", 16000, MelFilter.class); 
+	
+	
+	
 	@ParamInt(label=HZ)
-	public int hz = 16000;
+	public int hz = HZ_.getInt();
 	@ParamInt(label=FFT_N)
 	public int fftN = 128; //-- default value
 	@ParamInt(label=MFCC_CH)

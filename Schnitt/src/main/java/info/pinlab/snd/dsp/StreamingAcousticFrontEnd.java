@@ -163,6 +163,7 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 
 		ParameterSheet context = new ParameterSheetBuilder()
 				.addParametersFromClass(MelFilter.class)
+				.setParameter(MelFilter.HZ_, 8000)
 				.setFrameLenInMs(1).build();
 		
 		System.out.println(context.getInteger(ParameterSheetBuilder.PARAM_FRAME_LEN_SAMPLE));

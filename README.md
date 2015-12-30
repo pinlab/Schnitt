@@ -2,7 +2,7 @@
 * voice activity detector (VAD) algorithm for splitting sound files
 * Java Swing GUI for visualization, error analysis and editing
 * group project for my MA programming course (Fall, 2015, Kobe University)
-* try [Demo.exe](* https://github.com/kinokocchi/Schnitt/blob/master/Schnitt/etc/nsis-installer/Schnitt.exe?raw=true) [5.8MB], Win7 64|32bit tested (no JRE included! -> only runs if Java is installed!)
+* try [Demo.exe](https://github.com/kinokocchi/Schnitt/blob/master/Schnitt/etc/nsis-installer/Schnitt.exe?raw=true) [5.8MB], Win7 64|32bit tested (no JRE included! -> only runs if Java is installed!)
    * CTRL-A: add selection as hypo interval
    * CTRL-D: delete selection
    * CTRL-N: zoom in

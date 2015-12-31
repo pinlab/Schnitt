@@ -69,23 +69,32 @@ public class Fft extends AbstractFrameProcessor {
 	
 	@Override
 	public void init() {
+<<<<<<< HEAD
 		setKey("fft");
 		setPredecessorKey("win");
 		fftArr = new Complex [fftN];
 		ampArr = new double [fftN/2];
-		nyqFreq = fftN/2;
 		fftTransformer = new FastFourierTransformer(DftNormalization.STANDARD);	
+=======
 		fftN = context.getInt(FftParams.FFTN);
+		nyqFreq = fftN/2;
+		fftTransformer = new FastFourierTransformer(DftNormalization.STANDARD);
+		fftArr = new Complex [fftN];
+		ampArr = new double [nyqFreq];
+>>>>>>> upstream/master
 	}
 
 	@Override
 	public double[] process(double[] arr) {
 		fftArr = fftTransformer.transform(arr, TransformType.FORWARD);
-		for(int i = 0; i<nyqFreq; i++){
+		for(int i = 0; i<ampArr.length; i++){
 			// Calc. Amplitude
 			ampArr[i] = getAmplitude(fftArr[i]);
 		}
 		return ampArr;
 	}
+<<<<<<< HEAD
 }
-
+=======
+}
+>>>>>>> upstream/master

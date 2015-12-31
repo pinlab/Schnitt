@@ -160,9 +160,15 @@ public class HanningWindower extends AbstractFrameProcessor implements Windower{
 	
 	@Override
 	public void init(){
+<<<<<<< HEAD
 		super.setKey("win");
 		super.setPredecessorKey("preEmph");
+		int size = context.getInt(BaseParams.FRAME_LEN_SAMPLE);
+=======
+		super.setKey("sample");
+		super.setPredecessorKey("sample");
 		int size = context.get(FEParam.FRAME_LEN_SAMPLE);
+>>>>>>> upstream/master
 		filter = new double[size];
 		if(size==160){
 			for(int i = 0; i < size ; i++){

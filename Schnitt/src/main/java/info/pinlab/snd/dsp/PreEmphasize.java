@@ -1,14 +1,17 @@
 package info.pinlab.snd.dsp;
 
 import info.pinlab.snd.dsp.ParameterSheet.ProcessorParameter;
-import jdk.nashorn.internal.objects.annotations.Constructor;
 
 public class PreEmphasize extends AbstractFrameProcessor {
-	private int hz;
-	private int fftN;
-	private double preEmphCoef;
+
+	@ProcessorParam(label="PREEMPH_COEF")
+	public static final double PREEMPH_COEF = 0.97;
+	
+	@ParamInt(label="PREEMPH_COEF")
+	protected double preEmphCoef = 0.97;
+	
 	private double [] preEmphCoefArr;
-	private double [] preEmphedArr = null;
+	private double [] preEmphedArr;
 	
 	enum PreEmphasizeParams implements ProcessorParameter{
 		PREEMPH_COEF(0.97)
@@ -19,7 +22,6 @@ public class PreEmphasize extends AbstractFrameProcessor {
 	final Object defVal;
 	PreEmphasizeParams(Object defVal){
 		this.id = FrameProducer.class.getName()+"."+this.toString().toUpperCase();
-		//OUTPUT: info.pinlab.snd.dsp.FrameProducer.INFO.PINLAB.SND.DSP.PREEMPHASIZE@xxxx
 		this.label= id.toUpperCase();
 		this.defVal = defVal;
 	}
@@ -60,6 +62,8 @@ public class PreEmphasize extends AbstractFrameProcessor {
 
 	@Override
 	public void init() {
+		setKey("preEmph");
+		setPredecessorKey(null);
 		preEmphCoef = context.getInt(PreEmphasizeParams.PREEMPH_COEF);
 		preEmphCoefArr = new double []{ 1.0, - preEmphCoef}; // transfer the sign of PreEmphCoef to minus.
 	}
@@ -69,7 +73,7 @@ public class PreEmphasize extends AbstractFrameProcessor {
 		for (int i = 0; i < arr.length; i++) {
 			for (int j = 0; j < preEmphCoefArr.length; j++) {
 				if (i - j >= 0) {
-					preEmphedArr[j] += preEmphCoefArr[j] * arr[i - j];
+					preEmphedArr[i] += preEmphCoefArr[j] * arr[i - j];
 				}
 			}
 		}

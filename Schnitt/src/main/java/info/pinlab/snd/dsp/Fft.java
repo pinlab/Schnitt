@@ -85,5 +85,4 @@ public class Fft extends AbstractFrameProcessor {
 		}
 		return ampArr;
 	}
-
 }

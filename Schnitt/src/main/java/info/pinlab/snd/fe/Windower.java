@@ -1,11 +1,10 @@
-package info.pinlab.snd.dsp;
+package info.pinlab.snd.fe;
 
 public interface Windower{
 	public enum WindowType{
 		HANNING, HAMMING,
 		NONE
 	}
-
 	/**
 	 * In-place filter (no copies)
 	 * @param samples

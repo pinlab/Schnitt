@@ -1,4 +1,4 @@
-package info.pinlab.snd.dsp;
+package info.pinlab.snd.fe;
 
 public class EndFrame implements Frame {
 	@Override

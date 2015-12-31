@@ -1,13 +1,12 @@
-package info.pinlab.snd.dsp;
+package info.pinlab.snd.fe;
 
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 import info.pinlab.pinsound.WavClip;
-import info.pinlab.snd.dsp.FrameProducer.AudioFrameConsumer;
-//import info.pinlab.snd.dsp.FrameProducer.AudioFrameConsumer;
-import info.pinlab.snd.dsp.ParameterSheet.ParameterSheetBuilder;
+import info.pinlab.snd.fe.FrameProducer.AudioFrameConsumer;
+import info.pinlab.snd.fe.ParameterSheet.ParameterSheetBuilder;
 
 /**
  * 
@@ -79,7 +78,7 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 	public void consume(int[] samples){
 		double [] arr = new double [samples.length]; 
 		for(int i = 0; i < samples.length; i++){
-			arr[i] = samples[i]/sampleMax;
+			arr[i] = samples[i]/sampleMax;FEParam
 		}
 		int id = frameN*frameShiftInSample;
 		DoubleFrame frame = new DoubleFrame(arr, "sample", id);

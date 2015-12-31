@@ -1,4 +1,4 @@
-package info.pinlab.snd.dsp;
+package info.pinlab.snd.fe;
 
 import java.util.Arrays;
 import java.util.HashMap;

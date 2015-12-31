@@ -1,4 +1,4 @@
-package info.pinlab.snd.dsp;
+package info.pinlab.snd.fe;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,7 +28,12 @@ pipe.start()
  * @author Gabor Pinter
  */
 public class FrameProducer{
-
+	interface AudioFrameConsumer{
+		public void consume(int[] samples);
+		public void end();
+	}
+	
+	
 	private final PipedOutputStream pos ;
 	private final PipedInputStream pis ;
 
@@ -46,35 +51,16 @@ public class FrameProducer{
 //	int frameLenInByte = (frameLenInMs*hz*2)/1000;   /* */; //-- 10ms x 16kHz x depth (16bit -> 2byte)
 //	int frameShiftLenInByte = frameLenInByte/2; 
 
-
 	private WavClip wav = null;
 	private AudioFrameConsumer frameConsumer = null;
 
-	
-	
-	interface AudioFrameConsumer{
-		public void consume(int[] samples);
-		public void end();
-	}
 
-
-//	public FrameProducer(int frameLenInMs){
-//		this(new ProcessorParameters.AcousticContextBuilder().setFrameLenInMs(frameLenInMs).build());
-//	}
-//	
-//	public FrameProducer(){
-//		this(new ProcessorParameters.AcousticContextBuilder().build());
-//	}
 
 	public FrameProducer(ParameterSheet context){
 		this.context = context;
 		hz = context.get(FEParam.HZ);
 		bytePerSample = context.get(FEParam.BYTE_PER_SAMPE); 
 				
-//		this.frameLenInMs = frameLenInMs;
-//		frameLenInByte = (this.frameLenInMs*hz*2)/1000;
-
-		
 		pos = new PipedOutputStream();
 		pis = new PipedInputStream(hz * bytePerSample); //-- 1 second buffer
 		try{
@@ -85,7 +71,6 @@ public class FrameProducer{
 
 
 	/**
-	 * 
 	 * @param consumer to be called for every frame read
 	 */
 	public void setAudioFrameConsumer(AudioFrameConsumer consumer){
@@ -104,11 +89,6 @@ public class FrameProducer{
 		if(hz != (int)af.getSampleRate()){
 			throw new IllegalArgumentException("WavClip has wrong sampling rate("+ af.getSampleRate() +"vs " + hz + ")");
 		}
-		
-//		hz = (int)af.getSampleRate();
-//		bytePerSample = af.getSampleSizeInBits()/8;
-//		frameLenInByte = (frameLenInMs*hz*bytePerSample)/1000;   /* */; //-- 10ms x 16kHz x depth (16bit -> 2byte)
-		
 		this.wav=wav;
 	}
 

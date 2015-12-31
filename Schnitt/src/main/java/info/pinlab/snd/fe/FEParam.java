@@ -43,6 +43,7 @@ public abstract class FEParam<T>{
 	FEParam (String key, T value, Class<?> clazz){
 		this.key = key;
 		this.clazz = clazz;
+                this.value = value;
 	}
 	
 	public String getKey(){

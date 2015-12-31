@@ -1,8 +1,6 @@
 package info.pinlab.snd.trs;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
@@ -133,77 +131,77 @@ public abstract class AbstractIntervalTier<T> implements IntervalTier<T>{
 	
 	
 	
-	@Override
-	public IntervalTier<T> addInterval(Interval<T> interval) {
-		return addInterval(interval.startT, interval.endT, interval.label);
-	}
-	
-	@Override
-	public IntervalTier<T> addInterval(double from, double to, T label){
-		LOG.trace("Adding interval {}-{} '{}'", from, to, label);
-		
-		Double floor = points.floorKey(from);
-		if(floor==null){ //-- no earlier interval
-			points.put(from, label);
-		}else{
-			//--check if 
-			if(floor.equals(from)){
-				//-- interval with same start T
-				//--   present:  ------++++++++++-----
-				//--   new:      ------+++++??-----
-				
-				ArrayList<T> labels = new ArrayList<T>();
-				labels.add(label);
-				labels.add(points.get(from));
-				label = combineLabels(labels);
-				points.put(from, label);
-			}else{
-				//-- interval 
-				//--   present:  ---|++++++++?????????
-				//--   new:             |bbbbbb|
-				//--   present:  ---|+++|bbbbbb|------
-				points.put(from, label);
-			}
-		}
-		
-		Double ceiling = points.higherKey(from);
-		if(ceiling==null || ceiling > to){ //-- no later interval value
-			//--   present:  -----------------++++-----
-			//--   adding:         +++++
-			//--   adding:   ------+++++------++++-----
-			points.put(from, label);
-			points.put(to, null);
-		}else{
-			//--   present:  --------++--+++-+++------
-			//--   adding:         +++++++++++
-			
-			List<T> lablesToCombine = new ArrayList<T>();
-			List<Double> marksToDelete = new ArrayList<Double>();
-			lablesToCombine.add(label);
-			while(ceiling != null && ceiling < to ){
-				marksToDelete.add(ceiling);
-				T ceilingLabel = points.get(ceiling);
-				lablesToCombine.add(ceilingLabel);
-				ceiling = points.higherKey(ceiling);
-			}
-			points.put(from, this.combineLabels(lablesToCombine));
-			if(ceiling != null){
-				//--   present:  ------------|aaaaaaaaaa|-----
-				//--   adding:         |bbbbbbbbb|
-				//--   result:   ------|bbbbbbbbb|aaaaaa|-----
-				
-				T  bridgingLabel =  points.floorEntry(ceiling).getValue();
-				points.put(to, bridgingLabel);
-			}else{ //-- no ceiling
-				points.put(to, null);
-			}
-			
-			for(Double mark : marksToDelete){
-				points.remove(mark);
-			}
-		}
-		return this;
-	}
+//	@Override
+//	public IntervalTier<T> addInterval(Interval<T> interval) {
+//		return addInterval(interval.startT, interval.endT, interval.label);
+//	}
+//	
+//	@Override
+//	public IntervalTier<T> addInterval(double from, double to, T label){
+//		LOG.trace("Adding interval {}-{} '{}'", from, to, label);
+//		
+//		Double floor = points.floorKey(from);
+//		if(floor==null){ //-- no earlier interval
+//			points.put(from, label);
+//		}else{
+//			//--check if 
+//			if(floor.equals(from)){
+//				//-- interval with same start T
+//				//--   present:  ------++++++++++-----
+//				//--   new:      ------+++++??-----
+//				
+//				ArrayList<T> labels = new ArrayList<T>();
+//				labels.add(label);
+//				labels.add(points.get(from));
+//				label = combineLabels(labels);
+//				points.put(from, label);
+//			}else{
+//				//-- interval 
+//				//--   present:  ---|++++++++?????????
+//				//--   new:             |bbbbbb|
+//				//--   present:  ---|+++|bbbbbb|------
+//				points.put(from, label);
+//			}
+//		}
+//		
+//		Double ceiling = points.higherKey(from);
+//		if(ceiling==null || ceiling > to){ //-- no later interval value
+//			//--   present:  -----------------++++-----
+//			//--   adding:         +++++
+//			//--   adding:   ------+++++------++++-----
+//			points.put(from, label);
+//			points.put(to, null);
+//		}else{
+//			//--   present:  --------++--+++-+++------
+//			//--   adding:         +++++++++++
+//			
+//			List<T> lablesToCombine = new ArrayList<T>();
+//			List<Double> marksToDelete = new ArrayList<Double>();
+//			lablesToCombine.add(label);
+//			while(ceiling != null && ceiling < to ){
+//				marksToDelete.add(ceiling);
+//				T ceilingLabel = points.get(ceiling);
+//				lablesToCombine.add(ceilingLabel);
+//				ceiling = points.higherKey(ceiling);
+//			}
+//			points.put(from, this.combineLabels(lablesToCombine));
+//			if(ceiling != null){
+//				//--   present:  ------------|aaaaaaaaaa|-----
+//				//--   adding:         |bbbbbbbbb|
+//				//--   result:   ------|bbbbbbbbb|aaaaaa|-----
+//				
+//				T  bridgingLabel =  points.floorEntry(ceiling).getValue();
+//				points.put(to, bridgingLabel);
+//			}else{ //-- no ceiling
+//				points.put(to, null);
+//			}
+//			
+//			for(Double mark : marksToDelete){
+//				points.remove(mark);
+//			}
+//		}
+//		return this;
+//	}
 	
 	
 		

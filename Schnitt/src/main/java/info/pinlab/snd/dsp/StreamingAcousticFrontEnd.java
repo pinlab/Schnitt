@@ -31,7 +31,6 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 
 	Thread processorThread;
 
-
 	private final FrameProcessor [] pipeline;
 
 
@@ -55,8 +54,8 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 
 			HanningWindower hannWindower = FrameProcessorFactory.create(HanningWindower.class, this.context);
 			MelFilter melFilter = FrameProcessorFactory.create(MelFilter.class, this.context);
-			melFilter=null;
 
+			FrameProcessorFactory.create(Fft.class, this.context);
 			pipeline[0] = hannWindower;
 
 
@@ -94,18 +93,12 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 
 	@Override
 	public void end(){
-		System.out.println("END!");
-		
 		synchronized (inDeque) {
 			inDeque.add(new EndFrame());
 //					new DoubleFrame(new double[]{0.0}, "end", -1));
 			inDeque.notify();
+			System.out.println("END!");
 		}
-		
-		//		processorThread.interrupt();
-		//		synchronized (this) {
-		//			notify();
-		//		}
 	}
 
 
@@ -137,7 +130,12 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 					//-- at the end:
 					outDeque.addFirst(dblFrame);
 					continue LOOP;
+				}else
+				if(frame instanceof EndFrame){
+					break LOOP;
 				}
+				//-- any other frames? are possible?
+				
 				//-- not double frame
 				break LOOP;
 //				System.out.println(Arrays.toString(frame.get("sample")));
@@ -163,13 +161,17 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 		InputStream is = StreamingAcousticFrontEnd.class.getResourceAsStream("sample.wav");
 		WavClip wav = new WavClip(is);
 
-		ParameterSheet context = new ParameterSheetBuilder().setFrameLenInMs(20).build();
+		ParameterSheet context = new ParameterSheetBuilder()
+				.addParametersFromClass(MelFilter.class)
+				.setFrameLenInMs(1).build();
+		
+		System.out.println(context.getInteger(ParameterSheetBuilder.PARAM_FRAME_LEN_SAMPLE));
 		System.out.println(context.getInt(BaseParams.FRAME_LEN_SAMPLE));
 
 		StreamingAcousticFrontEnd fe = new StreamingAcousticFrontEnd(context);
 
-		fe.setWav(wav);
-		fe.start();
+//		fe.setWav(wav);
+//		fe.start();
 	}
 
 }

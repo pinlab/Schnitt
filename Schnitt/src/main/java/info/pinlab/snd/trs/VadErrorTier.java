@@ -248,4 +248,16 @@ public class VadErrorTier extends AbstractIntervalTier<VadError> {
 		new VadErrorTier(t1, t2);
 		
 	}
+
+
+	@Override
+	public IntervalTier<VadError> addInterval(double from, double to, VadError label) {
+		throw new IllegalAccessError("Not to be called!");
+	}
+
+
+	@Override
+	public IntervalTier<VadError> addInterval(Interval<VadError> interval) {
+		throw new IllegalAccessError("Not to be called!");
+	}
 }

@@ -8,64 +8,45 @@ import org.apache.commons.math3.transform.TransformType;
 import info.pinlab.snd.dsp.ParameterSheet.ProcessorParameter;
 
 public class Fft extends AbstractFrameProcessor {
-	@ProcessorParam(label="FFT_N")
-	public static final int FFT_N = 128;
+	private int fftN;
+	private int nyqFreq;
 	
-	@ParamInt(label="FFT_N")
-	protected int fftN = 128;
+	private FastFourierTransformer fftTransformer;
+	private double [] ampArr;
+	private Complex[] fftArr;
 	
-	Complex [] fftArr;
-	double[] ampArr;
-	FastFourierTransformer fftTransformer;
-	
-	enum FftParam implements ProcessorParameter{
-		FFT_N(128),
-		DO_MAG_SPEC(true),
-		DO_POW_SPEC(true),
-		DO_LOGPOW_SPEC(true),
+	enum FftParams implements ProcessorParameter{
+		FFTN(128)
 		;
+		
+		final String id;
+		final String label;
+		final Object defVal;
+		FftParams(Object defVal){
+			this.id = FrameProducer.class.getName()+"." +this.toString().toUpperCase();
+			this.label = id.toUpperCase();
+			this.defVal = defVal;
+		}
 
-		final private String id;
-		final private String label;
-		private Object value;
-		
-		FftParam(Object val){
-			value = val;
-			label =  this.name().toUpperCase();
-			id = FftParam.class.getName() + "." + label ;
-		}
 		@Override
-		public String getUniqName() {
-			return id; 
-		}
+		public String getUniqName(){return id;			}
 		@Override
-		public String getLabel() {
-			return null;
-		}
-		
+		public String getLabel() {	return label;		}
 		@Override
-		public boolean getBoolean() {
-			return (boolean) value;
-		}
+		public boolean getBoolean(){return (boolean)defVal;	}
 		@Override
-		public int getInt() {
-			return (int) value;
-		}
+		public int getInt() {		return (int)defVal;	}
 		@Override
-		public double getDouble() {
-			return (double)value;
-		}
+		public double getDouble(){	return (int) defVal;}
 		@Override
-		public Object get() {
-			return value;
-		}	
+		public Object get(){		return defVal;		}
 	}
+	
 
 	public static ProcessorParameter[] getProcessorParams(){
-		return FftParam.values();
+		return FftParams.values();
 	}
-	
-	
+
 	public Fft(ParameterSheet context){
 		super(context);
 	}
@@ -92,16 +73,19 @@ public class Fft extends AbstractFrameProcessor {
 		setPredecessorKey("win");
 		fftArr = new Complex [fftN];
 		ampArr = new double [fftN/2];
+		nyqFreq = fftN/2;
 		fftTransformer = new FastFourierTransformer(DftNormalization.STANDARD);	
+		fftN = context.getInt(FftParams.FFTN);
 	}
 
 	@Override
 	public double[] process(double[] arr) {
 		fftArr = fftTransformer.transform(arr, TransformType.FORWARD);
-		for(int i = 0; i<ampArr.length; i++){
+		for(int i = 0; i<nyqFreq; i++){
 			// Calc. Amplitude
 			ampArr[i] = getAmplitude(fftArr[i]);
 		}
 		return ampArr;
 	}
 }
+

@@ -1,8 +1,5 @@
 package info.pinlab.snd.dsp;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,32 +17,33 @@ public abstract class AbstractFrameProcessor implements FrameProcessor {
 		}
 		//-- set parameters
 		//		Class<?> clazz = Class.forName(fqcn);
-		Class<?> clazz = this.getClass();
+//		Class<?> clazz = this.getClass();
 		//		System.out.println(clazz);
-		for(Field field : clazz.getFields()){
-			for(Annotation anno : field.getAnnotations()){
-				try {
-					if(anno instanceof ParamInt){
-						//-- get key
-						String paramLabel = ((ParamInt)anno).label();
-						if(paramLabel==null){
-							paramLabel = field.getName();
-						}
-						//-- get value
-						Integer value = context.getInteger(paramLabel);
-						LOG.info("Setting " + paramLabel +"=" + value); 
-
-						if(value!=null){
-							field.setInt(this, value);
-						}
-					}
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+//		for(Field field : clazz.getFields()){
+//			for(Annotation anno : field.getAnnotations()){
+//				try {
+//					if(anno instanceof ParamInt){
+//						//-- get key
+//						String paramLabel = ((ParamInt)anno).label();
+//						if(paramLabel==null){
+//							paramLabel = field.getName();
+//						}
+//						//-- get value
+//						//						Integer value = context.get(paramLabel);
+//						//						LOG.info("Setting " + paramLabel +"=" + value); 
+//						//
+//						//						if(value!=null){
+//						//							field.setInt(this, value);
+//						//						}
+//					}
+//				} catch (IllegalArgumentException e) {
+//					e.printStackTrace();
+//					//				} catch (IllegalAccessException e) {
+//					//					e.printStackTrace();
+//					//				}
+//				}
+//			}
+//		}
 
 		init();
 	}

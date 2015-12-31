@@ -12,9 +12,9 @@ public class Mfcc extends AbstractFrameProcessor{
 	public int cepsCoef = 12; //-- Default Value
 	
 	public double [][]transArr;
-	public double [] cepsArr;
-	public double [] mfccArr;
 	public double [] loggedArr;
+	public double [] mfccArr;
+	public double [] cepsArr;
 	
 	
 	enum DctParam implements ProcessorParameter{
@@ -89,7 +89,7 @@ public class Mfcc extends AbstractFrameProcessor{
 		
 		transArr = new double [mfccChN][mfccChN];
 		
-		//-- dct formula: c = T * x: c = transformed coef., x = input signal
+		//-- dct formula: [c = T * x] c = transformed coef., x = input signal.
 		for (int i = 0; i < mfccChN; i++) {
 			double k = i == 0 ? 1.0 / Math.sqrt(2.0) : 1.0;
 			for (int j = 0; j < mfccChN; j++) {

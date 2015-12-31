@@ -1,28 +1,26 @@
 package info.pinlab.snd.dsp;
 
-import info.pinlab.snd.dsp.ParameterSheet.BaseParams;
-import info.pinlab.snd.dsp.ParameterSheet.ProcessorParameter;
-
 /**
  * 
  * @author Hiroki Watanabe
  *
  */
 public class MelFilter extends AbstractFrameProcessor{
-	public static final String HZ = "HZ";
-	public static final String FFT_N = "FFT_N";
-	public static final String MFCC_CH = "MFCC_CH";
+	//-- default values 
+	public static final FEParamInt HZ = new FEParamInt("HZ", 16000, MelFilter.class); 
+	public static final FEParamInt FFT_N = new FEParamInt("FFT_N", 128, MelFilter.class); 
+	public static final FEParamInt MFCC_CH = new FEParamInt("MFCC_CH", 26, MelFilter.class); 
+	
+	public static final FEParamInt MFCC_FREQ_MIN = new FEParamInt("MFCC_FREQ_Min",  100, MelFilter.class); 
+	public static final FEParamInt MFCC_FREQ_MAX = new FEParamInt("MFCC_FREQ_MAX", 7500, MelFilter.class); 
 	
 	
-	@ParamInt(label=HZ)
-	public int hz = 16000;
-	@ParamInt(label=FFT_N)
-	public int fftN = 128; //-- default value
-	@ParamInt(label=MFCC_CH)
-	public int mfccChN = 26; //-- default value
+	private int hz = HZ.getValue();
+	private int fftN = FFT_N.getValue(); //-- default value
+	private int mfccChN = MFCC_CH.getValue(); //-- default value
 
 	
-	private double fmax; // Nyquist
+	private double fmax = MFCC_FREQ_MAX.getValue(); // Nyquist
 	private double melMax; // Mel-Nyquist
 	private int nmax; // Maximum Number of Frequency Index
 	private double df; // Frequency Resolution
@@ -30,41 +28,6 @@ public class MelFilter extends AbstractFrameProcessor{
 
 	private double[][] filterBank ;
 
-	
-	
-	
-	enum MfccParams implements ProcessorParameter{
-		MFCC_CH(26),
-		FFT_N(128),
-		;
-		
-		final String id;
-		final String label;
-		final Object defVal;
-		MfccParams(Object defVal){
-			this.id = FrameProducer.class.getName()+"." +this.toString().toUpperCase();
-			this.label = id.toUpperCase();
-			this.defVal = defVal;
-		}
-
-		@Override
-		public String getUniqName(){return id;			}
-		@Override
-		public String getLabel() {	return label;		}
-		@Override
-		public boolean getBoolean(){return (boolean)defVal;	}
-		@Override
-		public int getInt() {		return (int)defVal;	}
-		@Override
-		public double getDouble(){	return (int) defVal;}
-		@Override
-		public Object get(){		return defVal;		}
-	}
-	
-	
-	public static ProcessorParameter[] getProcessorParams(){
-		return MfccParams.values();
-	}
 
 
 	public MelFilter(int hz, int fftN, int mfccChN){
@@ -101,12 +64,10 @@ public class MelFilter extends AbstractFrameProcessor{
 	@Override
 	synchronized public void init() {
 		if(context!=null){
-			hz = context.getInt(BaseParams.HZ);
-			mfccChN = context.getInt(MfccParams.MFCC_CH);
-			fftN = context.getInt(MfccParams.FFT_N);
+			hz = context.get(HZ);
+			mfccChN = context.get(MFCC_CH);
+			fftN = context.get(FFT_N);
 		}
-		
-		System.out.println("init: " + mfccChN);
 		
 		this.fmax = hz / 2; // Nyquist
 		this.melMax = 1127.01048 * Math.log(fmax / 700.0 + 1.0); // Mel-Nyquist

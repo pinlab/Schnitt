@@ -1,6 +1,5 @@
 package info.pinlab.snd.dsp;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,163 +34,46 @@ import info.pinlab.snd.dsp.Windower.WindowType;
  */
 public class ParameterSheet{
 
-	private final Map<ProcessorParameter, Object> paramValues;
-	private final Map<String, Object> rawParamValues;
+	private final Map<String, FEParam> paramMap;
 
-	
-	
-	interface ProcessorParameter{
-		public String getUniqName();
-		public String getLabel();
-
-		public boolean getBoolean();
-		public int getInt();
-		public double getDouble();
-		public Object get();
+	private ParameterSheet(Map<String, FEParam > params){
+		paramMap = new HashMap<String, FEParam>(params);
 	}
 	
+	public boolean containsKey(FEParamInt param){
+		return paramMap.containsKey(param.getKey());
+	}
 	
-	
-	
-
-	enum BaseParams implements ProcessorParameter{
-		HZ(16000),
-		/**
-		 * Byte / sample : 16bit=2byte
-		 */
-		BYTE_PER_SAMPE(2),
-		/**
-		 * Endianness of PCM encoding.
-		 */
-		IS_BIG_ENDIAN(false),
-		/**
-		 * Length of a frame in ms
-		 */
-		FRAME_LEN_MS(20),
-		/**
-		 * Length of a frame in number of samples
-		 */
-		FRAME_LEN_SAMPLE(20*16),
-		/**
-		 * Length of a frame in number of bytes
-		 */
-		FRAME_LEN_BYTE(20*16*2),
-		FRAME_SHIFT_MS(20 / 2),
-		WIN_TYPE(WindowType.HANNING)
-		;
-
-		final String id;
-		final String label;
-		final Object defVal;
-		BaseParams(Object defVal){
-			this.id = FrameProducer.class.getName()+"." +this.toString().toUpperCase();
-			this.label = id.toUpperCase();
-			this.defVal = defVal;
+	public int get(FEParamInt param){
+		Object key = paramMap.get(param.getKey());
+		if(key==null){
+			throw new IllegalArgumentException("No such key as '" + param.getKey() +"'");
 		}
-
-		@Override
-		public String getUniqName(){return id;			}
-		@Override
-		public String getLabel() {	return label;		}
-		@Override
-		public boolean getBoolean(){return (boolean)defVal;	}
-		@Override
-		public int getInt() {		return (int)defVal;	}
-		@Override
-		public double getDouble(){	return (int) defVal;}
-		@Override
-		public Object get(){		return defVal;		}
+		return ((FEParamInt)key).getValue();
 	}
-
-	public static ProcessorParameter[] getProcessorParams(){
-		return BaseParams.values();
+	public boolean get(FEParamBool param){
+		Object key = paramMap.get(param.getKey());
+		if(key==null){
+			throw new IllegalArgumentException("No such key as '" + param.getKey() +"'");
+		}
+		return ((FEParamBool)key).getValue();
 	}
-
-
-
-
-	private ParameterSheet(Map<ProcessorParameter, Object> params, Map<String, Object> raws){
-		//			int hz, int bytePerSample, boolean isBigEndian,
-		//			 int frameInMs, int frameShiftInMs, WindowType win,
-		//			 int fftN, int mfccCh){
-		//		this.hz = hz;
-		//		this.isBigEndian = isBigEndian;
-		//		this.bytePerSample = bytePerSample;
-		//		this.fftN = fftN;
-		//		this.mfccCh = mfccCh;
-		//		this.winType = WIN_TYPE;
-		//		this.frameLenInMs = frameInMs;
-		//		this.frameLenInByte = (frameLenInMs*hz*bytePerSample)/1000;   /* */; //-- 10ms x 16kHz x depth (16bit -> 2byte)
-		//		this.frameLenInSample = this.frameLenInByte / this.bytePerSample ; 
-		//		this.frameShiftInMs = frameShiftInMs;
-
-		paramValues = new HashMap<ProcessorParameter, Object>(params);
-		rawParamValues = new HashMap<String, Object>(raws);
-	}
-
-
-	public int getInteger(String param){
-		return (int)rawParamValues.get(param);
-	}
-	
-	
-	/**
-	 * 
-	 * @param par
-	 * @return null if not key, or key has no value
-	 */
-	public Integer getInt(ProcessorParameter par){
-		return (int)paramValues.get(par);
-	}
-
-
-	
 	
 	
 
 	public static class ParameterSheetBuilder{
 		public static Logger LOG = LoggerFactory.getLogger(ParameterSheetBuilder.class); 
 
-		@ParamInt
-		public static final int HZ = 16000;
-		public static final String PARAM_HZ = "HZ";
-		@ParamInt
-		public static final int BYTE_PER_SAMPE = 2;
-		public static final String PARAM_BYTE_PER_SAMPE = "BYTE_PER_SAMPE";
-		@ParamInt
-		public static final int FRAME_LEN_MS = 20;
-		public static final String PARAM_FRAME_LEN_MS = "FRAME_LEN_MS";
-		@ParamInt
-		public static final int FRAME_LEN_SAMPLE = 20*16;
-		public static final String PARAM_FRAME_LEN_SAMPLE = "FRAME_LEN_SAMPLE";
-		@ParamInt
-		public static final int FRAME_LEN_BYTE = 20*16*2;
-		public static final String PARAM_FRAME_LEN_BYTE = "FRAME_LEN_BYTE";
-		@ParamInt
-		public static final int FRAME_SHIFT_MS = (20/2);
-		public static final String PARAM_FRAME_SHIFT_MS = "FRAME_SHIFT_MS";
+		private final Map<String, FEParam> rawParams;
 		
-		public static final boolean IS_BIG_ENDIAN = false;
-//		WindowType = WindowType.HANNING;
-		
-		private final Map<ProcessorParameter, Object> params = new HashMap<ProcessorParameter, Object>();
-		private final Map<String, Object> rawParams;
 		
 		public ParameterSheetBuilder(){
-			rawParams = new HashMap<String, Object>();
-			addParametersFromClass(this.getClass());
-			//-- add default value
-			for(ProcessorParameter param : ParameterSheet.getProcessorParams()){
-				System.out.println(param.getUniqName());
-				params.put(param, param.get());
-			}
-			for(ProcessorParameter param : MelFilter.getProcessorParams()){
-				System.out.println(param.getUniqName());
-				params.put(param, param.get());
-			}
+			rawParams = new HashMap<String, FEParam>();
+			addParametersFromClass(FEParam.class);
 		}
-
-
+		
+		
+		
 		/**
 		 * Adds parameters from FrameProcessor. Parameters are annotated by {@link ProcessorParam} 
 		 * 
@@ -209,33 +91,76 @@ public class ParameterSheet{
 		}
 		
 		public ParameterSheetBuilder addParametersFromClass(Class<?> clazz){
-			try{
+//			try{
 				for(Field field : clazz.getFields()){
-					for(Annotation anno : field.getAnnotations()){
-						if(anno instanceof ParamInt){
-							String paramLabel = field.getName();
-							String paramId    = clazz.getName() + "#" + paramLabel;
-							System.out.println(paramId);
-							int defVal = field.getInt(null);
-							rawParams.put(paramLabel, defVal);
-							System.out.println(paramLabel + " = " + defVal);
+					if(FEParam.class.isAssignableFrom(field.getType())){
+						try {
+							FEParam param = (FEParam) field.get(null);
+							rawParams.put(param.getKey(), param);
+						} catch (IllegalArgumentException e) {
+							e.printStackTrace();
+						} catch (IllegalAccessException e) {
+							e.printStackTrace();
 						}
-
 					}
+//					for(Annotation anno : field.getAnnotations()){
+//						if(anno instanceof ParamInt){
+//							String paramLabel = field.getName();
+//							String paramId    = clazz.getName() + "#" + paramLabel;
+//							System.out.println(paramId);
+////							int defVal = field.getInt(null);
+////							rawParams.put(paramLabel, defVal);
+////							System.out.println(paramLabel + " = " + defVal);
+//						}
+//
+//					}
 				}
-			} catch (IllegalAccessException ignore) {		}
+//			} catch (IllegalAccessException ignore) {		}
 			return this;
 		}
 
-
-		public void addParameter(ProcessorParameter param){
-			params.put(param, param.get());
+		
+		private boolean overWriteWarning(FEParam p1, FEParam p2){
+			if(!p1.getClazz().equals(p2.getClazz())){
+				LOG.warn("Param from '" + p1.getClazz() + "." + p1.getKey()+"'"
+						+" overwritten with '" + p2.getClazz() + "." + p1.getKey()+"'");
+				return true;
+			}
+			return false;
 		}
 
-		public void setParameter(ProcessorParameter param, Object val){
-			params.put(param, val);
+		public ParameterSheetBuilder setParameter(FEParamInt param, int val){
+			FEParam oldParam = rawParams.get(param.getKey());
+			FEParam newParam = new FEParamInt(param.getKey(), val, param.getClazz());
+			overWriteWarning(oldParam, newParam);
+			rawParams.put(newParam.getKey(), newParam);
+			return this;
+		}
+		public ParameterSheetBuilder setParameter(FEParamBool param, boolean b){
+			FEParam oldParam = rawParams.get(param.getKey());
+			FEParam newParam = new FEParamBool(param.getKey(), b, param.getClazz());
+			overWriteWarning(oldParam, newParam);
+			rawParams.put(newParam.getKey(), newParam);
+			return this;
 		}
 
+		
+		public <T> ParameterSheetBuilder setParameter(FEParamObj<T> param, T value){
+			FEParam oldParam = rawParams.get(param.getKey());
+			FEParam newParam = new FEParamObj<T>(param.getKey(), value, param.getClazz());
+			overWriteWarning(oldParam, newParam);
+			rawParams.put(newParam.getKey(), newParam);
+			return this;
+		}
+		
+		
+		public Integer getIntForParam(FEParamInt param){
+			FEParam par = rawParams.get(param.getKey());
+			if(par==null){
+				return null;
+			}
+			return ((FEParamInt)par).getValue();
+		}
 
 
 		public ParameterSheetBuilder setAudioFormat(AudioFormat af){
@@ -245,59 +170,37 @@ public class ParameterSheet{
 			return this;
 		}
 		public ParameterSheetBuilder setHz(int hz){
-//			params.put(BaseParams.HZ, hz);
-			rawParams.put(PARAM_HZ, hz);
-			return this;
+			return setParameter(FEParam.HZ, hz);
 		}
 		public ParameterSheetBuilder setBytePerSample(int bytePerSample) {
-			params.put(BaseParams.BYTE_PER_SAMPE, bytePerSample);
-			return this;
+			return setParameter(FEParam.BYTE_PER_SAMPE, bytePerSample);
 		}
 		public ParameterSheetBuilder isBigEndian(boolean b){
-			params.put(BaseParams.IS_BIG_ENDIAN, b);
-			return this;
+			return setParameter(FEParam.IS_BIG_ENDIAN, b);
 		}
 		public ParameterSheetBuilder setFrameLenInMs(int frameLenInMs){
-			rawParams.put(PARAM_FRAME_LEN_MS,    frameLenInMs);
-			rawParams.put(PARAM_FRAME_SHIFT_MS,  frameLenInMs/2);
-			int sampleLen = frameLenInMs*((int)rawParams.get(PARAM_HZ))/1000;
-			rawParams.put(PARAM_FRAME_LEN_SAMPLE,sampleLen);
-			rawParams.put(PARAM_FRAME_LEN_BYTE,  
-					(int)rawParams.get(PARAM_FRAME_LEN_SAMPLE)
-					*(int)rawParams.get(PARAM_BYTE_PER_SAMPE)
-					);
-
+			setParameter(FEParam.FRAME_LEN_MS, frameLenInMs);
+			setParameter(FEParam.FRAME_SHIFT_MS, frameLenInMs/2);
 			
-			params.put(BaseParams.FRAME_LEN_MS, frameLenInMs);
-			params.put(BaseParams.FRAME_SHIFT_MS, frameLenInMs/2);
-			int frameLenInSample = frameLenInMs*((int)params.get(BaseParams.HZ))/1000;
-			params.put(BaseParams.FRAME_LEN_SAMPLE, frameLenInSample);
-			params.put(BaseParams.FRAME_LEN_BYTE,   frameLenInSample*(int)params.get(BaseParams.BYTE_PER_SAMPE));
+			Integer hz = getIntForParam(FEParam.HZ);
+			if(hz!=null){
+				int sampleLen = (frameLenInMs*hz)/1000;
+				setParameter(FEParam.FRAME_LEN_SAMPLE, sampleLen);
+				Integer byteLen = getIntForParam(FEParam.BYTE_PER_SAMPE);
+				if(byteLen!=null){
+					setParameter(FEParam.FRAME_LEN_BYTE, sampleLen*byteLen);
+				}
+			}
 			return this;
 		}
 		public ParameterSheetBuilder setFrameShiftInMs(int frameShiftInMs) {
-			params.put(BaseParams.FRAME_SHIFT_MS, frameShiftInMs);
-			return this;
+			return setParameter(FEParam.FRAME_LEN_MS, frameShiftInMs);
 		}
-		//		public AcousticParameterSheetBuilder setFftN(int fftN) {
-		//			params.put(BaseParams.HZ, hz);
-		//			this.fftN = fftN;
-		//			return this;
-		//		}
-		//		public AcousticParameterSheetBuilder setMfccCh(int mfccCh) {
-		//			this.mfccCh = mfccCh;
-		//			return this;
-		//		}
-		public ParameterSheetBuilder setWinType(WindowType winType) {
-			params.put(BaseParams.WIN_TYPE, winType);
-			return this;
+		public ParameterSheetBuilder setWinType(WindowType winType){
+			return setParameter(FEParam.WINDOW_TYPE, winType);
 		}
-
-
 		public ParameterSheet build(){
-			return new ParameterSheet(params, rawParams);
-			//			return new AcousticParameterSheet(hz, bytePerSample, isBigEndian,
-			//					frameLenInMs, frameShiftInMs, winType, fftN, mfccCh);
+			return new ParameterSheet(rawParams);
 		}
 	}
 }

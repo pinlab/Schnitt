@@ -48,7 +48,7 @@
 							<arguments>
 								<argument>-createjar</argument>
 								<argument>-appclass</argument>
-								<argument>info.pinlab.shcnitt.Main</argument>
+								<argument>info.pinlab.schnitt.Main</argument>
 								<argument>-srcdir</argument>
 								<argument>./target/classes</argument>
 								<argument>-outdir</argument>

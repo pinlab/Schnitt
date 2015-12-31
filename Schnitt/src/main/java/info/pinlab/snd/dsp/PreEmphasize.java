@@ -73,7 +73,7 @@ public class PreEmphasize extends AbstractFrameProcessor {
 		for (int i = 0; i < arr.length; i++) {
 			for (int j = 0; j < preEmphCoefArr.length; j++) {
 				if (i - j >= 0) {
-					preEmphedArr[j] += preEmphCoefArr[j] * arr[i - j];
+					preEmphedArr[i] += preEmphCoefArr[j] * arr[i - j];
 				}
 			}
 		}

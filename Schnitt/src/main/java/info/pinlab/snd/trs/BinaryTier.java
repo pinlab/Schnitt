@@ -219,7 +219,7 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 	public void setLabelForTrue(String s){
 		this.label = s;
 	}
-	public String getLabel(){
+	public String getTierLabel(){
 		return this.label;
 	}
 	

@@ -3,10 +3,10 @@ package info.pinlab.schnitt.gui;
 import info.pinlab.pinsound.WavClip;
 import info.pinlab.snd.trs.Interval;
 import info.pinlab.snd.trs.Tier;
-import info.pinlab.snd.trs.VadErrorTier;
 import info.pinlab.snd.vad.BinaryHypoTier;
 import info.pinlab.snd.vad.BinaryTargetTier;
 import info.pinlab.snd.vad.VadError;
+import info.pinlab.snd.vad.VadErrorTier;
 
 public interface WavPanelModel {
 	public void setSampleArray(int [] samples, int hz);

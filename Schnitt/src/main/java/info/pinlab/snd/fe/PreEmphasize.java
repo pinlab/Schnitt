@@ -9,7 +9,7 @@ public class PreEmphasize extends AbstractFrameProcessor {
 	private double [] preEmphedArr = null;
 	
 
-	public PreEmphasize(ParameterSheet context) {
+	public PreEmphasize(ParamSheet context) {
 		super(context);
 	}
 	

@@ -1,8 +1,12 @@
-package info.pinlab.snd.trs;
+package info.pinlab.snd.vad;
 
 import java.util.List;
 
-import info.pinlab.snd.vad.VadError;
+import info.pinlab.snd.trs.AbstractIntervalTier;
+import info.pinlab.snd.trs.BinaryTier;
+import info.pinlab.snd.trs.Interval;
+import info.pinlab.snd.trs.IntervalTier;
+import info.pinlab.snd.trs.Tier.Type;
 
 /**
  * 
@@ -99,7 +103,7 @@ public class VadErrorTier extends AbstractIntervalTier<VadError> {
 
 	
 	public void refresh(){
-		super.points.clear();
+		clear();
 		
 		int STATE = SIL;
 
@@ -154,7 +158,7 @@ public class VadErrorTier extends AbstractIntervalTier<VadError> {
 				}else{ //-- hypo off
 					err = VadErrorType[STATE][HYPO_OFF];
 					if(err!=null){
-						super.points.put(hypoInterval.startT, err);
+						put(hypoInterval.startT, err);
 					}
 					STATE = VadErrorFsa[STATE][HYPO_OFF];
 				}
@@ -172,16 +176,15 @@ public class VadErrorTier extends AbstractIntervalTier<VadError> {
 				targIx++;
 			}
 			if(err!=null){
-				super.points.put(prevErrT, err);
+				put(prevErrT, err);
 			}
 //			double dur = errT-prevErrT;
 //			System.out.println(errT + "\t" + "STATE: " + STATE + "\t" + err + "\t" + dur);
 			prevErrT = errT;
 		}
 		if(err!=null){
-			super.points.put(prevErrT, err);
+			put(prevErrT, err);
 		}
-		
 	}
 	
 	
@@ -198,7 +201,7 @@ public class VadErrorTier extends AbstractIntervalTier<VadError> {
 		
 		double prev= -1;
 		VadError prevLab = null;
-		for(double pt : super.points.keySet()){
+		for(double pt : getTimeLabels()){
 			if(pt > 0.0d){
 				sb	.append(prev).append(" - ")
 					.append(pt).append(" ")
@@ -206,7 +209,7 @@ public class VadErrorTier extends AbstractIntervalTier<VadError> {
 					.append('\n');
 			}
 			prev = pt;
-			prevLab = super.points.get(pt);
+			prevLab = get(pt);
 		}
 		return sb.toString();
 	}

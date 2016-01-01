@@ -5,12 +5,12 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractFrameProcessor implements FrameProcessor {
 	public static final Logger LOG = LoggerFactory.getLogger(AbstractFrameProcessor.class);
-	final ParameterSheet context ;
+	final ParamSheet context ;
 	private String key  = null;
 	private String predecessorKey = null;
 
 
-	public AbstractFrameProcessor(ParameterSheet context){
+	public AbstractFrameProcessor(ParamSheet context){
 		this.context = context;
 		if(context==null){
 			return;

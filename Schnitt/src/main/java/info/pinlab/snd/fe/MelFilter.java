@@ -38,7 +38,7 @@ public class MelFilter extends AbstractFrameProcessor{
 		init();
 	}
 	
-	public MelFilter(ParameterSheet context){
+	public MelFilter(ParamSheet context){
 		super(context);
 	};
 

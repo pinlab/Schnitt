@@ -4,9 +4,12 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import info.pinlab.pinsound.WavClip;
-import info.pinlab.snd.fe.FrameProducer.AudioFrameConsumer;
-import info.pinlab.snd.fe.ParameterSheet.ParameterSheetBuilder;
+import info.pinlab.snd.fe.FrameProvider.AudioFrameConsumer;
+import info.pinlab.snd.fe.ParamSheet.ParamSheetBuilder;
 
 /**
  * 
@@ -17,33 +20,37 @@ import info.pinlab.snd.fe.ParameterSheet.ParameterSheetBuilder;
  *
  */
 public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
-
+	public static final Logger LOG = LoggerFactory.getLogger(StreamingAcousticFrontEnd.class);
+	
 	private final ConcurrentLinkedDeque<Frame> inDeque;
 	private final ConcurrentLinkedDeque<DoubleFrame> outDeque;
 
-
 	int frameArrSize;
-	private final ParameterSheet context;
+	private final ParamSheet context;
 	private final double sampleMax;
 	private int frameN = 0;
-	private final FrameProducer frameReader; 
+	private final FrameProvider frameReader; 
+	private final int frameShiftInSample; 
 
 	Thread processorThread;
 
 	private final FrameProcessor [] pipeline;
 
-
-	private final int frameShiftInSample; 
+	private FeatureSink sink = null;
 	
-	public StreamingAcousticFrontEnd(ParameterSheet context){
+	
+	
+	public StreamingAcousticFrontEnd(ParamSheet context){
 		this.context = context;
 
 		frameShiftInSample = context.get(FEParam.FRAME_LEN_SAMPLE)/2;
 		
-		frameReader = new FrameProducer(this.context);
+		frameReader = new FrameProvider(this.context);
 		frameReader.setAudioFrameConsumer(this);
 		
 		sampleMax = (Math.pow(2, (this.context.get(FEParam.BYTE_PER_SAMPE)*8)))/2;
+		System.out.println(sampleMax);
+		
 		inDeque = new ConcurrentLinkedDeque<Frame>();
 		outDeque = new ConcurrentLinkedDeque<DoubleFrame>();
 
@@ -55,8 +62,6 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 //			MelFilter melFilter = FrameProcessorFactory.create(MelFilter.class, this.context);
 //			FrameProcessorFactory.create(Fft.class, this.context);
 			pipeline[0] = hannWindower;
-
-
 		} catch (NoSuchMethodException e) {
 			e.printStackTrace();
 		} catch (SecurityException e) {
@@ -70,15 +75,18 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		}
-
-
 	}
+	
+	public void setSink(FeatureSink sink){
+		this.sink = sink;
+	}
+	
 
 	@Override
 	public void consume(int[] samples){
 		double [] arr = new double [samples.length]; 
 		for(int i = 0; i < samples.length; i++){
-			arr[i] = samples[i]/sampleMax;FEParam
+			arr[i] = samples[i]/sampleMax;
 		}
 		int id = frameN*frameShiftInSample;
 		DoubleFrame frame = new DoubleFrame(arr, "sample", id);
@@ -101,10 +109,8 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 
 
 	private class FeatureProcessor implements Runnable{
-		
 		@Override
 		public void run(){
-			int hz = context.get(FEParam.HZ);
 			LOOP: while(true){
 				Frame frame = inDeque.pollFirst();
 				if(frame==null){
@@ -119,7 +125,7 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 				}
 				
 				if(frame instanceof DoubleFrame){
-					System.out.println("> " + (frame.getStartSampleIx()/(double)hz));
+//					System.out.println("> " + (frame.getStartSampleIx()/(double)hz));
 					//-- do the pipeline
 					DoubleFrame dblFrame = (DoubleFrame)frame;
 					for(FrameProcessor processor : pipeline){
@@ -151,6 +157,15 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 
 
 	public void start(){
+		//-- set  dummy consumer
+		if(sink==null){
+			LOG.info("Adding dummy sink");
+			sink = new FeatureSink(){
+				@Override
+				public void add(DoubleFrame feature){	}
+			};
+		}
+		
 		processorThread.start();
 		frameReader.start();
 	}
@@ -160,14 +175,11 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 		InputStream is = StreamingAcousticFrontEnd.class.getResourceAsStream("sample.wav");
 		WavClip wav = new WavClip(is);
 
-		ParameterSheet context = new ParameterSheetBuilder()
+		ParamSheet context = new ParamSheetBuilder()
 				.addParametersFromClass(MelFilter.class)
 				.setAudioFormat(wav.getAudioFormat())
 				.setFrameLenInMs(50).build();
 		
-//		System.out.println(context.get(FEParam.HZ));
-//		System.out.println(context.get(FEParam.FRAME_LEN_MS));
-//		System.out.println(context.get(FEParam.FRAME_LEN_SAMPLE));
 
 		StreamingAcousticFrontEnd fe = new StreamingAcousticFrontEnd(context);
 

@@ -8,8 +8,8 @@ import java.util.List;
 import info.pinlab.snd.trs.BinaryTier;
 import info.pinlab.snd.trs.Interval;
 import info.pinlab.snd.trs.Tier.Type;
-import info.pinlab.snd.trs.VadErrorTier;
 import info.pinlab.snd.vad.VadError;
+import info.pinlab.snd.vad.VadErrorTier;
 
 public class Evaluation {
     

@@ -24,7 +24,7 @@ import info.pinlab.snd.fe.Windower.WindowType;
 - order
  1) name of args < before init
  2) default value < before init
- 
+
  - clash
  diff proc. classes should be able to use same param (e.g., HZ)
 
@@ -32,18 +32,18 @@ import info.pinlab.snd.fe.Windower.WindowType;
  * @author Gabor Pinter
  *
  */
-public class ParameterSheet{
+public class ParamSheet{
 
 	private final Map<String, FEParam<?>> paramMap;
-	
-	private ParameterSheet(Map<String, FEParam<?>> params){
+
+	private ParamSheet(Map<String, FEParam<?>> params){
 		paramMap = new HashMap<String, FEParam<?>>(params);
 	}
-	
+
 	public boolean containsKey(FEParamInt param){
 		return paramMap.containsKey(param.getKey());
 	}
-	
+
 	public Integer get(FEParamInt param){
 		Object key = paramMap.get(param.getKey());
 		if(key==null){
@@ -59,9 +59,9 @@ public class ParameterSheet{
 		}
 		return ((FEParamDouble)key).get();
 	}
-	
 
-	
+
+
 	public boolean get(FEParamBool param){
 		Object key = paramMap.get(param.getKey());
 		if(key==null){
@@ -69,30 +69,29 @@ public class ParameterSheet{
 		}
 		return ((FEParamBool)key).get();
 	}
-	
-	
 
-	public static class ParameterSheetBuilder{
-		public static Logger LOG = LoggerFactory.getLogger(ParameterSheetBuilder.class); 
+
+
+	public static class ParamSheetBuilder{
+		public static Logger LOG = LoggerFactory.getLogger(ParamSheetBuilder.class); 
 
 		private final Map<String, FEParam<?>> rawParams;
-		
-		
-		public ParameterSheetBuilder(){
+
+
+		public ParamSheetBuilder(){
 			rawParams = new HashMap<String, FEParam<?>>();
-			Object obj = FEParam.HZ;
 			addParametersFromClass(FEParam.class);
 		}
-		
-		
-		
+
+
+
 		/**
 		 * Adds parameters from FrameProcessor. Parameters are annotated by {@link ProcessorParam} 
 		 * 
 		 * @param fqcn
 		 * @return 
 		 */
-		public ParameterSheetBuilder addParametersFromClass(String fqcn){
+		public ParamSheetBuilder addParametersFromClass(String fqcn){
 			try{
 				Class<?> clazz = Class.forName(fqcn);
 				return addParametersFromClass(clazz);
@@ -101,47 +100,35 @@ public class ParameterSheet{
 			}
 			return this;
 		}
-		
-		public ParameterSheetBuilder addParametersFromClass(Class<?> clazz){
-//			try{
-				for(Field field : clazz.getFields()){
-					if(FEParam.class.isAssignableFrom(field.getType())){
-						try {
-							FEParam<?> param = (FEParam<?>) field.get(null);
-							rawParams.put(param.getKey(), param);
-							System.out.println(param.getKey() + " = " + param.get());
-						} catch (IllegalArgumentException e) {
-							e.printStackTrace();
-						} catch (IllegalAccessException e) {
-							e.printStackTrace();
-						}
+
+		public ParamSheetBuilder addParametersFromClass(Class<?> clazz){
+			for(Field field : clazz.getFields()){
+				if(FEParam.class.isAssignableFrom(field.getType())){
+					try {
+						FEParam<?> param = (FEParam<?>) field.get(null);
+						set(param);
+					} catch (IllegalArgumentException e) {
+						e.printStackTrace();
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
 					}
-//					for(Annotation anno : field.getAnnotations()){
-//						if(anno instanceof ParamInt){
-//							String paramLabel = field.getName();
-//							String paramId    = clazz.getName() + "#" + paramLabel;
-//							System.out.println(paramId);
-////							int defVal = field.getInt(null);
-////							rawParams.put(paramLabel, defVal);
-////							System.out.println(paramLabel + " = " + defVal);
-//						}
-//
-//					}
 				}
-//			} catch (IllegalAccessException ignore) {		}
+			}
 			return this;
 		}
 
-		
-		
-		public ParameterSheetBuilder set(FEParam<?> param){
+
+		public ParamSheetBuilder set(FEParam<?> param){
+			LOG.info("Setting " + param);
 			FEParam<?> old = rawParams.get(param.getKey());
-			if(!old.getClazz().equals(param.getClazz())){
-				Object val = param.get();
-				if(val!=null && val.equals(old.get())){ //-- if new value...
-					LOG.warn("Param from '" + old.getClazz() + "." + old.getKey()+"'"
-						+" overwritten with '" + param.getClazz() + "." + param.getKey()+"'");
-				}else{
+			if(old!=null){
+				if(!old.getClazz().equals(param.getClazz())){
+					Object val = param.get();
+					if(val!=null && !val.equals(old.get())){ //-- if new value...
+						LOG.warn("Overwriting " + old);
+					}else{
+						LOG.trace("Shadowing " + old);
+					}
 				}
 			}
 			if(param.get()==null && old.get()!=null){
@@ -150,21 +137,21 @@ public class ParameterSheet{
 			rawParams.put(param.getKey(), param);
 			return this;
 		}
-		
-		public ParameterSheetBuilder set(FEParamBool param, boolean b){
+
+		public ParamSheetBuilder set(FEParamBool param, boolean b){
 			return set(new FEParamBool(param.getKey(), b, param.getClazz()));
 		}
-		public ParameterSheetBuilder set(FEParamInt param, int val){
+		public ParamSheetBuilder set(FEParamInt param, int val){
 			return set(new FEParamInt(param.getKey(), val, param.getClazz()));
 		}
-		public ParameterSheetBuilder set(FEParamDouble param, double val){
+		public ParamSheetBuilder set(FEParamDouble param, double val){
 			return set(new FEParamDouble(param.getKey(), val, param.getClazz()));
 		}
-		public <T> ParameterSheetBuilder setParameter(FEParamObj<T> param, T value){
+		public <T> ParamSheetBuilder setParameter(FEParamObj<T> param, T value){
 			return set(new FEParamObj<T>(param.getKey(), value, param.getClazz()));
 		}
-		
-		
+
+
 		public Integer get(FEParamInt param){
 			FEParam<?> par = rawParams.get(param.getKey());
 			if(par==null){
@@ -186,28 +173,28 @@ public class ParameterSheet{
 			}
 			return ((FEParamBool)par).get();
 		}
-		
-		
 
-		public ParameterSheetBuilder setAudioFormat(AudioFormat af){
+
+
+		public ParamSheetBuilder setAudioFormat(AudioFormat af){
 			setHz((int)af.getSampleRate());
 			setBytePerSample(af.getSampleSizeInBits()/8);
 			isBigEndian(af.isBigEndian());
 			return this;
 		}
-		public ParameterSheetBuilder setHz(int hz){
+		public ParamSheetBuilder setHz(int hz){
 			return set(FEParam.HZ, hz);
 		}
-		public ParameterSheetBuilder setBytePerSample(int bytePerSample) {
+		public ParamSheetBuilder setBytePerSample(int bytePerSample) {
 			return set(FEParam.BYTE_PER_SAMPE, bytePerSample);
 		}
-		public ParameterSheetBuilder isBigEndian(boolean b){
+		public ParamSheetBuilder isBigEndian(boolean b){
 			return set(FEParam.IS_BIG_ENDIAN, b);
 		}
-		public ParameterSheetBuilder setFrameLenInMs(int frameLenInMs){
+		public ParamSheetBuilder setFrameLenInMs(int frameLenInMs){
 			set(FEParam.FRAME_LEN_MS, frameLenInMs);
 			set(FEParam.FRAME_SHIFT_MS, frameLenInMs/2);
-			
+
 			Integer hz = get(FEParam.HZ);
 			if(hz!=null){
 				int sampleLen = (frameLenInMs*hz)/1000;
@@ -219,19 +206,15 @@ public class ParameterSheet{
 			}
 			return this;
 		}
-		public ParameterSheetBuilder setFrameShiftInMs(int frameShiftInMs) {
+		public ParamSheetBuilder setFrameShiftInMs(int frameShiftInMs) {
 			return set(FEParam.FRAME_LEN_MS, frameShiftInMs);
 		}
-		public ParameterSheetBuilder setWinType(WindowType winType){
+		public ParamSheetBuilder setWinType(WindowType winType){
 			return setParameter(FEParam.WINDOW_TYPE, winType);
 		}
-		public ParameterSheet build(){
-			return new ParameterSheet(rawParams);
+		public ParamSheet build(){
+			return new ParamSheet(rawParams);
 		}
 	}
 }
-
-
-
-
 

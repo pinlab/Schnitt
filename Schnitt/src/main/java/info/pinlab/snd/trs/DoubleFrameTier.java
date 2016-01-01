@@ -1,55 +1,49 @@
 package info.pinlab.snd.trs;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import info.pinlab.snd.fe.DoubleFrame;
 
-public class DoubleFrameTier extends AbstractIntervalTier<DoubleFrame> {
+public class DoubleFrameTier{
 	public static Logger LOG = LoggerFactory.getLogger(DoubleFrameTier.class);
 
 	private final double hz ;
 	private final int frameSz;
+	private final double frameLen;
+	final TreeMap<Double, DoubleFrame> frames;
+
 	
-	public DoubleFrameTier(Type type, double hz, int frameSize) {
-		super(Type.NOT_SET);
-		this.hz = hz;
+	public DoubleFrameTier(int hz, int frameSize) {
+		this.hz = (double)hz;
 		this.frameSz = frameSize;
+		frameLen = frameSize / hz;
+		frames = new TreeMap<Double, DoubleFrame>();
+		frames.put(0.0d, null);
 	}
 
 	
-	public void addInterval(DoubleFrame frame){
-		double from = frame.getStartSampleIx()/hz;
-		double to   = (frame.getStartSampleIx()+this.frameSz)/hz;
-		addInterval(from, to, frame);
-	}
-	
-	@Override
-	public IntervalTier<DoubleFrame> addInterval(double from, double to, DoubleFrame frame){
-		if(from==to){
-			from = frame.getStartSampleIx()/hz;
-			to   = (frame.getStartSampleIx()+this.frameSz)/hz;
+	public void add(DoubleFrame frame){
+		Double start = frame.getStartSampleIx()/hz;
+		synchronized(this){
+			frames.put(start, frame);
 		}
-		points.put(from, frame);
-		return this;
 	}
 	
 	
-	
-	@Override
-	public IntervalTier<DoubleFrame> addInterval(Interval<DoubleFrame> interval){
-		return addInterval(interval.startT, interval.endT, interval.label);
+	synchronized public Set<Double> getTimeLabels(){
+		return new HashSet<Double>(frames.keySet());
 	}
-
-	
-	
-	@Override
-	public DoubleFrame combineLabels(List<DoubleFrame> labels) {
-		return null;
-	}
-
-	
+	 
+	 /**
+	  * @return returns the number of DoubleFrames
+	  */
+	 synchronized public int size(){
+		 return frames.size();
+	 }
 
 }

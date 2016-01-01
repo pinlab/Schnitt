@@ -27,7 +27,7 @@ pipe.start()
  * 
  * @author Gabor Pinter
  */
-public class FrameProducer{
+public class FrameProvider{
 	interface AudioFrameConsumer{
 		public void consume(int[] samples);
 		public void end();
@@ -39,33 +39,35 @@ public class FrameProducer{
 
 	private final int hz;
 	private final int bytePerSample;
-	
-	private final ParameterSheet context;
-	
-//	int hz = 16000;
-//	int bytePerSample = 2;
+	private final int frameSzInByte;
 	int buffSizeInMs = 5*1000;
 	int buffSizeInByte = buffSizeInMs; 
-
-//	private int frameLenInMs = 10; //
-//	int frameLenInByte = (frameLenInMs*hz*2)/1000;   /* */; //-- 10ms x 16kHz x depth (16bit -> 2byte)
-//	int frameShiftLenInByte = frameLenInByte/2; 
+//	private final ParamSheet context;
 
 	private WavClip wav = null;
 	private AudioFrameConsumer frameConsumer = null;
 
+	private Thread writeThread = null;
+	private Thread framerThread = null;
 
 
-	public FrameProducer(ParameterSheet context){
-		this.context = context;
-		hz = context.get(FEParam.HZ);
-		bytePerSample = context.get(FEParam.BYTE_PER_SAMPE); 
-				
+
+	public FrameProvider(int hz, int bytePerSample, int frameSzInByte){
+		this.hz = hz;
+		this.bytePerSample = bytePerSample;
+		this.frameSzInByte = frameSzInByte;
 		pos = new PipedOutputStream();
 		pis = new PipedInputStream(hz * bytePerSample); //-- 1 second buffer
 		try{
 			pis.connect(pos);
 		}catch(IOException ignore){};
+	}
+	
+	
+	public FrameProvider(ParamSheet context){
+		this( context.get(FEParam.HZ)
+			, context.get(FEParam.BYTE_PER_SAMPE)
+			, context.get(FEParam.FRAME_LEN_BYTE));
 	}
 
 
@@ -119,9 +121,6 @@ public class FrameProducer{
 	}
 	
 
-	private Thread writeThread = null;
-	private Thread framerThread = null;
-
 	
 	/**
 	 * Starts reading audio and creating frames 
@@ -130,7 +129,7 @@ public class FrameProducer{
 		writeThread = new Thread(new AudioByteReader(), "Sample Byte Reader");
 		writeThread.start();
 
-		framerThread = new Thread(new Framer(context.get(FEParam.FRAME_LEN_BYTE)), "Sample Consumer");
+		framerThread = new Thread(new Framer(frameSzInByte), "Sample Consumer");
 		framerThread.start();
 	}
 
@@ -139,6 +138,7 @@ public class FrameProducer{
 		private final int frameLenInByte;
 		private final int frameLenInSample;
 		private final int frameHalfLenInSample;
+		
 		
 		int [] prevFrame ; 
 		
@@ -179,7 +179,7 @@ public class FrameProducer{
 							final int [] frame = getIntsFrom16bitLe(buff);
 							frameConsumer.consume(frame);
 							frameN++;
-							System.out.println("Framer of " + frameN);
+//							System.out.println("Framer of " + frameN);
 							//-- copy 2nd half of samples into prevFrame
 							prevFrame = new int[frameLenInSample];
 							System.arraycopy(frame, frameHalfLenInSample, prevFrame, 0, frameHalfLenInSample);
@@ -247,7 +247,7 @@ public class FrameProducer{
 
 
 	public static void main(String[] args) throws Exception{
-		InputStream is = FrameProducer.class.getResourceAsStream("sample.wav");
+		InputStream is = FrameProvider.class.getResourceAsStream("sample.wav");
 		WavClip wav = new WavClip(is);
 
 		int [] s = wav.toIntArray();
@@ -256,9 +256,9 @@ public class FrameProducer{
 		}
 		System.out.println("***************");
 		
-		ParameterSheet context = new ParameterSheet.ParameterSheetBuilder().setFrameLenInMs(1).build();
+		ParamSheet context = new ParamSheet.ParamSheetBuilder().setFrameLenInMs(1).build();
 		
-		FrameProducer pipe = new FrameProducer(context);
+		FrameProvider pipe = new FrameProvider(context);
 //		AudioFrameReader pipe = new AudioFrameReader(1, wav.getAudioFormat());
 		pipe.setFileSource(wav);
 		pipe.setAudioFrameConsumer(new AudioFrameConsumer() {

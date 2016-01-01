@@ -31,8 +31,8 @@ import info.pinlab.schnitt.gui.IntervalSelection;
 import info.pinlab.schnitt.gui.WavPanelModel;
 import info.pinlab.schnitt.gui.WavPanelUI;
 import info.pinlab.snd.trs.Interval;
-import info.pinlab.snd.trs.VadErrorTier;
 import info.pinlab.snd.vad.VadError;
+import info.pinlab.snd.vad.VadErrorTier;
 
 
 /**

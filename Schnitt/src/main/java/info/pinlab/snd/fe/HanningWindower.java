@@ -262,7 +262,7 @@ public class HanningWindower extends AbstractFrameProcessor implements Windower{
 	double [] filter;
 
 	
-	public HanningWindower(ParameterSheet context){
+	public HanningWindower(ParamSheet context){
 		super(context);
 	}
 	

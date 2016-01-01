@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import info.pinlab.pinsound.WavClip;
 import info.pinlab.snd.trs.BinaryTier;
-import info.pinlab.snd.trs.VadErrorTier;
+import info.pinlab.snd.vad.VadErrorTier;
 
 /**
  * Holds audio with hypo and target tiers.  

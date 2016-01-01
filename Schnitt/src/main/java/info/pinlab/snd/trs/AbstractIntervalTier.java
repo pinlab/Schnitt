@@ -39,7 +39,21 @@ public abstract class AbstractIntervalTier<T> implements IntervalTier<T>{
 	}
 
 	
+	public void put(Double t, T data){
+		points.put(t, data);
+	}
+	
+	public T get(Double t){
+		return points.get(t);
+	}
 
+	public void clear(){
+		points.clear();
+	}
+	
+	
+	
+	
 	@Override
 	public boolean hasNext() {
 		// TODO Auto-generated method stub
@@ -115,15 +129,6 @@ public abstract class AbstractIntervalTier<T> implements IntervalTier<T>{
 	}
 
 
-	
-//	@Override
-//	public Double [] getTs(){
-//		Double [] timeStamps = new Double[points.size()/2];
-//		points.keySet().toArray(timeStamps);
-//		return timeStamps;
-//	}
-	
-	
 	
 	public Entry<Double, T> getCeil(Double t){
 		return  points.ceilingEntry(t);
@@ -211,7 +216,9 @@ public abstract class AbstractIntervalTier<T> implements IntervalTier<T>{
 	}
 
 	
-		
+	public Set<Double> getTimeLabels(){
+		return points.keySet();
+	}
 		
 	
 

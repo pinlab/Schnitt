@@ -18,7 +18,7 @@ public class Fft extends AbstractFrameProcessor {
 	
 
 
-	public Fft(ParameterSheet context){
+	public Fft(ParamSheet context){
 		super(context);
 	}
 	

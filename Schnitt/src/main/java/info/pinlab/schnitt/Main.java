@@ -7,10 +7,10 @@ import info.pinlab.pinsound.WavClip;
 import info.pinlab.schnitt.gui.WavGraphics;
 import info.pinlab.schnitt.gui.WavPanelModel;
 import info.pinlab.schnitt.gui.swing.WavPanelImpl;
-import info.pinlab.snd.trs.VadErrorTier;
 import info.pinlab.snd.vad.AmplitudeVad;
 import info.pinlab.snd.vad.BinaryHypoTier;
 import info.pinlab.snd.vad.BinaryTargetTier;
+import info.pinlab.snd.vad.VadErrorTier;
 
 public class Main {
 

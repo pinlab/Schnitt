@@ -10,7 +10,7 @@ import org.junit.Test;
 import info.pinlab.snd.trs.BinaryTier;
 import info.pinlab.snd.trs.DoubleFrameTier;
 
-public class FrameSorterTest {
+public class FrameAlignmentTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -41,11 +41,10 @@ public class FrameSorterTest {
 		DoubleFrameTier frames = new DoubleFrameTier((int)hz, winLenSample);
 		
 		
-		
 		int frameIx = 0;
 		double t = frameIx/hz;
 		while(t <= 1.0){
-			System.out.println(frameIx + " " + winShiftSample);
+//			System.out.println(frameIx + " " + winShiftSample);
 			DoubleFrame frame = new DoubleFrame(new double[0], "empty", frameIx);
 			frames.add(frame);
 			frameIx += winShiftSample;
@@ -54,12 +53,16 @@ public class FrameSorterTest {
 		
 		assertTrue(frames.size() > 0);
 
-		FrameSorter sorter = new FrameSorter(frames, target);
-		System.out.println("START SORTING");
-		sorter.sort();
+		FrameAlignment sorter = new FrameAlignment(frames, target);
+		sorter.calcOverlap();
 		//TODO: check overlaps!
+
+		DoubleFrame frame = frames.getFrameAt(0);
+		assertTrue(frame != null);
+		assertTrue(frame.getNumber("overlap") != null);
+		assertTrue(frame.getNumber("overlap")-0.2 < 0.00001);
 		
-		System.out.println(sorter);
+		System.out.println(sorter.debugPrint());
 	}
 	
 	

@@ -6,7 +6,6 @@ import info.pinlab.snd.trs.AbstractIntervalTier;
 import info.pinlab.snd.trs.BinaryTier;
 import info.pinlab.snd.trs.Interval;
 import info.pinlab.snd.trs.IntervalTier;
-import info.pinlab.snd.trs.Tier.Type;
 
 /**
  * 
@@ -94,7 +93,6 @@ public class VadErrorTier extends AbstractIntervalTier<VadError> {
 	
 	public <T> VadErrorTier(IntervalTier<Boolean> target, IntervalTier<Boolean> hypo){
 		//-- conflate tiers
-		super(Type.VAD_EVAL);
 		this.target = target;
 		this.hypo = hypo;
 		

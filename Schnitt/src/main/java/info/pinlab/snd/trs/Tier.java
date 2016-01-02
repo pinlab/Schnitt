@@ -18,19 +18,19 @@ package info.pinlab.snd.trs;
  *
  */
 public interface Tier{
-	enum Type{
-		HYPO,
-		TARG,
-		VAD_EVAL,
-		NOT_SET
-	}
+//	enum Type{
+//		HYPO,
+//		TARG,
+//		VAD_EVAL,
+//		NOT_SET
+//	}
 	
 	public int size();
 	public String getName();
 	public void setName(String name);
 	public double getDuration();
 	
-	public Type getTierType(); //-- set by init
+//	public Type getTierType(); //-- set by init
 	public boolean isEditable();
 	public void isEditable(boolean b);
 	

@@ -7,7 +7,7 @@ import java.util.List;
 
 import info.pinlab.snd.trs.BinaryTier;
 import info.pinlab.snd.trs.Interval;
-import info.pinlab.snd.trs.Tier.Type;
+import info.pinlab.snd.vad.BinaryTargetTier;
 import info.pinlab.snd.vad.VadError;
 import info.pinlab.snd.vad.VadErrorTier;
 
@@ -32,7 +32,7 @@ public class Evaluation {
     String [] text = TextReader.getText(list);
     
     
-    BinaryTier target = new BinaryTier(Type.TARG);
+    BinaryTier target = new BinaryTargetTier();
     
     target.addInterval(dmin[0],dmax[dmax.length-1], false);
     for(int i=0; i<text.length;i++){

@@ -19,3 +19,11 @@ Steps
      
 3. create installer NSIS
    
+   
+   
+pg 2016/01/02 - packaging idea:
+ - create uber jar with shade plugin
+ - use ProGuard to make it smaller
+ - other things: move test .wav files under test/ folder
+   proguard @myconfig.pro
+ 

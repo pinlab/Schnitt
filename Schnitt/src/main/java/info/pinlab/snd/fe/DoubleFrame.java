@@ -10,7 +10,8 @@ public class DoubleFrame implements Frame {
 	int nextId;
 	int prevId;
 	
-	private final Map<String, double []> data;
+	private final Map<String, double []> arrays;
+	private final Map<String, Double> numbers;
 	
 	
 	static double [] zeros(int len){
@@ -21,13 +22,12 @@ public class DoubleFrame implements Frame {
 		Arrays.fill(arr, 1);
 		return arr;
 	}
-
-	
 	
 	public DoubleFrame(double [] s, String key, long startSampleIx){
-		data = new HashMap<String, double[]>();
-		data.put(key, s);
+		arrays = new HashMap<String, double[]>();
+		arrays.put(key, s);
 		this.startSampleIx = startSampleIx;
+		this.numbers = new HashMap<>();
 	}
 	
 	
@@ -38,14 +38,28 @@ public class DoubleFrame implements Frame {
 		startT = t;
 	}
 	
-	public double [] get(String key){
-		return data.get(key);
+	/**
+	 * 
+	 * @param key the keyword 
+	 * @return double array for key, or null if no such array
+	 */
+	public double [] getArray(String key){
+		return arrays.get(key);
+	}
+	public Double getNumber(String key){
+		return numbers.get(key);
+	}
+	
+	public void addArray(String key, double [] arr){
+		arrays.put(key, arr);
+	}
+	
+	public void addNumber(String key, double val){
+		numbers.put(key, val);
 	}
 	
 	
-	public void put(double [] arr, String key){
-		data.put(key, arr);
-	}
+	
 	@Override
 	public long getStartSampleIx() {
 		return startSampleIx;

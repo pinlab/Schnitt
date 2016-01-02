@@ -24,12 +24,12 @@ public class AmplitudeVad implements VoiceActivityDetector {
 	 
 	 static{
 		 params = new ArrayList<VadParam<?>>();
-		 VadParam<Double> param = new VadParam<Double>("AMP_THRESH", Double.class);
-		 param.setMinVal(0.0d);
-		 param.setParamVal(0.75d);
-		 param.setMaxVal(1.0d);
-		 params.add(param);
-		 paramMap.put(param.getParamName(), param);
+//		 VadParam<Double> param = new VadParam<Double>("AMP_THRESH", Double.class);
+//		 param.setMinVal(0.0d);
+//		 param.setParamVal(0.75d);
+//		 param.setMaxVal(1.0d);
+//		 params.add(param);
+//		 paramMap.put(param.getParamName(), param);
 	 }
 	
 	 
@@ -46,7 +46,7 @@ public class AmplitudeVad implements VoiceActivityDetector {
 	public BinaryHypoTier getVoiceActivity(WavClip wav) {
 		VadParam<?> param = paramMap.get("AMP_THRESH");
 		if(param!=null){
-			thresh = (double) ((VadParam<Double>)param).getValue();
+			thresh = 0.5;//(double) ((VadParam<Double>)param).getValue();
 		}
 		
 		BinaryHypoTier activityTier = new BinaryHypoTier();

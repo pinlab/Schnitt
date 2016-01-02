@@ -2,7 +2,6 @@ package info.pinlab.snd.fe;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import info.pinlab.snd.trs.BinaryTier;
@@ -21,41 +20,46 @@ import info.pinlab.snd.trs.Interval;
  * @author Gabor Pinter
  *
  */
-public class FrameSorter {
-	double thresh;
+public class FrameAlignment {
 	private final TreeMap<Double, Double> overlaps;
 	//	private final DoubleFrameTier frameTier;
 	private final BinaryTier targetTier;
 	private final double frameLenInSec;
-	private final double frameShiftInSec;
 	private final List<Double> frameTimes;
+	private final DoubleFrameTier tier; 
+	
 
 	/**
 	 * 
 	 * @param frame array of frames to be sorted
 	 * @param target a {@link BinaryTier} 
 	 */
-	public FrameSorter(DoubleFrameTier frames, BinaryTier target){
+	public FrameAlignment(DoubleFrameTier frames, BinaryTier target){
 		this.overlaps = new TreeMap<Double, Double>();
 		this.targetTier = target;
-		this.frameLenInSec = frames.getFrameLenInMs()/1000;
-		this.frameShiftInSec = this.frameLenInSec/2;
+		this.frameLenInSec = frames.getFrameLenInSec();
 		frameTimes = new ArrayList<Double>(frames.getTimeLabels());
 		for(Double t : frameTimes){
 			overlaps.put(t, 0.0d);
 		}
+		tier = frames;
 	}
 
-
-	public FrameSorter setThresh(){
-		return this;
+	
+	public TreeMap<Double, Double> calcOverlap(){
+		return calcOverlap("overlap");
 	}
+	
 
-
-	public void sort(){
+	/**
+	 * Calculates the ovelaps of the frames with ON/TRUE sections of the {@link BinaryTier}. 
+	 * 
+	 * @param label the key for the value in the {@link DoubleFrame}
+	 * @return a TreeMap with time-overlap% entries
+	 */
+	public TreeMap<Double, Double> calcOverlap(String label){
 		int ix = 0;
 		Interval<Boolean> interval;
-		Boolean lastInterval = false;
 		double overlap = 0.0;
 		OUTER: for(int i = 0; i < targetTier.size(); i++){
 			interval = targetTier.getIntervalX(i);
@@ -63,8 +67,8 @@ public class FrameSorter {
 			ix = (int)Math.floor((interval.startT-frameLenInSec)/frameLenInSec);
 			ix = ix < 0 ? 0 : ix;
 			
-			
 			double frameStart = frameTimes.get(ix);
+			System.out.println( interval.startT + "  ?  " +  (frameStart+frameLenInSec));
 			while(frameStart < interval.endT){
 				double frameEnd = frameStart + frameLenInSec;
 				overlap = overlaps.get(frameStart);
@@ -87,16 +91,27 @@ public class FrameSorter {
 				ix++;
 				frameStart = frameTimes.get(ix);
 			}
-			//TODO: find way to reset ix to some previous to interval..
 		}
+		
+		for(int i = 0; i < overlaps.size(); i++){
+			Double t = frameTimes.get(i);
+			DoubleFrame frame = tier.getFrameAt(t);
+			frame.addNumber(label, overlaps.get(t));
+		}
+		return overlaps;
 	}
+	
+	
 
-
-	@Override
-	public String toString(){
+	public String debugPrint(){
 		StringBuffer sb = new StringBuffer();
 		for(Double t : overlaps.keySet()){
-			sb.append(t).append("\t").append(overlaps.get(t)).append("\n");
+			String start = String.format("%.3f", Math.round(t*1000)/1000.0d); 
+			String end = String.format("%.3f", Math.round((t +frameLenInSec)*1000)/1000.0d);
+			String overlap = String.format("%.3f", Math.round(1000*overlaps.get(t))/1000.0d );
+			sb.append(start).append(" - ").append(end)
+			.append("\t")
+			.append(overlap).append("\n");
 		}
 		return sb.toString();
 	}

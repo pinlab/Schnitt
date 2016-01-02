@@ -12,7 +12,6 @@ import info.pinlab.snd.trs.BinaryTier;
 public class BinaryHypoTier extends BinaryTier{
 
 	public BinaryHypoTier(){
-		super(Type.HYPO);
 		isEditable(true);
 	}
 	

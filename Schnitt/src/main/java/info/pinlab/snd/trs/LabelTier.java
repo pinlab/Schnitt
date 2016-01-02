@@ -6,11 +6,6 @@ public class LabelTier extends AbstractIntervalTier<String>{
 
 	
 	public LabelTier() {
-		super(Type.NOT_SET);
-	}
-
-	public LabelTier(Type type) {
-		super(type);
 	}
 
 

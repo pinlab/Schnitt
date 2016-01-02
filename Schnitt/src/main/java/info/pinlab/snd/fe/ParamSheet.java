@@ -122,7 +122,7 @@ public class ParamSheet{
 			LOG.info("Setting " + param);
 			FEParam<?> old = rawParams.get(param.getKey());
 			if(old!=null){
-				if(!old.getClazz().equals(param.getClazz())){
+				if(!old.getParentClazz().equals(param.getParentClazz())){
 					Object val = param.get();
 					if(val!=null && !val.equals(old.get())){ //-- if new value...
 						LOG.warn("Overwriting " + old);
@@ -132,23 +132,23 @@ public class ParamSheet{
 				}
 			}
 			if(param.get()==null && old.get()!=null){
-				LOG.warn("Nullifying '" + old.getClazz() + "." + old.getKey()+"'");
+				LOG.warn("Nullifying '" + old.getParentClazz() + "." + old.getKey()+"'");
 			}
 			rawParams.put(param.getKey(), param);
 			return this;
 		}
 
 		public ParamSheetBuilder set(FEParamBool param, boolean b){
-			return set(new FEParamBool(param.getKey(), b, param.getClazz()));
+			return set(new FEParamBool(param.getKey(), b, param.getParentClazz()));
 		}
 		public ParamSheetBuilder set(FEParamInt param, int val){
-			return set(new FEParamInt(param.getKey(), val, param.getClazz()));
+			return set(new FEParamInt(param.getKey(), val, param.getParentClazz()));
 		}
 		public ParamSheetBuilder set(FEParamDouble param, double val){
-			return set(new FEParamDouble(param.getKey(), val, param.getClazz()));
+			return set(new FEParamDouble(param.getKey(), val, param.getParentClazz()));
 		}
 		public <T> ParamSheetBuilder setParameter(FEParamObj<T> param, T value){
-			return set(new FEParamObj<T>(param.getKey(), value, param.getClazz()));
+			return set(new FEParamObj<T>(param.getKey(), value, param.getParentClazz()));
 		}
 
 

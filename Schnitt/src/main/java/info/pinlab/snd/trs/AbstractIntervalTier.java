@@ -20,23 +20,22 @@ public abstract class AbstractIntervalTier<T> implements IntervalTier<T>{
 	public static Logger LOG = LoggerFactory.getLogger(AbstractIntervalTier.class);
 	
 	final TreeMap<Double, T> points;
-	final Tier.Type tierType ;
+//	final Tier.Type tierType ;
 
 	private boolean isEditable = true;
 	private String name = "";
 	
 	
-	public AbstractIntervalTier(Type type) {
+	public AbstractIntervalTier(){
 		points = new TreeMap<Double, T>();
 		points.put(0.0d, null);
-		this.tierType = type;
+//		this.tierType = type;
 	}
 	
-	
-	
-	public Type getTierType(){
-		return tierType;
-	}
+//	
+//	public Type getTierType(){
+//		return tierType;
+//	}
 
 	
 	public void put(Double t, T data){

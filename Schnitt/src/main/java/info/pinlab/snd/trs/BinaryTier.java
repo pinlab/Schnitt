@@ -46,17 +46,10 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 	String label = "";
 
 	public BinaryTier(){
-		super(Type.NOT_SET);
+//		super(Type.NOT_SET);
 		super.points.put(0.0d, null);
 	}
 	
-	public BinaryTier(Type t){
-		super(t);
-		super.points.put(0.0d, null);
-	}
-
-	
-
 	
 	@Override
 	public IntervalTier<Boolean> addInterval(Interval<Boolean> interval){

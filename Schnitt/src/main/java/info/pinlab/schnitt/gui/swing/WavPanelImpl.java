@@ -393,7 +393,7 @@ implements  WavPanelUI, ComponentListener
 							);
 				}
 				t1 = System.currentTimeMillis();
-				LOG.trace( tier.getTier().getTierType()  +" tier selections created in " + (t1-t0) +"ms");
+				LOG.trace( tier.getTier().getName()  +" tier selections created in " + (t1-t0) +"ms");
 				t0 = System.currentTimeMillis();
 			}
 
@@ -420,7 +420,7 @@ implements  WavPanelUI, ComponentListener
 					g2.drawString(err.name(),left, selectionBottomY); 
 				}
 				t1 = System.currentTimeMillis();
-				LOG.trace( tier.getTier().getTierType()  +" tier selections created in " + (t1-t0) +"ms");
+				LOG.trace( tier.getTier().getName()  +" tier selections created in " + (t1-t0) +"ms");
 				t0 = System.currentTimeMillis();
 			}
 		}

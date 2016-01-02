@@ -42,11 +42,11 @@ public abstract class AbstractFrameProcessor implements FrameProcessor {
 				throw new IllegalStateException("Haven't initialized yet!");
 			}
 		}
-		double [] arr = frame.get(getPredecessorKey());
+		double [] arr = frame.getArray(getPredecessorKey());
 		double  [] feat = process(arr);
 		//-- feat==null: in-place processing
 		if(feat!=null){
-			frame.put(feat, getKey());
+			frame.addArray(getKey(), feat);
 		}
 	}
 }

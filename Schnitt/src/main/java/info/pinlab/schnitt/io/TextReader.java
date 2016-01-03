@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
  
-//MEMO Argument‚ğ‚¢‚ë‚¢‚ë•Ï‚¦‚é¨Factory(design pattern)‚ª•Ö—˜
+//MEMO 
  
 public class TextReader {
     

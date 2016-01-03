@@ -51,7 +51,6 @@ public class ParamSheet{
 		}
 		return ((FEParamInt)key).get();
 	}
-
 	public double get(FEParamDouble param){
 		Object key = paramMap.get(param.getKey());
 		if(key==null){
@@ -59,15 +58,19 @@ public class ParamSheet{
 		}
 		return ((FEParamDouble)key).get();
 	}
-
-
-
 	public boolean get(FEParamBool param){
 		Object key = paramMap.get(param.getKey());
 		if(key==null){
 			throw new IllegalArgumentException("No such key as '" + param.getKey() +"'");
 		}
 		return ((FEParamBool)key).get();
+	}
+	public String get(FEParamString param){
+		Object key = paramMap.get(param.getKey());
+		if(key==null){
+			throw new IllegalArgumentException("No such key as '" + param.getKey() +"'");
+		}
+		return ((FEParamString)key).get();
 	}
 
 
@@ -102,6 +105,7 @@ public class ParamSheet{
 		}
 
 		public ParamSheetBuilder addParametersFromClass(Class<?> clazz){
+			LOG.info("Adding parameters from '" + clazz.getName() +"'");
 			for(Field field : clazz.getFields()){
 				if(FEParam.class.isAssignableFrom(field.getType())){
 					try {
@@ -130,9 +134,9 @@ public class ParamSheet{
 						LOG.trace("Shadowing " + old);
 					}
 				}
-			}
-			if(param.get()==null && old.get()!=null){
-				LOG.warn("Nullifying '" + old.getParentClazz() + "." + old.getKey()+"'");
+				if(param.get()==null && old.get()!=null){
+					LOG.warn("Nullifying '" + old.getParentClazz() + "." + old.getKey()+"'");
+				}
 			}
 			rawParams.put(param.getKey(), param);
 			return this;
@@ -146,6 +150,15 @@ public class ParamSheet{
 		}
 		public ParamSheetBuilder set(FEParamDouble param, double val){
 			return set(new FEParamDouble(param.getKey(), val, param.getParentClazz()));
+		}
+		public ParamSheetBuilder set(FEParamString param, String val){
+			if(FEParam.FRAME_PROCESSORS.equals(param)){
+				for(String processor : val.split(":")){
+					if(processor!=null && !processor.isEmpty())
+						this.addParametersFromClass(processor);
+				}
+			}
+			return set(new FEParamString(param.getKey(), val, param.getParentClazz()));
 		}
 		public <T> ParamSheetBuilder setParameter(FEParamObj<T> param, T value){
 			return set(new FEParamObj<T>(param.getKey(), value, param.getParentClazz()));
@@ -174,6 +187,14 @@ public class ParamSheet{
 			return ((FEParamBool)par).get();
 		}
 
+		public String get(FEParamString param){
+			FEParam<?> par = rawParams.get(param.getKey());
+			if(par==null){
+				return null;
+			}
+			return ((FEParamString)par).get();
+		}
+		
 
 
 		public ParamSheetBuilder setAudioFormat(AudioFormat af){

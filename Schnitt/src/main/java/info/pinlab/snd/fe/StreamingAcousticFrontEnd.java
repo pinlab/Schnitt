@@ -2,6 +2,8 @@ package info.pinlab.snd.fe;
 
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 import org.slf4j.Logger;
@@ -21,7 +23,7 @@ import info.pinlab.snd.fe.ParamSheet.ParamSheetBuilder;
  */
 public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 	public static final Logger LOG = LoggerFactory.getLogger(StreamingAcousticFrontEnd.class);
-	
+
 	private final ConcurrentLinkedDeque<Frame> inDeque;
 	private final ConcurrentLinkedDeque<DoubleFrame> outDeque;
 
@@ -34,53 +36,67 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 
 	Thread processorThread;
 
-	private final FrameProcessor [] pipeline;
+	private final List<FrameProcessor> pipeline;
 
 	private FeatureSink sink = null;
-	
-	
-	
+
+
+
 	public StreamingAcousticFrontEnd(ParamSheet context){
 		this.context = context;
 
-		frameShiftInSample = context.get(FEParam.FRAME_LEN_SAMPLE)/2;
-		
-		frameReader = new FrameProvider(this.context);
-		frameReader.setAudioFrameConsumer(this);
-		
-		sampleMax = (Math.pow(2, (this.context.get(FEParam.BYTE_PER_SAMPE)*8)))/2;
-		System.out.println(sampleMax);
-		
 		inDeque = new ConcurrentLinkedDeque<Frame>();
+		pipeline = new ArrayList<FrameProcessor>(); 
 		outDeque = new ConcurrentLinkedDeque<DoubleFrame>();
 
-		pipeline = new FrameProcessor[1];
-		try {
-			//-- INIT frame processors here!
+		//-- Frame producer: 
+		frameShiftInSample = context.get(FEParam.FRAME_LEN_SAMPLE)/2;
+		frameReader = new FrameProvider(this.context);
+		frameReader.setAudioFrameConsumer(this);
 
-			HanningWindower hannWindower = FrameProcessorFactory.create(HanningWindower.class, this.context);
-//			MelFilter melFilter = FrameProcessorFactory.create(MelFilter.class, this.context);
-//			FrameProcessorFactory.create(Fft.class, this.context);
-			pipeline[0] = hannWindower;
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+		sampleMax = (Math.pow(2, (this.context.get(FEParam.BYTE_PER_SAMPE)*8)))/2;
+		System.out.println(sampleMax);
+
+
+		//-- INIT frame processors here!
+		String procList = this.context.get(FEParam.FRAME_PROCESSORS);
+		if(procList==null){
+			LOG.error("Empty list for processing!");
+		}else{
+			String prevKey = "sample";
+			for(String procClass : procList.split(":")){
+				if(procClass!=null && !procClass.isEmpty()){
+					try {
+						FrameProcessor processor = FrameProcessorFactory.create(procClass, this.context);
+						processor.setPredecessorKey(prevKey);
+						pipeline.add(processor);
+						prevKey = processor.getKey();
+					} catch (ClassNotFoundException e){
+						LOG.error("Not available class '" + procClass +"'");
+						e.printStackTrace();
+					} catch (InstantiationException e) {
+						e.printStackTrace();
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					} catch (SecurityException e) {
+						e.printStackTrace();
+					} catch (IllegalArgumentException e) {
+						e.printStackTrace();
+					} catch (InvocationTargetException e) {
+						e.printStackTrace();
+					} catch (NoSuchMethodException e) {
+						e.printStackTrace();
+					}
+				}
+			}
 		}
+
 	}
-	
+
 	public void setSink(FeatureSink sink){
 		this.sink = sink;
 	}
-	
+
 
 	@Override
 	public void consume(int[] samples){
@@ -101,7 +117,7 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 	public void end(){
 		synchronized (inDeque) {
 			inDeque.add(new EndFrame());
-//					new DoubleFrame(new double[]{0.0}, "end", -1));
+			//					new DoubleFrame(new double[]{0.0}, "end", -1));
 			inDeque.notify();
 			System.out.println("END!");
 		}
@@ -123,27 +139,27 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 					}
 					continue LOOP;
 				}
-				
+
 				if(frame instanceof DoubleFrame){
-//					System.out.println("> " + (frame.getStartSampleIx()/(double)hz));
+					//					System.out.println("> " + (frame.getStartSampleIx()/(double)hz));
 					//-- do the pipeline
 					DoubleFrame dblFrame = (DoubleFrame)frame;
 					for(FrameProcessor processor : pipeline){
 						processor.processWrapper(dblFrame);
 					}
-					
+
 					//-- at the end:
 					outDeque.addFirst(dblFrame);
 					continue LOOP;
 				}else
-				if(frame instanceof EndFrame){
-					break LOOP;
-				}
+					if(frame instanceof EndFrame){
+						break LOOP;
+					}
 				//-- any other frames? are possible?
-				
+
 				//-- not DoubleFrame: (must be end frame)
 				break LOOP;
-//				System.out.println(Arrays.toString(frame.get("sample")));
+				//				System.out.println(Arrays.toString(frame.get("sample")));
 			}
 		}
 	}
@@ -165,7 +181,7 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 				public void add(DoubleFrame feature){	}
 			};
 		}
-		
+
 		processorThread.start();
 		frameReader.start();
 	}
@@ -175,16 +191,25 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 		InputStream is = StreamingAcousticFrontEnd.class.getResourceAsStream("sample.wav");
 		WavClip wav = new WavClip(is);
 
+		String processorList = 
+				HanningWindower.class.getName()
+				+ ":" + Fft.class.getName()
+				+ ":" + MelFilter.class.getName()
+				;
+
+
 		ParamSheet context = new ParamSheetBuilder()
+				.set(FEParam.FRAME_PROCESSORS, processorList)
 				.addParametersFromClass(MelFilter.class)
 				.setAudioFormat(wav.getAudioFormat())
-				.setFrameLenInMs(50).build();
-		
+				.setFrameLenInMs(50)
+				.build();
+
 
 		StreamingAcousticFrontEnd fe = new StreamingAcousticFrontEnd(context);
 
-		fe.setWav(wav);
-		fe.start();
+		//		fe.setWav(wav);
+		//		fe.start();
 	}
 
 }

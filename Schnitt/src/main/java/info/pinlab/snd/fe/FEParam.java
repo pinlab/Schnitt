@@ -23,10 +23,16 @@ public abstract class FEParam<T> extends Param<T>{
 	
 	public static final FEParamBool IS_BIG_ENDIAN = new FEParamBool("IS_BIG_ENDIAN", false, FEParam.class);
 	public static final FEParamObj<WindowType> WINDOW_TYPE = new FEParamObj<WindowType>("WINDOW_TYPE", WindowType.HANNING, FEParam.class);
-	
+
+	/**
+	 * Holds list of {@link FrameProcessor}s, separated by ':' 
+	 */
+	public static final FEParamString FRAME_PROCESSORS = new FEParamString("FRAME_PROCESSORS", null, FEParam.class);
 
 	public FEParam(String key, T value, Class<?> parent) {
 		super(key, value, parent);
 	}
+	
+	
 }
 

@@ -9,7 +9,7 @@ public class Fft extends AbstractFrameProcessor {
 	public static final FEParamInt FFT_N = new FEParamInt("FFT_N", 128, Fft.class);
 	
 	
-	private int fftN = FFT_N.get();
+	private int fftN = FFT_N.getValue();
 	private int nyqFreq;
 	
 	private FastFourierTransformer fftTransformer;

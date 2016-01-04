@@ -1,6 +1,5 @@
 package info.pinlab.snd.fe;
 
-
 /**
  * Calculates power in the frame.
  * Normalization is by number of samples.
@@ -9,10 +8,13 @@ package info.pinlab.snd.fe;
  *
  */
 public class PowerCalculator extends AbstractFrameProcessor {
-
+	
+//	public static final FEParamString HANDLE = new FEParamString(PowerCalculator.class.getName() + ".HANDLE", "pow", PowerCalculator.class); 
+//	public static final FEParamDouble POW_THRESH = new FEParamDouble("POW_THRESH", 0.5, PowerCalculator.class);
+	
 	public PowerCalculator(ParamSheet context) {
 		super(context);
-		super.setKey("intensity");
+		super.setKey("power");
 	}
 
 	@Override

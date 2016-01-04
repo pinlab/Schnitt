@@ -15,11 +15,22 @@ public abstract class Param<T> {
 		return key;
 	}
 	
+	/**
+	 * Gets full qualified name.
+	 * 
+	 * @return
+	 */
+	public String getFqName(){
+		return parent.getName() +"." +key;
+	}
+	
 	public Class<?> getParentClazz(){
 		return parent;
 	}
 	
-	public T get(){
+	
+	
+	public T getValue(){
 		return value;
 	}
 

@@ -61,7 +61,7 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 		//-- INIT frame processors here!
 		String procList = this.context.get(FEParam.FRAME_PROCESSORS);
 		if(procList==null){
-			LOG.error("Empty list for processing!");
+			LOG.error("No frame processor pipline is defined! Set param!" + FEParam.FRAME_PROCESSORS.getFqName());
 		}else{
 			String prevKey = "sample";
 			for(String procClass : procList.split(":")){
@@ -98,6 +98,14 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 	}
 
 
+	/**
+	 * 
+	 * @return  the pipeline in order
+	 */
+	public List<FrameProcessor> getProcessorPipeline(){
+		return (new ArrayList<FrameProcessor>(pipeline));
+	}
+	
 	@Override
 	public void consume(int[] samples){
 		double [] arr = new double [samples.length]; 
@@ -119,7 +127,7 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 			inDeque.add(new EndFrame());
 			//					new DoubleFrame(new double[]{0.0}, "end", -1));
 			inDeque.notify();
-			System.out.println("END!");
+			System.out.println("END! reched from frame processor");
 		}
 	}
 
@@ -149,10 +157,13 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 					}
 
 					//-- at the end:
-					outDeque.addFirst(dblFrame);
+//					outDeque.addFirst(dblFrame);
+					sink.add(dblFrame);
 					continue LOOP;
 				}else
 					if(frame instanceof EndFrame){
+						System.out.println("END! in sink writing!");
+						sink.end();
 						break LOOP;
 					}
 				//-- any other frames? are possible?
@@ -168,7 +179,7 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 	public void setWav(WavClip wav){
 		processorThread = new Thread(new FeatureProcessor(), "feature-processor");
 
-		frameReader.setFileSource(wav);
+		frameReader.setSource(wav);
 	}
 
 
@@ -179,6 +190,8 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 			sink = new FeatureSink(){
 				@Override
 				public void add(DoubleFrame feature){	}
+				@Override
+				public void end(){};
 			};
 		}
 

@@ -29,13 +29,32 @@ public class ParamSheetTest {
 	
 	@Test
 	public void overWriteTest(){
-		ParamSheet sheet = new ParamSheetBuilder()
+		ParamSheetBuilder builder = new ParamSheetBuilder()
 				.addParametersFromClass(MelFilter.class)
 				.set(MelFilter.HZ, 5000)
 				.set(FEParam.HZ, 4000)
-				.set(MelFilter.HZ, 7000)
-				.build();
+				.set(MelFilter.HZ, 7000);
+		assertTrue(builder.get(FEParam.HZ)==7000);
+		ParamSheet sheet = builder.build(); 
 		assertTrue(sheet.get(FEParam.HZ)==7000);
 	}
 
+	
+	@Test
+	public void frameLenTest(){
+		ParamSheetBuilder builder = new ParamSheetBuilder()
+				.addParametersFromClass(MelFilter.class)
+				.set(FEParam.HZ, 8000)
+				.set(FEParam.FRAME_LEN_MS, 10)
+				.set(FEParam.BYTE_PER_SAMPE, 2);
+		assertTrue(builder.get(FEParam.FRAME_LEN_MS)==10);
+		assertTrue("Frame len is '" + builder.get(FEParam.FRAME_LEN_SAMPLE) +"' (!=80)"  
+		, builder.get(FEParam.FRAME_LEN_SAMPLE)==80);
+		assertTrue(builder.get(FEParam.FRAME_LEN_BYTE)==160);
+		ParamSheet sheet = builder.build(); 
+		assertTrue(sheet .get(FEParam.FRAME_LEN_MS)==10);
+		assertTrue(sheet .get(FEParam.FRAME_LEN_SAMPLE)==80);
+		assertTrue(sheet .get(FEParam.FRAME_LEN_BYTE)==160);
+	}
+	
 }

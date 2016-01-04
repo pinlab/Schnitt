@@ -15,12 +15,12 @@ public class MelFilter extends AbstractFrameProcessor{
 	public static final FEParamInt MFCC_FREQ_MAX = new FEParamInt("MFCC_FREQ_MAX", 7500, MelFilter.class); 
 	
 	
-	private int hz = HZ.get();
-	private int fftN = FFT_N.get(); //-- default value
-	private int mfccChN = MFCC_CH.get(); //-- default value
+	private int hz = HZ.getValue();
+	private int fftN = FFT_N.getValue(); //-- default value
+	private int mfccChN = MFCC_CH.getValue(); //-- default value
 
 	
-	private double fmax = MFCC_FREQ_MAX.get(); // Nyquist
+	private double fmax = MFCC_FREQ_MAX.getValue(); // Nyquist
 	private double melMax; // Mel-Nyquist
 	private int nmax; // Maximum Number of Frequency Index
 	private double df; // Frequency Resolution

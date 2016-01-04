@@ -16,5 +16,6 @@ public interface FeatureSink {
 	 * @param feature
 	 */
 	public void add(DoubleFrame feature);
+	public void end();
 
 }

@@ -22,9 +22,9 @@ public class ThresholdVad implements VAD{
 	public static VadParamBoolean THRESH_FILTER_LOW = new VadParamBoolean("THRESH_FILTER_LOW", true, ThresholdVad.class);
 	
 	
-	private double thresh = THRESH.get();
-	private String attrib = THRESH_TARG.get();
-	private boolean isFilterOver = THRESH_FILTER_LOW.get();
+	private double thresh = THRESH.getValue();
+	private String attrib = THRESH_TARG.getValue();
+	private boolean isFilterOver = THRESH_FILTER_LOW.getValue();
 	private DoubleFrameTier frameTier;
 	
 	public ThresholdVad(){}
@@ -114,7 +114,8 @@ public class ThresholdVad implements VAD{
 //		boolean markVal = false;
 		for(Double t0 : frameTier.getTimeLabels()){
 			DoubleFrame frame = frameTier.getFrameAt(t0);
-			Double attribVal = frame.getNumber(attrib);
+			Double attribVal = frame.getArray(attrib)[0];
+			System.out.println("Attrib val " + attribVal);
 			//TODO: for high-filter
 //			System.out.println(" " + t0 + " " + attribVal + " ? " + thresh + " : " + (attribVal>=thresh) );
 			if(attribVal>=thresh){

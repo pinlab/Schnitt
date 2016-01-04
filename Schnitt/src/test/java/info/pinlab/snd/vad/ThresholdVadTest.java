@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import info.pinlab.snd.fe.DoubleFrame;
 import info.pinlab.snd.fe.FrameAlignment;
+import info.pinlab.snd.fe.ParamSheet;
 import info.pinlab.snd.trs.BinaryTier;
 import info.pinlab.snd.trs.DoubleFrameTier;
 
@@ -21,9 +22,13 @@ public class ThresholdVadTest {
 		assertTrue(vad.getParam(ThresholdVad.THRESH) == 0.3);
 		assertTrue(vad.getParam(ThresholdVad.THRESH_TARG) == "hahota");
 		assertTrue(vad.getParam(ThresholdVad.THRESH_FILTER_LOW) == false);
-		
 	}
-	
+	@Test
+	public void testSetParamWithParamSheet() throws Exception {
+		
+		ParamSheet sheet =	new ParamSheet.ParamSheetBuilder().build();
+
+	}
 	
 	
 	

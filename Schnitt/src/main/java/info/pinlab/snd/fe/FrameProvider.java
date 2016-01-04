@@ -7,6 +7,9 @@ import java.io.PipedOutputStream;
 
 import javax.sound.sampled.AudioFormat;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import info.pinlab.pinsound.WavClip;
 
 
@@ -14,20 +17,19 @@ import info.pinlab.pinsound.WavClip;
  * 
  * Reads sound files and produces frames. Default frame length is 10ms, but it can be changed.
  * 
- * <pre>
- * {@code
- * 
-AudioFrameReader pipe = new AudioFrameReader();
-pipe.setFrameLenInMs(1);
-pipe.setFileSource(wav);
-pipe.start()
- * 
- * }
+ * <pre>{@code
+ AudioFrameReader reader = new AudioFrameReader();
+ reader.setFrameLenInMs(20);
+ reader.setFileSource(wav);
+ reader.start()
+}
  * </pre>
  * 
  * @author Gabor Pinter
  */
 public class FrameProvider{
+	public static Logger LOG = LoggerFactory.getLogger(FrameProvider.class);
+	
 	interface AudioFrameConsumer{
 		public void consume(int[] samples);
 		public void end();
@@ -52,10 +54,10 @@ public class FrameProvider{
 
 
 
-	public FrameProvider(int hz, int bytePerSample, int frameSzInByte){
+	public FrameProvider(int hz, int frameSzInMs, int bytePerSample){
 		this.hz = hz;
 		this.bytePerSample = bytePerSample;
-		this.frameSzInByte = frameSzInByte;
+		this.frameSzInByte = (int) (bytePerSample*hz*frameSzInMs/1000.0d);
 		pos = new PipedOutputStream();
 		pis = new PipedInputStream(hz * bytePerSample); //-- 1 second buffer
 		try{
@@ -66,8 +68,9 @@ public class FrameProvider{
 	
 	public FrameProvider(ParamSheet context){
 		this( context.get(FEParam.HZ)
+			, context.get(FEParam.FRAME_LEN_MS)
 			, context.get(FEParam.BYTE_PER_SAMPE)
-			, context.get(FEParam.FRAME_LEN_BYTE));
+			);
 	}
 
 
@@ -80,7 +83,7 @@ public class FrameProvider{
 	}
 
 	
-	public void setFileSource(WavClip wav){
+	public FrameProvider setSource(WavClip wav){
 		if(wav==null){
 			throw new IllegalArgumentException("WavClip can't be null!");
 		}
@@ -92,8 +95,8 @@ public class FrameProvider{
 			throw new IllegalArgumentException("WavClip has wrong sampling rate("+ af.getSampleRate() +"vs " + hz + ")");
 		}
 		this.wav=wav;
+		return this;
 	}
-
 
 
 	private class AudioByteReader implements Runnable{
@@ -160,7 +163,6 @@ public class FrameProvider{
 			return samples;
 		}
 		
-		
 		@Override
 		public void run(){
 			int off = 0;
@@ -190,8 +192,6 @@ public class FrameProvider{
 						break;
 					}
 				}
-				
-				
 				//-- second round onwards:
 				while((sz = pis.read(buff, off, len))>=0){
 					off += sz;
@@ -211,7 +211,6 @@ public class FrameProvider{
 											prevFrame, 0, frameHalfLenInSample);
 							frameN++;
 							System.out.println("Framer of " + frameN);
-
 						}
 						off = 0;
 						len = frameLenInByte;
@@ -222,8 +221,7 @@ public class FrameProvider{
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			
-			
+			LOG.info("Stream end reached");
 			if(frameConsumer != null){
 				frameConsumer.end();
 			}
@@ -231,7 +229,13 @@ public class FrameProvider{
 	}
 
 
-
+	/**
+	 * 
+	 * @return size of the frame in samples
+	 */
+	public int getFrameSizeInSample(){
+		return this.frameSzInByte/this.bytePerSample;
+	}
 
 
 	public void close(){
@@ -260,7 +264,7 @@ public class FrameProvider{
 		
 		FrameProvider pipe = new FrameProvider(context);
 //		AudioFrameReader pipe = new AudioFrameReader(1, wav.getAudioFormat());
-		pipe.setFileSource(wav);
+		pipe.setSource(wav);
 		pipe.setAudioFrameConsumer(new AudioFrameConsumer() {
 			@Override
 			public void consume(int[] samples) {

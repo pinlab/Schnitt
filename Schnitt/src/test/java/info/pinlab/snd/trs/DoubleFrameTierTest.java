@@ -36,7 +36,7 @@ public class DoubleFrameTierTest {
 		double frameLenInMs = (winLenSample / (double)hz)*1000;
 		
 		
-		DoubleFrameTier tier = new DoubleFrameTier((int)hz, winLenSample);
+		DoubleFrameTier tier = new DoubleFrameTier((int)hz, winLenMs);
 		System.out.println(winLenSample + " == " + tier.getFrameLenInSec() + "(" + frameLenInMs +")");
 		assertTrue(tier.getFrameLenInSec() -  winLenMs*1000.0d < 0.00001);
 		

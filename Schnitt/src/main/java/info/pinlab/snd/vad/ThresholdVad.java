@@ -115,7 +115,7 @@ public class ThresholdVad implements VAD{
 		for(Double t0 : frameTier.getTimeLabels()){
 			DoubleFrame frame = frameTier.getFrameAt(t0);
 			Double attribVal = frame.getArray(attrib)[0];
-			System.out.println("Attrib val " + attribVal);
+//			System.out.println("Attrib val " + attribVal);
 			//TODO: for high-filter
 //			System.out.println(" " + t0 + " " + attribVal + " ? " + thresh + " : " + (attribVal>=thresh) );
 			if(attribVal>=thresh){

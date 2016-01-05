@@ -96,6 +96,7 @@ public class FrameAlignment {
 		for(int i = 0; i < overlaps.size(); i++){
 			Double t = frameTimes.get(i);
 			DoubleFrame frame = tier.getFrameAt(t);
+			frame.addArray(label, new double[]{overlaps.get(t)});
 			frame.addNumber(label, overlaps.get(t));
 		}
 		return overlaps;

@@ -2,7 +2,6 @@ package info.pinlab.snd.trs;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 
 import org.slf4j.Logger;
@@ -14,7 +13,7 @@ public class DoubleFrameTier{
 	public static Logger LOG = LoggerFactory.getLogger(DoubleFrameTier.class);
 
 	private final double hz ;
-	private final int frameSz;
+//	private final int frameSz;
 	private final double frameLenInSec;
 	final TreeMap<Double, DoubleFrame> frames;
 	
@@ -24,10 +23,12 @@ public class DoubleFrameTier{
 	 * @param hz  sampling rate
 	 * @param frameSize the size of frames in number of samples
 	 */
-	public DoubleFrameTier(int hz, int frameSize) {
+	public DoubleFrameTier(int hz, int frameSizeMs) {
 		this.hz = (double)hz;
-		this.frameSz = frameSize;
-		frameLenInSec = (frameSize / (double)hz);
+//		this.frameSz = (int)(frameSizeMs*hz/1000.0d);
+		this.frameLenInSec = frameSizeMs / 1000.0d;
+		System.out.println("FRAME LEN IN SEC " + frameLenInSec);
+		
 		frames = new TreeMap<Double, DoubleFrame>();
 		frames.put(0.0d, null);
 	}

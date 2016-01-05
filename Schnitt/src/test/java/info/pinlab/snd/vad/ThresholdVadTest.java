@@ -45,7 +45,7 @@ public class ThresholdVadTest {
 		int winLenMs = 100;
 		int winLenSample = (int) (hz*winLenMs)/1000  ;
 		double winShiftSample = (16000*winLenMs/1000)/2;
-		DoubleFrameTier tier = new DoubleFrameTier((int)hz, winLenSample);
+		DoubleFrameTier tier = new DoubleFrameTier((int)hz, winLenMs);
 		//Overlap: 0.2,0.4,0.4,0.7,1.0 
 		int frameIx = 0;
 		double t = frameIx/hz;

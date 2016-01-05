@@ -38,7 +38,7 @@ public class FrameAlignmentTest {
 		double winShiftSample = (16000*winLenMs/1000)/2;
 		//Overlap: 0.2,0.4,0.4,0.7,1.0 
 		
-		DoubleFrameTier frames = new DoubleFrameTier((int)hz, winLenSample);
+		DoubleFrameTier frames = new DoubleFrameTier((int)hz, winLenMs);
 		
 		
 		int frameIx = 0;

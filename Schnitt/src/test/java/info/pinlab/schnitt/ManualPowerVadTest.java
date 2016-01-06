@@ -49,7 +49,7 @@ public class ManualPowerVadTest implements FeatureSink{
 	
 
 	public static void main(String[] args) throws Exception{
-		WavClip wav = new WavClip(ManualPowerVadTest.class.getResourceAsStream("sample.wav"));
+		WavClip wav = new WavClip(ManualPowerVadTest.class.getResourceAsStream("long-sample.wav"));
 		BinaryTargetTier targ = new BinaryTargetTier();
 
 		ManualPowerVadTest tester = new ManualPowerVadTest();
@@ -60,8 +60,8 @@ public class ManualPowerVadTest implements FeatureSink{
 		
 		ParamSheet context = new ParamSheetBuilder()
 				.set(FEParam.HZ, 16000)
-				.set(FEParam.FRAME_LEN_MS, 40)
-//				.set(FEParam.FRAME_SHIFT_MS, 50)
+				.set(FEParam.FRAME_LEN_MS, 500)
+				.set(FEParam.FRAME_SHIFT_MS, 100)
 				.set(FEParam.FRAME_PROCESSORS, PowerCalculator.class.getName())
 				.build();
 
@@ -76,32 +76,26 @@ public class ManualPowerVadTest implements FeatureSink{
 		fe.setSink(tester);
 		fe.setWav(wav);
 		
+		
+		
 		System.out.print("Pipeline : " );
 		for(FrameProcessor proc : fe.getProcessorPipeline()){
 			System.out.println( proc.getPredecessorKey() + " -> " + proc.getKey());
 		}
-//		synchronized (tester) {
-//			tester.wait(); //-- wait for it to return
-//		}
 		fe.start();
 		tester.latch.await();
 		
-		System.out.println("arrived");
+
+		
 		
 		ThresholdVad vad = new ThresholdVad();
 		vad.setFrameTier(tester.tier);
 		vad.setParam(ThresholdVad.THRESH_TARG, "power");
-		vad.setParam(ThresholdVad.THRESH, 0.50E-04);
+		vad.setParam(ThresholdVad.THRESH, 0.40E-02);
 		BinaryHypoTier hypo = vad.getHypo();
 		
-		
-//		if(true)
-//			return;
-		
-		System.out.println("HYPO");
-		System.out.println(hypo);
-		
-		
+
+		//-- GUI
 		WavPanelModel model = new WavGraphics();
 		model.setWav(wav);
 		model.addTier(hypo);

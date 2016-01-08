@@ -1,0 +1,17 @@
+2016/01/08 
+  - no training algorithms are implemented
+    -> use external tools (Mathematica - asked Peter)
+  - features have to come from Java libraries
+    -> using other feature-extracting tool for training is error prone
+    -> chance for different features between this library and other tools
+  - Solution: jython 
+    - feature extraction
+    - possibly scipython for training
+  - Steps
+    - create uber-jar (with all dependencies involved)
+    - create jython that loads schnitt-related libraries, natives (lwjgl:OpenAL) if needed
+
+
+
+
+    

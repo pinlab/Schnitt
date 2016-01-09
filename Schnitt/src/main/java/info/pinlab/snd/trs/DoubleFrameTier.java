@@ -21,7 +21,7 @@ public class DoubleFrameTier{
 	/**
 	 * 
 	 * @param hz  sampling rate
-	 * @param frameSize the size of frames in number of samples
+	 * @param frameSizeMs size of frame in ms
 	 */
 	public DoubleFrameTier(int hz, int frameSizeMs) {
 		this.hz = (double)hz;

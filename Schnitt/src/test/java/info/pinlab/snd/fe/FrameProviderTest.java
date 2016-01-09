@@ -8,7 +8,6 @@ import java.util.List;
 import org.junit.Test;
 
 import info.pinlab.pinsound.WavClip;
-import info.pinlab.snd.fe.FrameProvider.AudioFrameConsumer;
 
 public class FrameProviderTest {
 

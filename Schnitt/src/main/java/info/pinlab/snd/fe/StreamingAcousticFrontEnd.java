@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import info.pinlab.pinsound.WavClip;
-import info.pinlab.snd.fe.FrameProvider.AudioFrameConsumer;
 import info.pinlab.snd.fe.ParamSheet.ParamSheetBuilder;
 
 /**

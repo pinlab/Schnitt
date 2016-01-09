@@ -9,7 +9,6 @@ import info.pinlab.schnitt.gui.WavPanelModel;
 import info.pinlab.schnitt.gui.WavPanelUI;
 import info.pinlab.schnitt.gui.swing.WavPanelImpl;
 import info.pinlab.schnitt.io.AudioWithTiers;
-import info.pinlab.snd.trs.BinaryTier;
 import info.pinlab.snd.vad.BinaryTargetTier;
 
 public class Application {

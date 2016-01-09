@@ -27,13 +27,13 @@ import info.pinlab.pinsound.WavClip;
  * 
  * @author Gabor Pinter
  */
-public class FrameProvider{
+public class FrameProvider implements AudioFrameConsumer{
 	public static Logger LOG = LoggerFactory.getLogger(FrameProvider.class);
 	
-	interface AudioFrameConsumer{
-		public void consume(int[] samples);
-		public void end();
-	}
+//	interface AudioFrameConsumer{
+//		public void consume(int[] samples);
+//		public void end();
+//	}
 	
 	
 	private final PipedOutputStream pos ;
@@ -82,6 +82,19 @@ public class FrameProvider{
 		frameConsumer = consumer;
 	}
 
+
+
+	@Override
+	public void consume(int[] samples) {
+	}
+	@Override
+	public void end() {
+	}
+	
+
+	
+	
+	
 	
 	public FrameProvider setSource(WavClip wav){
 		if(wav==null){
@@ -288,6 +301,8 @@ public class FrameProvider{
 		pipe.start();
 
 	}
+
+
 }
 
 

@@ -58,9 +58,10 @@ public class AudioWithTiers{
 		return target;
 	}
 
-	public void setVadErrTier(VadErrorTier err){
-		this.err = err;
-	}
+//	public void setVadErrTier(VadErrorTier err){
+//		this.err = err;
+//	}
+	
 	public VadErrorTier getVadErrTier(){
 		return this.err;
 	}

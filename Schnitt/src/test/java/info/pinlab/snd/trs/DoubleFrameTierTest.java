@@ -50,14 +50,24 @@ public class DoubleFrameTierTest {
 			at = frameIx/hz;
 		}
 		
-		assertTrue(tier.size()>0);
-		Double prev = -10.0d; 
-		for(Double t : tier.getTimeLabels()){
-//			System.out.println(prev +"\t" + t);
-			assertTrue(prev<t);
-			prev = t;
-		}
-	
 	}
 
+	@Test
+	public void testTimeStampsWithAudio() throws Exception {
+		//TODO: load wav
+		//      do only framing
+		//      check timestamps
+		
+//		assertTrue(tier.size()>0);
+//		Double prev = -10.0d; 
+//		for(Double t : tier.getTimeLabels()){
+//			assertTrue(prev<t);
+//			double shift = t-prev;
+//			double diff = shift - winShiftSample;
+//			System.out.println(shift + "\t "+ winShiftSample +"\t\t"+ prev +"\t" + t);
+//			assertTrue( Math.abs(diff) < 0.0000001 /* precision */) ;
+//			prev = t;
+//		}
+	}
+	
 }

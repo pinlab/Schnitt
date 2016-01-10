@@ -41,7 +41,6 @@ public class AmplitudeVad implements VoiceActivityDetector {
 	
 	
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public BinaryHypoTier getVoiceActivity(WavClip wav) {
 		VadParam<?> param = paramMap.get("AMP_THRESH");

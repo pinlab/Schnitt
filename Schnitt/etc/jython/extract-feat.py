@@ -43,7 +43,9 @@ from info.pinlab.snd.trs import DoubleFrameTier
 
 frame_processors  = ""
 frame_processors += "info.pinlab.snd.fe.HanningWindower"
-params = ParamSheetBuilder().set(FEParam.FRAME_PROCESSORS, frame_processors).set(FEParam.HZ, 16000).set(FEParam.FRAME_LEN_MS, 10).build()
+frame_processors += ":info.pinlab.snd.fe.Fft"
+frame_processors += ":info.pinlab.snd.fe.PowerCalculator"
+params = ParamSheetBuilder().set(FEParam.FRAME_PROCESSORS, frame_processors).set(FEParam.HZ, 16000).set(FEParam.FRAME_LEN_MS, 50).build()
 
 fe = StreamingAcousticFrontEnd(params);
 fe.setWav(WavClip(wav))
@@ -53,6 +55,6 @@ tier = fe.getFrameTier();
 
 for t in tier.getTimeLabels():
     frame = tier.getFrameAt(t)
-    arr = frame.getArray("sample")
+    arr = frame.getArray("power")
     print ", ".join(map(str, arr))
 

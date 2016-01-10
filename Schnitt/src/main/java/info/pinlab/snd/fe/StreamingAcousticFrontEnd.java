@@ -27,7 +27,6 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 	public static final Logger LOG = LoggerFactory.getLogger(StreamingAcousticFrontEnd.class);
 
 	private final ConcurrentLinkedDeque<Frame> inDeque;
-	private final ConcurrentLinkedDeque<DoubleFrame> outDeque;
 
 	int frameArrSize;
 	private final ParamSheet context;
@@ -41,7 +40,6 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 	private final List<FrameProcessor> pipeline;
 
 	private FeatureSink sink = null;
-
 
 	static class DoubleFrameTierBuilder implements FeatureSink{
 		private DoubleFrameTier tier ;
@@ -77,7 +75,6 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 
 		inDeque = new ConcurrentLinkedDeque<Frame>();
 		pipeline = new ArrayList<FrameProcessor>(); 
-		outDeque = new ConcurrentLinkedDeque<DoubleFrame>();
 
 		//-- Frame producer: 
 		frameShiftInSample = context.get(FEParam.FRAME_LEN_SAMPLE)/2;
@@ -85,7 +82,6 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 		frameReader.setAudioFrameConsumer(this);
 
 		sampleMax = (Math.pow(2, (this.context.get(FEParam.BYTE_PER_SAMPE)*8)))/2;
-		System.out.println(sampleMax);
 
 
 		//-- INIT frame processors here!
@@ -241,7 +237,8 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 
 		String processorList = 
 				HanningWindower.class.getName()
-//				+ ":" + Fft.class.getName()
+				+ ":" + Fft.class.getName()
+				+ ":" + PowerCalculator.class.getName()
 //				+ ":" + MelFilter.class.getName()
 				;
 
@@ -250,7 +247,8 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 				.set(FEParam.FRAME_PROCESSORS, processorList)
 //				.addParametersFromClass(MelFilter.class)
 				.setAudioFormat(wav.getAudioFormat())
-				.setFrameLenInMs(50)
+				.setFrameLenInMs(20)
+				.set(Fft.FFT_SIGNAL_LEN, 320)
 				.build();
 
 
@@ -260,12 +258,16 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 		fe.start();
 		
 		DoubleFrameTier tier = fe.getFrameTier();
-		System.out.println(tier + "\t" + tier.size());
+//		System.out.println(tier + "\t" + tier.size());
 		for(Double t : tier.getTimeLabels()){
 //			System.out.println(t);
 			DoubleFrame frame = tier.getFrameAt(t);
-			double [] arr = frame.getArray("sample");
-			System.out.println(Arrays.toString(arr));
+			double [] arr = frame.getArray("fft");
+//			System.out.println(Arrays.toString(arr));
+//			for(String lab : frame.getDataLabels()){
+//				System.out.println(lab);
+//			}
+//			break;
 		}
 	}
 

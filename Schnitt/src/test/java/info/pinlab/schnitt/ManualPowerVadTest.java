@@ -17,7 +17,6 @@ import info.pinlab.snd.fe.PowerCalculator;
 import info.pinlab.snd.fe.StreamingAcousticFrontEnd;
 import info.pinlab.snd.trs.DoubleFrameTier;
 import info.pinlab.snd.vad.BinaryHypoTier;
-import info.pinlab.snd.vad.BinaryTargetTier;
 import info.pinlab.snd.vad.ThresholdVad;
 
 public class ManualPowerVadTest implements FeatureSink{
@@ -40,7 +39,7 @@ public class ManualPowerVadTest implements FeatureSink{
 
 	public static void main(String[] args) throws Exception{
 		WavClip wav = new WavClip(ManualPowerVadTest.class.getResourceAsStream("long-sample.wav"));
-		BinaryTargetTier targ = new BinaryTargetTier();
+//		BinaryTargetTier targ = new BinaryTargetTier();
 
 		ManualPowerVadTest tester = new ManualPowerVadTest();
 		

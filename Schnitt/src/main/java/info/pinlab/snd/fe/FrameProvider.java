@@ -190,11 +190,10 @@ public class FrameProvider implements AudioFrameConsumer{
 					off += sz;
 					len -= sz;
 					if(off==frameLenInByte){ //-- full!
+						frameN++;
 						if(frameConsumer != null){
 							final int [] frame = getIntsFrom16bitLe(buff);
 							frameConsumer.consume(frame);
-							frameN++;
-//							System.out.println("Framer of " + frameN);
 							//-- copy 2nd half of samples into prevFrame
 							prevFrame = new int[frameLenInSample];
 							System.arraycopy(frame, frameHalfLenInSample, prevFrame, 0, frameHalfLenInSample);
@@ -212,6 +211,7 @@ public class FrameProvider implements AudioFrameConsumer{
 //					System.out.println(" buff sz " + sz + " " + off + " " + len);
 					if(off==frameLenInByte){ //-- full!
 //						System.out.println("FULL! sample sz ");
+						frameN++;
 						if(frameConsumer != null){
 							//-- convert byte [] to samples...
 							final int [] frame = getIntsFrom16bitLe(buff);
@@ -222,10 +222,8 @@ public class FrameProvider implements AudioFrameConsumer{
 							
 							System.arraycopy(frame, frameHalfLenInSample, 
 											prevFrame, 0, frameHalfLenInSample);
-							frameN++;
 							
 							//-- for TESTING/DEBUGGING 
-//							System.out.println("Framer of " + frameN);
 //							try {
 //								Thread.sleep(100); //-- slow it down
 //							} catch (InterruptedException ignore){	}
@@ -239,7 +237,7 @@ public class FrameProvider implements AudioFrameConsumer{
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			LOG.info("Stream end reached");
+			LOG.info("Stream end reached, created " + frameN + " frames");
 			if(frameConsumer != null){
 				frameConsumer.end();
 			}

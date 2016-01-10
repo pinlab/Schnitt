@@ -27,7 +27,7 @@ public class DoubleFrameTier{
 		this.hz = (double)hz;
 //		this.frameSz = (int)(frameSizeMs*hz/1000.0d);
 		this.frameLenInSec = frameSizeMs / 1000.0d;
-		System.out.println("FRAME LEN IN SEC " + frameLenInSec);
+//		System.out.println("FRAME LEN IN SEC " + frameLenInSec);
 		
 		frames = new TreeMap<Double, DoubleFrame>();
 		frames.put(0.0d, null);
@@ -59,15 +59,11 @@ public class DoubleFrameTier{
 	public double  getFrameLenInSec(){
 		return frameLenInSec;
 	}
-//	public double  getFrameLenInMs(){
-//		return frameLenInMs;
-//	}
 	
 	synchronized public List<Double> getTimeLabels(){
 		return new ArrayList<Double>(frames.keySet());
 	}
 	 
-	
 	
 	
 	/**

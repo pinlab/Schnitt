@@ -1,7 +1,9 @@
 package info.pinlab.snd.fe;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DoubleFrame implements Frame {
@@ -64,5 +66,10 @@ public class DoubleFrame implements Frame {
 	public long getStartSampleIx() {
 		return startSampleIx;
 	}
+	
+	public List<String> getDataLabels(){
+		return new ArrayList<>(arrays.keySet());
+	}
+	
 }
 

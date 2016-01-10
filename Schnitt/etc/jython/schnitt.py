@@ -1,4 +1,4 @@
-import sys
+import sys, logging
 import os.path
 
 schnitt_jar = "WavPanel-0.1.jar" 
@@ -15,9 +15,21 @@ if not os.path.isfile(schnitt_jar_abs_path):
 
 sys.path.append(schnitt_jar_abs_path)
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter('[%(levelname)s]  %(message)s')
 
-# import logger as LOG
-import org.slf4j.Logger
-LOG = org.slf4j.LoggerFactory.getLogger("schnitt.jy")
+logfilename = sys.argv[0][:-3]+".log"
+if os.path.isfile(logfilename): 
+    os.remove(logfilename)  # comment out/delet if you need log file
+fh = logging.FileHandler(logfilename)
+fh.setFormatter(formatter)
+fh.setLevel(logging.DEBUG)
 
+ch = logging.StreamHandler()
+ch.setFormatter(formatter)
+ch.setLevel(logging.INFO)
+
+logger.addHandler(fh)
+logger.addHandler(ch)     
 

@@ -29,16 +29,6 @@ public class ManualPowerVadTest implements FeatureSink{
 	}
 	@Override
 	public void end() {
-		System.out.println("END?");
-		
-		
-//		System.out.println(frames.size()  + " frames of "
-//		+ frames.get(0).getArray("power").length  + " vector length arrived");
-		
-//		for(DoubleFrame frame : frames){
-//			System.out.println(frame.getArray("power")[0]);
-//		}
-		
 		synchronized (this) {
 			latch.countDown();
 			notifyAll();

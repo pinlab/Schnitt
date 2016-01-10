@@ -2,7 +2,6 @@ package info.pinlab.schnitt.io;
 
 import java.util.List;
 
-import info.pinlab.snd.trs.BinaryTier;
 import info.pinlab.snd.vad.BinaryTargetTier;
 
 public class DataToBinaryTier {

@@ -223,7 +223,12 @@ public class FrameProvider implements AudioFrameConsumer{
 							System.arraycopy(frame, frameHalfLenInSample, 
 											prevFrame, 0, frameHalfLenInSample);
 							frameN++;
-							System.out.println("Framer of " + frameN);
+							
+							//-- for TESTING/DEBUGGING 
+//							System.out.println("Framer of " + frameN);
+//							try {
+//								Thread.sleep(100); //-- slow it down
+//							} catch (InterruptedException ignore){	}
 						}
 						off = 0;
 						len = frameLenInByte;

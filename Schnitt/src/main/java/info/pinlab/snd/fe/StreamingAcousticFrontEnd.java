@@ -3,14 +3,17 @@ package info.pinlab.snd.fe;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.CountDownLatch;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import info.pinlab.pinsound.WavClip;
 import info.pinlab.snd.fe.ParamSheet.ParamSheetBuilder;
+import info.pinlab.snd.trs.DoubleFrameTier;
 
 /**
  * 
@@ -40,6 +43,34 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 	private FeatureSink sink = null;
 
 
+	static class DoubleFrameTierBuilder implements FeatureSink{
+		private DoubleFrameTier tier ;
+		CountDownLatch latch = new CountDownLatch(1);
+		
+		DoubleFrameTierBuilder(int hz, int frameSizeMs){
+			tier = new DoubleFrameTier(hz, frameSizeMs);
+		}
+		
+		@Override
+		public void add(DoubleFrame frame) {
+			tier.add(frame);
+		}
+		
+		@Override
+		public void end() {
+			synchronized (this) {
+				latch.countDown();
+			}
+		}
+		
+		public DoubleFrameTier getDoubleFrameTier(){
+			try { latch.await();} 
+			catch (InterruptedException ignore) {	}
+			return tier;
+		}
+	}
+	
+	
 
 	public StreamingAcousticFrontEnd(ParamSheet context){
 		this.context = context;
@@ -126,7 +157,7 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 			inDeque.add(new EndFrame());
 			//					new DoubleFrame(new double[]{0.0}, "end", -1));
 			inDeque.notify();
-			System.out.println("END! reched from frame processor");
+//			System.out.println("END! reched from frame processor");
 		}
 	}
 
@@ -161,7 +192,7 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 					continue LOOP;
 				}else
 					if(frame instanceof EndFrame){
-						System.out.println("END! in sink writing!");
+//						System.out.println("END! in sink writing!");
 						sink.end();
 						break LOOP;
 					}
@@ -181,19 +212,24 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 		frameReader.setSource(wav);
 	}
 
+	public DoubleFrameTier getFrameTier(){
+		if(sink instanceof DoubleFrameTierBuilder){
+			return ((DoubleFrameTierBuilder)sink).getDoubleFrameTier();
+		}
+		return null;
+	}
+	
+
 
 	public void start(){
 		//-- set  dummy consumer
 		if(sink==null){
-			LOG.info("Adding dummy sink");
-			sink = new FeatureSink(){
-				@Override
-				public void add(DoubleFrame feature){	}
-				@Override
-				public void end(){};
-			};
+			LOG.info("Adding dummy sink that builds a DoulbeFrameTier");
+			sink = new DoubleFrameTierBuilder(
+					context.get(FEParam.HZ), 
+					context.get(FEParam.FRAME_LEN_MS));
 		}
-
+		
 		processorThread.start();
 		frameReader.start();
 	}
@@ -205,14 +241,14 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 
 		String processorList = 
 				HanningWindower.class.getName()
-				+ ":" + Fft.class.getName()
-				+ ":" + MelFilter.class.getName()
+//				+ ":" + Fft.class.getName()
+//				+ ":" + MelFilter.class.getName()
 				;
 
 
 		ParamSheet context = new ParamSheetBuilder()
 				.set(FEParam.FRAME_PROCESSORS, processorList)
-				.addParametersFromClass(MelFilter.class)
+//				.addParametersFromClass(MelFilter.class)
 				.setAudioFormat(wav.getAudioFormat())
 				.setFrameLenInMs(50)
 				.build();
@@ -220,8 +256,17 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 
 		StreamingAcousticFrontEnd fe = new StreamingAcousticFrontEnd(context);
 
-		//		fe.setWav(wav);
-		//		fe.start();
+		fe.setWav(wav);
+		fe.start();
+		
+		DoubleFrameTier tier = fe.getFrameTier();
+		System.out.println(tier + "\t" + tier.size());
+		for(Double t : tier.getTimeLabels()){
+//			System.out.println(t);
+			DoubleFrame frame = tier.getFrameAt(t);
+			double [] arr = frame.getArray("sample");
+			System.out.println(Arrays.toString(arr));
+		}
 	}
 
 }

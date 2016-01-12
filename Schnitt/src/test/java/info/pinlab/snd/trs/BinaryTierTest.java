@@ -71,8 +71,8 @@ public class BinaryTierTest {
 		//add :     +++++++++++++
 		//    :   --+++++++++++++
 		tier.addInterval(new Interval<Boolean>(0.1d, 2.0d, true));
-		System.out.println(tier.debugPrint());
-		assertTrue(tier.size()==2);
+//		System.out.println(tier.debugPrint());
+		assertTrue("Tier size ("+tier.size() +") is not 2",  tier.size()==2);
 		assertTrue(tier.getIntervalX(0).label==false);
 		assertTrue(tier.getIntervalX(1).label==true);
 		
@@ -138,5 +138,6 @@ public class BinaryTierTest {
 		tier.addInterval(0.5f, 1.5f,  true);
 //		System.out.println(tier);
 	}
+	
 
 }

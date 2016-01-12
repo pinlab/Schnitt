@@ -51,7 +51,6 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 	
 	
 /**
-	 * 
 	 * @param from
 	 * @param to
 	 * @param value
@@ -65,6 +64,9 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 			from  = from - to;
 		}
 		if(b==null)b = false; //-- null means right edge of the last interval -> let's not use it 
+		
+		from = super.roundNanoSec(from);
+		to = super.roundNanoSec(to);
 		
 		
 //		//-- HIGHER side 

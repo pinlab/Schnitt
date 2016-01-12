@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +38,8 @@ public class TextGridAdapter {
 		InputStream is = new FileInputStream(gridPath);
 		return fromTextGrid(is);
 	}
-	
-	
+
+
 	/**
 	 * Read TextGrid file from input stream (such as bundled jar).
 	 * 
@@ -55,16 +57,35 @@ public class TextGridAdapter {
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
 			String line ;
-            while((line  = br.readLine()) != null){
-            	lineX++;
-            	//: parse textgrid into tier!
+			while((line  = br.readLine()) != null){
+				lineX++;
 
-            	
-            	
-            	
-            	
-            	
-            }
+				//: parse textgrid into tier!
+
+				List<Double> max = new ArrayList<Double>();
+				List<Double> min = new ArrayList<Double>();
+				List<String> label = new ArrayList<String>();
+
+				if(line.trim().startsWith("max =")){
+					max.add(Double.parseDouble(line.replaceAll("(\\s|xmax\\s=)", "")));
+				}
+
+				if(line.trim().startsWith("min =")){
+					min.add(Double.parseDouble(line.replaceAll("(\\s|xmin\\s=)", "")));
+
+				}
+				if(line.trim().startsWith("text =")){
+					label.add(line.replaceAll("(\\s|text\\s=)", ""));
+
+				}
+
+				int size = label.size();
+
+				for(int i = 0 ; i < size ; i++){
+					tier.addInterval(min.get(i+1), max.get(i+1), label.get(i));
+				}
+
+			}
 		} catch (UnsupportedEncodingException ignore){ //-- "UTF-8" is supported
 		} catch (IOException e){
 			String msg = "IO error when trying to read line " + lineX ;
@@ -74,23 +95,25 @@ public class TextGridAdapter {
 
 		return tier;
 	}
-	
 
-	
+
+
 	public static String toTextGrid(LabelTier tier){
 		StringBuffer sb = new StringBuffer();
 		//TODO: write into TextGrid
-		
-		
-		
-		
+
+
+
+
 		return sb.toString();
 	}
-	
-	
-	
-	
+
+
+
+
 	public static void main(String[] args) {
+		String path = "aasdfasfsadfasdfasfdas";
+		
 	}
 }
 

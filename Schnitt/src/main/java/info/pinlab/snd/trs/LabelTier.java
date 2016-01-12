@@ -1,6 +1,5 @@
 package info.pinlab.snd.trs;
 
-import java.util.Iterator;
 import java.util.List;
 
 public class LabelTier extends AbstractIntervalTier<String>{
@@ -36,6 +35,8 @@ public class LabelTier extends AbstractIntervalTier<String>{
 			to    = from - to;
 			from  = from - to;
 		}
+		from = super.roundNanoSec(from);
+		to = super.roundNanoSec(to);
 		
 
 		//-- "null" -> "" 

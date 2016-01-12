@@ -59,8 +59,9 @@ public class FrameAlignmentTest {
 
 		DoubleFrame frame = frames.getFrameAt(0);
 		assertTrue(frame != null);
-		assertTrue(frame.getNumber("overlap") != null);
-		assertTrue(frame.getNumber("overlap")-0.2 < 0.00001);
+		assertTrue(frame.getArray("overlap") != null);
+		assertTrue(frame.getArray("overlap").length > 0);
+		assertTrue(frame.getArray("overlap")[0]-0.2 < 0.00001);
 		
 		System.out.println(sorter.debugPrint());
 	}

@@ -1,6 +1,8 @@
 package info.pinlab.snd.trs;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
@@ -50,6 +52,17 @@ public abstract class AbstractIntervalTier<T> implements IntervalTier<T>{
 		points.clear();
 	}
 	
+	
+	
+	private static final double ROUND_BASE = 1_000_000_000.0d;
+	/**
+	 * Rounds to the nearest nanosecond (10E-9)
+	 * @param sec  time in second
+	 * @return rounded time in second
+	 */
+	public static double roundNanoSec(double sec){
+		return Math.round(sec * ROUND_BASE)/ROUND_BASE;
+	}
 
 
 	private Double iteratorIx = null;
@@ -152,7 +165,7 @@ public abstract class AbstractIntervalTier<T> implements IntervalTier<T>{
 	
 	@Override
 	public IntervalTier<T> addInterval(Interval<T> interval) {
-		return addInterval(interval.startT, interval.startT, interval.label);
+		return addInterval(interval.startT, interval.endT, interval.label);
 	}
 
 
@@ -163,9 +176,15 @@ public abstract class AbstractIntervalTier<T> implements IntervalTier<T>{
 		return points.lastKey();
 	}
 
+
 	
-	public Set<Double> getTimeLabels(){
-		return points.keySet();
+	public Double getFirstInterval(){
+		return points.firstKey();
+	}
+	
+	
+	public List<Double> getTimeLabels(){
+		return new ArrayList<Double>(points.keySet());
 	}
 		
 	@Override

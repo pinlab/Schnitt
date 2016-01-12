@@ -153,17 +153,17 @@ public class FrameProvider implements AudioFrameConsumer{
 		//		private byte [] buff;
 		private final int frameLenInByte;
 		private final int frameLenInSample;
-		private final int frameHalfLenInSample;
+//		private final int frameHalfLenInSample;
 		
 		
-		int [] prevFrame ; 
+//		int [] prevFrame ; 
 		
 		int frameN = 0;
 		
 		Framer(int frameLenInByte){
 			this.frameLenInByte = frameLenInByte;
 			frameLenInSample = frameLenInByte/bytePerSample;
-			frameHalfLenInSample = frameLenInSample / 2;
+//			frameHalfLenInSample = frameLenInSample / 2;
 		}
 
 		int [] getIntsFrom16bitLe(byte [] buff){
@@ -182,57 +182,57 @@ public class FrameProvider implements AudioFrameConsumer{
 			int len = frameLenInByte;
 			byte [] buff = new byte[len];
 			int sz = 1;
-			prevFrame = new int[frameLenInSample];
+//			prevFrame = new int[frameLenInSample];
 			
 			try {
 				//-- first round:
 				while((sz = pis.read(buff, off, len))>=0){
 					off += sz;
 					len -= sz;
-					if(off==frameLenInByte){ //-- full!
+					if(off==frameLenInByte){ //-- buff fiilled
 						frameN++;
-						if(frameConsumer != null){
+//						if(frameConsumer != null){
 							final int [] frame = getIntsFrom16bitLe(buff);
 							frameConsumer.consume(frame);
-							//-- copy 2nd half of samples into prevFrame
-							prevFrame = new int[frameLenInSample];
-							System.arraycopy(frame, frameHalfLenInSample, prevFrame, 0, frameHalfLenInSample);
-						}
+//							//-- copy 2nd half of samples into prevFrame
+//							prevFrame = new int[frameLenInSample];
+//							System.arraycopy(frame, frameHalfLenInSample, prevFrame, 0, frameHalfLenInSample);
+//						}
 						off = 0;
 						len = frameLenInByte;
 						buff = new byte[len];
-						break;
+//						break;
 					}
 				}
 				//-- second round onwards:
-				while((sz = pis.read(buff, off, len))>=0){
-					off += sz;
-					len -= sz;
-//					System.out.println(" buff sz " + sz + " " + off + " " + len);
-					if(off==frameLenInByte){ //-- full!
-//						System.out.println("FULL! sample sz ");
-						frameN++;
-						if(frameConsumer != null){
-							//-- convert byte [] to samples...
-							final int [] frame = getIntsFrom16bitLe(buff);
-							System.arraycopy(frame, 0,      
-									         prevFrame, frameHalfLenInSample, frameHalfLenInSample);
-							frameConsumer.consume(prevFrame);
-							frameConsumer.consume(frame);
-							
-							System.arraycopy(frame, frameHalfLenInSample, 
-											prevFrame, 0, frameHalfLenInSample);
-							
-							//-- for TESTING/DEBUGGING 
-//							try {
-//								Thread.sleep(100); //-- slow it down
-//							} catch (InterruptedException ignore){	}
-						}
-						off = 0;
-						len = frameLenInByte;
-						buff = new byte[len];
-					}
-				}
+//				while((sz = pis.read(buff, off, len))>=0){
+//					off += sz;
+//					len -= sz;
+////					System.out.println(" buff sz " + sz + " " + off + " " + len);
+//					if(off==frameLenInByte){ //-- full!
+////						System.out.println("FULL! sample sz ");
+//						frameN++;
+//						if(frameConsumer != null){
+//							//-- convert byte [] to samples...
+//							final int [] frame = getIntsFrom16bitLe(buff);
+//							System.arraycopy(frame, 0,      
+//									         prevFrame, frameHalfLenInSample, frameHalfLenInSample);
+//							frameConsumer.consume(prevFrame);
+//							frameConsumer.consume(frame);
+//							
+//							System.arraycopy(frame, frameHalfLenInSample, 
+//											prevFrame, 0, frameHalfLenInSample);
+//							
+//							//-- for TESTING/DEBUGGING 
+////							try {
+////								Thread.sleep(100); //-- slow it down
+////							} catch (InterruptedException ignore){	}
+//						}
+//						off = 0;
+//						len = frameLenInByte;
+//						buff = new byte[len];
+//					}
+//				}
 				pis.close();
 			} catch (IOException e) {
 				e.printStackTrace();

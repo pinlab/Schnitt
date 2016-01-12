@@ -58,3 +58,7 @@ for t in tier.getTimeLabels():
     arr = frame.getArray("power")
     print ", ".join(map(str, arr))
 
+
+
+
+

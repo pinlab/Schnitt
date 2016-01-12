@@ -18,7 +18,7 @@ public abstract class FEParam<T> extends Param<T>{
 			(FRAME_LEN_MS.getValue()*HZ.getValue())/1000, FEParam.class); ;
 	public static final FEParamInt FRAME_LEN_BYTE = new FEParamInt("FRAME_LEN_BYTE",
 			FRAME_LEN_MS.getValue()*BYTE_PER_SAMPE.getValue(), FEParam.class); ;
-	public static final FEParamInt FRAME_SHIFT_MS = new FEParamInt("FRAME_LEN_BYTE",
+	public static final FEParamInt FRAME_SHIFT_MS = new FEParamInt("FRAME_SHIFT_MS",
 			FRAME_LEN_MS.getValue()/2, FEParam.class); ;
 	
 	public static final FEParamBool IS_BIG_ENDIAN = new FEParamBool("IS_BIG_ENDIAN", false, FEParam.class);

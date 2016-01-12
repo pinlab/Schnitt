@@ -18,7 +18,7 @@ public class ThresholdVad implements VAD{
 	public static Logger LOG = LoggerFactory.getLogger(ThresholdVad.class);
 	
 	public static VadParamDouble THRESH = new VadParamDouble("THRESH", 0.8, ThresholdVad.class);
-	public static VadParamString THRESH_TARG    = new VadParamString("THRESH_TARG", "amp", ThresholdVad.class);
+	public static VadParamString THRESH_TARG    = new VadParamString("THRESH_TARG", null, ThresholdVad.class);
 	public static VadParamBoolean THRESH_FILTER_LOW = new VadParamBoolean("THRESH_FILTER_LOW", true, ThresholdVad.class);
 	
 	
@@ -43,14 +43,14 @@ public class ThresholdVad implements VAD{
 		
 		String key = param.getKey();
 		if(THRESH.getKey().equals(key)){
-			thresh = (double)value;
-			LOG.info("Param set '" + param + "' > " + value);
+			thresh = (Double)value;
+			LOG.info("Param set '" + param + "' : " + value);
 		}else if(THRESH_TARG.getKey().equals(key)){
 			attrib = (String) value; 
 			LOG.info("Param set '" + param + "' > '" + value+"'");
 		}else if(THRESH_FILTER_LOW.getKey().equals(key)){
-			isFilterOver = (boolean) value;
-			LOG.info("Param set '" + param + "' > " + value);
+			isFilterOver = (Boolean) value;
+			LOG.info("Param set '" + param + "' : " + value);
 		}else{
 			LOG.error("Param not for this VAD '" + param + "'");
 		}
@@ -107,6 +107,18 @@ public class ThresholdVad implements VAD{
 	}
 	
 	public BinaryHypoTier getHypo(){
+		if(attrib==null){
+			LOG.error("Target attrib is null!");
+			throw new IllegalStateException("Target attrib is null! Setting example: \n\nThresholdVad.setParam(ThresholdVad.THRESH_TARG, 'targ');  // 'targ' is the key to the feature to evaluate!\n" );
+		}
+		for(String featLabels : frameTier.getFrameAt(frameTier.getStartT()).getDataLabels()){
+			if (attrib.equals(featLabels)){
+				break;
+			}
+			LOG.error("No feature with label '" + attrib +"' in the frame!");
+			throw new IllegalStateException("No feature with label '" + attrib +"' in the frame!");
+		}
+		
 		BinaryHypoTier hypo = new BinaryHypoTier();
 		hypo.addInterval(frameTier.getStartT(), frameTier.getEndT(), false);
 		double frameLen = frameTier.getFrameLenInSec();

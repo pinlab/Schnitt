@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Map;
 
 public class DoubleFrame implements Frame {
-	long startSampleIx;
-	long startT;
-	int nextId;
-	int prevId;
+	private long startSampleIx;
+//	private long startT;
+//	private int nextId;
+//	private int prevId;
 	
 	private final Map<String, double []> arrays;
-	private final Map<String, Double> numbers;
+//	private final Map<String, Double> numbers;
 	
 	
 	static double [] zeros(int len){
@@ -29,16 +29,15 @@ public class DoubleFrame implements Frame {
 		arrays = new HashMap<String, double[]>();
 		arrays.put(key, s);
 		this.startSampleIx = startSampleIx;
-		this.numbers = new HashMap<>();
+//		this.numbers = new HashMap<>();
 	}
-	
 	
 	public void setStartSempleIx(long ix){
 		startSampleIx = ix;
 	}
-	public void setStartSampleT(long t){
-		startT = t;
-	}
+//	public void setStartSampleT(long t){
+//		startT = t;
+//	}
 	
 	/**
 	 * 
@@ -48,16 +47,16 @@ public class DoubleFrame implements Frame {
 	public double [] getArray(String key){
 		return arrays.get(key);
 	}
-	public Double getNumber(String key){
-		return numbers.get(key);
-	}
+//	public Double getNumber(String key){
+//		return numbers.get(key);
+//	}
 	
 	public void addArray(String key, double [] arr){
 		arrays.put(key, arr);
 	}
 	
 	public void addNumber(String key, double val){
-		numbers.put(key, val);
+		arrays.put(key, new double[]{val});
 	}
 	
 	

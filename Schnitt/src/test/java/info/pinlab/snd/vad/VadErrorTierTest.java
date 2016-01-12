@@ -1,16 +1,12 @@
 package info.pinlab.snd.vad;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.Test;
 
 import info.pinlab.snd.trs.BinaryTier;
 import info.pinlab.snd.trs.Interval;
 import info.pinlab.snd.trs.IntervalTier;
-import info.pinlab.snd.vad.VadError;
-import info.pinlab.snd.vad.VadErrorTier;
 
 public class VadErrorTierTest {
 

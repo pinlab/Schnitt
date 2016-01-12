@@ -54,10 +54,10 @@ public class FrameAlignment {
 	/**
 	 * Calculates the ovelaps of the frames with ON/TRUE sections of the {@link BinaryTier}. 
 	 * 
-	 * @param label the key for the value in the {@link DoubleFrame}
+	 * @param featureKey the map key for the overlap value in the {@link DoubleFrame}
 	 * @return a TreeMap with time-overlap% entries
 	 */
-	public TreeMap<Double, Double> calcOverlap(String label){
+	public TreeMap<Double, Double> calcOverlap(String featureKey){
 		int ix = 0;
 		Interval<Boolean> interval;
 		double overlap = 0.0;
@@ -68,7 +68,7 @@ public class FrameAlignment {
 			ix = ix < 0 ? 0 : ix;
 			
 			double frameStart = frameTimes.get(ix);
-			System.out.println( interval.startT + "  ?  " +  (frameStart+frameLenInSec));
+//			System.out.println( interval.startT + "  ?  " +  (frameStart+frameLenInSec));
 			while(frameStart < interval.endT){
 				double frameEnd = frameStart + frameLenInSec;
 				overlap = overlaps.get(frameStart);
@@ -96,8 +96,8 @@ public class FrameAlignment {
 		for(int i = 0; i < overlaps.size(); i++){
 			Double t = frameTimes.get(i);
 			DoubleFrame frame = tier.getFrameAt(t);
-			frame.addArray(label, new double[]{overlaps.get(t)});
-			frame.addNumber(label, overlaps.get(t));
+			frame.addArray(featureKey, new double[]{overlaps.get(t)});
+			frame.addNumber(featureKey, overlaps.get(t));
 		}
 		return overlaps;
 	}

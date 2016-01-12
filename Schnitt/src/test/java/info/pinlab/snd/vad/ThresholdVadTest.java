@@ -1,6 +1,7 @@
 package info.pinlab.snd.vad;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
 import info.pinlab.snd.fe.DoubleFrame;
@@ -23,12 +24,7 @@ public class ThresholdVadTest {
 		assertTrue(vad.getParam(ThresholdVad.THRESH_TARG) == "hahota");
 		assertTrue(vad.getParam(ThresholdVad.THRESH_FILTER_LOW) == false);
 	}
-	@Test
-	public void testSetParamWithParamSheet() throws Exception {
-		
-		ParamSheet sheet =	new ParamSheet.ParamSheetBuilder().build();
-
-	}
+	
 	
 	
 	
@@ -43,7 +39,7 @@ public class ThresholdVadTest {
 
 		double hz = 16000;
 		int winLenMs = 100;
-		int winLenSample = (int) (hz*winLenMs)/1000  ;
+//		int winLenSample = (int) (hz*winLenMs)/1000  ;
 		double winShiftSample = (16000*winLenMs/1000)/2;
 		DoubleFrameTier tier = new DoubleFrameTier((int)hz, winLenMs);
 		//Overlap: 0.2,0.4,0.4,0.7,1.0 

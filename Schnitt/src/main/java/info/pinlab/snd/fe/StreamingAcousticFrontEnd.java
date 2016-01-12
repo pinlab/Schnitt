@@ -3,7 +3,6 @@ package info.pinlab.snd.fe;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.CountDownLatch;
@@ -33,8 +32,9 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 	private final double sampleMax;
 	private int frameN = 0;
 	private final FrameProvider frameReader; 
-	private final int frameShiftInSample; 
-
+	private final int frameShiftInSample;
+	private final int frameLenInSample;
+	
 	Thread processorThread;
 
 	private final List<FrameProcessor> pipeline;
@@ -77,12 +77,28 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 		pipeline = new ArrayList<FrameProcessor>(); 
 
 		//-- Frame producer: 
-		frameShiftInSample = context.get(FEParam.FRAME_LEN_SAMPLE)/2;
+		frameShiftInSample = (int)context.get(FEParam.HZ)
+							*context.get(FEParam.FRAME_SHIFT_MS)/1000;
+		frameLenInSample = context.get(FEParam.FRAME_LEN_SAMPLE);
+		
 		frameReader = new FrameProvider(this.context);
 		frameReader.setAudioFrameConsumer(this);
 
 		sampleMax = (Math.pow(2, (this.context.get(FEParam.BYTE_PER_SAMPE)*8)))/2;
 
+		
+		//-- sanity checks
+		if (frameShiftInSample > frameLenInSample){
+			throw new IllegalArgumentException("Shift is greater (" + frameShiftInSample + ") "
+					+ "than frame length (" + frameLenInSample +")");
+		}
+		if (frameLenInSample % frameShiftInSample != 0){
+			throw new IllegalArgumentException(
+					"Frame length (" + frameLenInSample +") is "
+					+ "not proper multiplification of frame shift (" + frameShiftInSample + ") "
+					);
+		}
+		
 
 		//-- INIT frame processors here!
 		String procList = this.context.get(FEParam.FRAME_PROCESSORS);
@@ -132,19 +148,75 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 		return (new ArrayList<FrameProcessor>(pipeline));
 	}
 	
+	
+	
+	private double [] prevFrame = null;
+	
 	@Override
 	public void consume(int[] samples){
-		double [] arr = new double [samples.length]; 
+		double [] frame = new double [samples.length]; 
 		for(int i = 0; i < samples.length; i++){
-			arr[i] = samples[i]/sampleMax;
+			frame[i] = samples[i]/sampleMax;  //-- normalize
 		}
-		int id = frameN*frameShiftInSample;
-		DoubleFrame frame = new DoubleFrame(arr, "sample", id);
-		frameN++;		
+		
+		if(prevFrame!=null){
+			int i = 1;
+			while(i*frameShiftInSample < frameLenInSample){
+				double [] newFrame = new double[frameLenInSample];
+				int shift = i*frameShiftInSample;
+				//-- array start
+				System.arraycopy(prevFrame, shift,      
+						newFrame, 0, (frameLenInSample-shift));
+				//-- array end:
+				System.arraycopy(frame, 0,      
+						newFrame, frameLenInSample-shift, shift);
+
+				//-- add frame:
+				DoubleFrame dblFrame = new DoubleFrame(newFrame, "sample", frameN*frameShiftInSample);
+				frameN++;
+				synchronized (inDeque) {
+					inDeque.add(dblFrame);
+				}
+				i++;
+			}
+		}else{
+			prevFrame = new double[frameLenInSample];
+		}
+		//-- final frame (no copy)
+//		System.out.println("FRAME " + frameN + " \t sample: " + frameN*frameShiftInSample);
+		DoubleFrame dblFrame = new DoubleFrame(frame, "sample", frameN*frameShiftInSample);
+		frameN++;
 		synchronized (inDeque) {
-			inDeque.add(frame);
-			inDeque.notify();
+			inDeque.add(dblFrame);
+//			notify();
 		}
+		//-- shift prev frame: 
+		System.arraycopy(frame, 0,      
+				prevFrame, 0, frame.length);
+
+		
+//		int startIx = frameShiftInByte;
+//		System.arraycopy(prevFrame, startIx,      
+//		         prevFrame, frameHalfLenInSample, frameHalfLenInSample);
+//		System.arraycopy(frame, 0,      
+//		         prevFrame, frameHalfLenInSample, frameHalfLenInSample);
+//
+//		
+//		
+//		prevFrame = new int[frameLenInSample];
+//		System.arraycopy(frame, frameHalfLenInSample, prevFrame, 0, frameHalfLenInSample);
+//		
+//		int id = frameN*frameShiftInSample;
+//		DoubleFrame dblFrame = new DoubleFrame(frame, "sample", id);
+//		id = frameN*frameShiftInSample;
+//		DoubleFrame prevDblFrame = new DoubleFrame(prevFrame, "sample", id);
+//		frameN++;
+//		prevFrame = frame;
+//		synchronized (inDeque) {
+//			inDeque.add(prevDblFrame);
+//			inDeque.add(dblFrame);
+//			inDeque.notify();
+//		}
 	}
 
 	@Override
@@ -257,18 +329,18 @@ public class StreamingAcousticFrontEnd implements AudioFrameConsumer{
 		fe.setWav(wav);
 		fe.start();
 		
-		DoubleFrameTier tier = fe.getFrameTier();
+//		DoubleFrameTier tier = fe.getFrameTier();
 //		System.out.println(tier + "\t" + tier.size());
-		for(Double t : tier.getTimeLabels()){
+//		for(Double t : tier.getTimeLabels()){
 //			System.out.println(t);
-			DoubleFrame frame = tier.getFrameAt(t);
-			double [] arr = frame.getArray("fft");
+//			DoubleFrame frame = tier.getFrameAt(t);
+//			double [] arr = frame.getArray("fft");
 //			System.out.println(Arrays.toString(arr));
 //			for(String lab : frame.getDataLabels()){
 //				System.out.println(lab);
 //			}
 //			break;
-		}
+//		}
 	}
 
 }

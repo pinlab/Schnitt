@@ -1,4 +1,4 @@
-package info.pinlab.schnitt.io;
+package info.pinlab.snd.trs;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -8,18 +8,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import info.pinlab.snd.trs.LabelTier;
-
 
 /**
  * 
- * Reading Praat's textgrid into LabelTier
+ * Read/Write adapter for Praat's textgrid.
  * 
  * @author Naoi
  *
@@ -36,6 +32,7 @@ public class TextGridAdapter {
 		File gridPath = new File(path);
 		LOG.info("Opening file '" + gridPath.getAbsolutePath() + "'");
 		InputStream is = new FileInputStream(gridPath);
+		
 		return fromTextGrid(is);
 	}
 
@@ -55,65 +52,94 @@ public class TextGridAdapter {
 		int lineX = 0;
 		LabelTier tier = new LabelTier();
 		try {
+			
 			BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
 			String line ;
+			Double max = null;
+			Double min = null;
+			String text = null;
+			
 			while((line  = br.readLine()) != null){
 				lineX++;
-
 				//: parse textgrid into tier!
-
-				List<Double> max = new ArrayList<Double>();
-				List<Double> min = new ArrayList<Double>();
-				List<String> label = new ArrayList<String>();
-
-				if(line.trim().startsWith("max =")){
-					max.add(Double.parseDouble(line.replaceAll("(\\s|xmax\\s=)", "")));
+				line = line.trim();
+				
+				if(line.startsWith("xmax")){
+					if(text != null){
+						br.close();
+						String err = "Parsing error: extra text field before #"+lineX +"!";
+						LOG.error(err);
+						throw new IOException(err);
+					}
+					int eqAt = line.indexOf("=");
+					max = Double.parseDouble(line.substring((eqAt+1), line.length()));
+				}else
+				if(line.startsWith("xmin")){
+					if(text != null){
+						br.close();
+						String err = "Parsing error: extra text field before #"+lineX +"!";
+						LOG.error(err);
+						throw new IOException(err);
+					}
+					int eqAt = line.indexOf("=");
+					min = Double.parseDouble(line.substring((eqAt+1), line.length()));
+				}else
+				if(line.startsWith("text")){
+					if (min==null || max == null){
+						br.close();
+						String err = "Parsing error: min or max value is missing before text! #"+lineX;
+						LOG.error(err);
+						throw new IOException(err);
+					}
+					text = line.substring((line.indexOf("\"")+1), line.lastIndexOf("\"")).trim();
+					tier.addInterval(min, max, text);
+					//-- reset 
+					min = null;
+					max = null;
+					text = null;
 				}
-
-				if(line.trim().startsWith("min =")){
-					min.add(Double.parseDouble(line.replaceAll("(\\s|xmin\\s=)", "")));
-
-				}
-				if(line.trim().startsWith("text =")){
-					label.add(line.replaceAll("(\\s|text\\s=)", ""));
-
-				}
-
-				int size = label.size();
-
-				for(int i = 0 ; i < size ; i++){
-					tier.addInterval(min.get(i+1), max.get(i+1), label.get(i));
-				}
-
 			}
 		} catch (UnsupportedEncodingException ignore){ //-- "UTF-8" is supported
 		} catch (IOException e){
 			String msg = "IO error when trying to read line " + lineX ;
 			LOG.error(msg);
 			return null;
+		}finally {
+			try {
+				is.close();
+			} catch (IOException ignore) {	}
 		}
-
 		return tier;
 	}
-
 
 
 	public static String toTextGrid(LabelTier tier){
 		StringBuffer sb = new StringBuffer();
 		//TODO: write into TextGrid
 
-
-
-
 		return sb.toString();
 	}
-
-
-
-
-	public static void main(String[] args) {
-		String path = "aasdfasfsadfasdfasfdas";
-		
+	
+	
+	
+	
+	public static BinaryTier toBinaryTier(LabelTier tier){
+		BinaryTier btier = new BinaryTier();
+		for(Interval<String> lab : tier){
+			Boolean b = true;
+			if(lab.label.isEmpty() 
+					|| lab.label.startsWith("<") 
+					|| lab.label.startsWith("<")  ){
+				b = false;
+			}
+			btier.addInterval(lab.startT, lab.endT, b);
+		}
+		return btier;
 	}
 }
+
+
+
+
+
 

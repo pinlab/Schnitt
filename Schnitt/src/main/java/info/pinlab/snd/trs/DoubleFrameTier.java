@@ -9,6 +9,22 @@ import org.slf4j.LoggerFactory;
 
 import info.pinlab.snd.fe.DoubleFrame;
 
+/**
+ * 
+ * This tier is to hold acoustic frames.
+ * 
+ * <li> Interating {@link DoubleFrame}s  </u> 
+ * <pre>
+for(Double t : tier.getTimeLabels()){
+	DoubleFrame frame = tier.getFrameAt(t)
+	// ...
+}
+ * </pre> 
+ * 
+ * 
+ * @author Gabor Pinter
+ *
+ */
 public class DoubleFrameTier{
 	public static Logger LOG = LoggerFactory.getLogger(DoubleFrameTier.class);
 

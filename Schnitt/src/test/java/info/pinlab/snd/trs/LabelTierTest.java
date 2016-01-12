@@ -1,6 +1,6 @@
 package info.pinlab.snd.trs;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -31,40 +31,55 @@ public class LabelTierTest {
 	public void testSize() {
 		LabelTier tier = new LabelTier();
 		assertTrue(tier.size()==0);
-//		tier.addInterval(0.0d, 1.0d, "a");
-//		assertTrue(tier.size()==1);
-//		tier.addInterval(1.0d, 2.0d, "b");
-//		assertTrue(tier.size()==2);
-//		
-//		//-- jumping a bit
-//		tier.addInterval(4.0d, 5.0d, "c");
-//		assertTrue(tier.size()==4);
-////		tier.debugPrint();
+		tier.addInterval(0.0d, 1.0d, "a");
+		assertTrue(tier.size()==1);
+		tier.addInterval(1.0d, 2.0d, "b");
+		assertTrue(tier.size()==2);
+		
+		//-- add with a gap: non-defined interval
+		tier.addInterval(4.0d, 5.0d, "c");
+		assertTrue(tier.size()==4);
+		
+//		for(Interval<String> inte : tier){
+//			System.out.print(inte);
+//		}
+//		System.out.println("|");
+//		System.out.println(tier);
 	}
 	
 	@Test
-	public void testSizeWhenAddingBridginInterval() {
-		LabelTier tier = new LabelTier();
-		assertTrue(tier.size()==0);
-		tier.addInterval(0.0d, 1.0d, "a");
-		tier.addInterval(0.4d, 0.6d, "b");
+	public void testWhenAddingBridginInterval() {
 //   a  |aaaaaaaaaaaaaaaaaaaaaa|
 //   b         |bbbbbbb|
 // a+b  |aaaaaa|bbbbbbb|       |
-		
-		tier.debugPrint();
+//		
+		LabelTier tier = new LabelTier();
+		assertTrue(tier.size()==0);
+		tier.addInterval(0.0d, 1.0d, "a");
+		assertTrue(tier.size()==1);
+		tier.addInterval(0.4d, 0.6d, "b");
+		assertTrue(tier.size()==3);
+		//-- the last label should be "" 
+		assertTrue(tier.get(0.6d).equals(""));
+//		System.out.println(tier.toStringDebug());
+//		System.out.println(tier);
 	}
 	
-	
 	@Test
-	public void test() {
+	public void testWhenMaskingInterval() {
 		LabelTier tier = new LabelTier();
-//		tier.addInterval(0.0f, 1.0f, "start");
-		tier.addInterval(0.0d, 0.5d, "first");
-		tier.addInterval(0.0d, 0.8d, "second");
+		assertTrue(tier.size()==0);
+		tier.addInterval(0.0d, 1.0d, "a");
+		tier.addInterval(1.0d, 2.0d, "b");
+		tier.addInterval(2.0d, 3.0d, "c");
+		assertTrue(tier.size()==3);
 
+	//abc   |aaaaaa|bbbbbbb|ccccccc|
+	//   x       |xxxxxxxxxxxx|
+	// a+b  |aaaa|xxxxxxxxxxxx|    |
 		
-//		tier.debugPrint();
+		tier.addInterval(0.5d, 2.5d, "x");
+//		System.out.println(tier.toStringDebug());
 	}
 
 }

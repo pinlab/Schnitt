@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @param <T>
  */
-public interface IntervalTier<T> extends Tier, Iterator<Interval<T>>{
+public interface IntervalTier<T> extends Tier, Iterator<Interval<T>>, Iterable<Interval<T>>{
 
 	
 	public Interval<T> getIntervalX(int x);

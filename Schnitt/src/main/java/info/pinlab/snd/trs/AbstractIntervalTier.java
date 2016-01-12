@@ -50,18 +50,34 @@ public abstract class AbstractIntervalTier<T> implements IntervalTier<T>{
 		points.clear();
 	}
 	
+
+
+	private Double iteratorIx = null;
 	
+	@Override
+	public Iterator<Interval<T>> iterator(){
+		iteratorIx = points.firstKey();
+		return this;
+	}
 	
 	
 	@Override
 	public boolean hasNext() {
-		// TODO Auto-generated method stub
-		return false;
+		if(iteratorIx==null)
+			return false;
+		if(points.get(iteratorIx)==null)
+			return false;
+		return true;
 	}
 
 	@Override
-	public Interval<T> next() {
-		return null;
+	public Interval<T> next(){
+		Double endT = points.higherKey(iteratorIx);
+		T val = points.get(iteratorIx);
+		Interval<T> interval = new Interval<>(iteratorIx, endT, val);
+		//-- go to the next one
+		iteratorIx = endT;
+		return interval;
 	}
 
 	@Override
@@ -134,79 +150,12 @@ public abstract class AbstractIntervalTier<T> implements IntervalTier<T>{
 	}
 	
 	
-	
-//	@Override
-//	public IntervalTier<T> addInterval(Interval<T> interval) {
-//		return addInterval(interval.startT, interval.endT, interval.label);
-//	}
-//	
-//	@Override
-//	public IntervalTier<T> addInterval(double from, double to, T label){
-//		LOG.trace("Adding interval {}-{} '{}'", from, to, label);
-//		
-//		Double floor = points.floorKey(from);
-//		if(floor==null){ //-- no earlier interval
-//			points.put(from, label);
-//		}else{
-//			//--check if 
-//			if(floor.equals(from)){
-//				//-- interval with same start T
-//				//--   present:  ------++++++++++-----
-//				//--   new:      ------+++++??-----
-//				
-//				ArrayList<T> labels = new ArrayList<T>();
-//				labels.add(label);
-//				labels.add(points.get(from));
-//				label = combineLabels(labels);
-//				points.put(from, label);
-//			}else{
-//				//-- interval 
-//				//--   present:  ---|++++++++?????????
-//				//--   new:             |bbbbbb|
-//				//--   present:  ---|+++|bbbbbb|------
-//				points.put(from, label);
-//			}
-//		}
-//		
-//		Double ceiling = points.higherKey(from);
-//		if(ceiling==null || ceiling > to){ //-- no later interval value
-//			//--   present:  -----------------++++-----
-//			//--   adding:         +++++
-//			//--   adding:   ------+++++------++++-----
-//			points.put(from, label);
-//			points.put(to, null);
-//		}else{
-//			//--   present:  --------++--+++-+++------
-//			//--   adding:         +++++++++++
-//			
-//			List<T> lablesToCombine = new ArrayList<T>();
-//			List<Double> marksToDelete = new ArrayList<Double>();
-//			lablesToCombine.add(label);
-//			while(ceiling != null && ceiling < to ){
-//				marksToDelete.add(ceiling);
-//				T ceilingLabel = points.get(ceiling);
-//				lablesToCombine.add(ceilingLabel);
-//				ceiling = points.higherKey(ceiling);
-//			}
-//			points.put(from, this.combineLabels(lablesToCombine));
-//			if(ceiling != null){
-//				//--   present:  ------------|aaaaaaaaaa|-----
-//				//--   adding:         |bbbbbbbbb|
-//				//--   result:   ------|bbbbbbbbb|aaaaaa|-----
-//				
-//				T  bridgingLabel =  points.floorEntry(ceiling).getValue();
-//				points.put(to, bridgingLabel);
-//			}else{ //-- no ceiling
-//				points.put(to, null);
-//			}
-//			
-//			for(Double mark : marksToDelete){
-//				points.remove(mark);
-//			}
-//		}
-//		return this;
-//	}
-	
+	@Override
+	public IntervalTier<T> addInterval(Interval<T> interval) {
+		return addInterval(interval.startT, interval.startT, interval.label);
+	}
+
+
 	
 		
 	@Override
@@ -219,6 +168,31 @@ public abstract class AbstractIntervalTier<T> implements IntervalTier<T>{
 		return points.keySet();
 	}
 		
-	
+	@Override
+	public String toString(){
+		StringBuffer sb = new StringBuffer();
+		double prev= -1;
+		T prevLab = null;
+		for(double pt : points.keySet()){
+			if(pt > 0.0d){
+				sb	.append(prev).append(" - ")
+					.append(pt).append(" ")
+					.append(prevLab)
+					.append('\n');
+			}
+			prev = pt;
+			prevLab = points.get(pt);
+		}
+		return sb.toString();
+		
+	}
 
+	public String toStringDebug(){
+		StringBuffer sb = new StringBuffer();
+		for(Double d : points.keySet()){
+			String line = String.format("%3.4f\t%s", d, points.get(d));
+			sb.append(line).append("\n");
+		}
+		return sb.toString();
+	}
 }

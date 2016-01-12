@@ -46,16 +46,9 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 	String label = "";
 
 	public BinaryTier(){
-//		super(Type.NOT_SET);
 		super.points.put(0.0d, null);
 	}
 	
-	
-	@Override
-	public IntervalTier<Boolean> addInterval(Interval<Boolean> interval){
-		return addInterval(interval.startT, interval.endT, (boolean)(interval.label==null? false: interval.label));
-	}
-
 	
 /**
 	 * 
@@ -205,7 +198,8 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 
 
 	@Override
-	public Boolean combineLabels(List<Boolean> labels) {
+	public Boolean combineLabels(List<Boolean> labels) { 
+		//-- keeps only the first label - ignores the rest
 		return labels.get(0);
 	}
 	
@@ -223,24 +217,24 @@ public class BinaryTier extends AbstractIntervalTier<Boolean>{
 	
 	
 	
-	@Override
-	public String toString(){
-		StringBuffer sb = new StringBuffer();
-		
-		double prev= -1;
-		Boolean prevLab = false;
-		for(double pt : super.points.keySet()){
-			if(pt > 0.0d){
-				sb	.append(prev).append(" - ")
-					.append(pt).append(" ")
-					.append(prevLab)
-					.append('\n');
-			}
-			prev = pt;
-			prevLab = super.points.get(pt);
-		}
-		return sb.toString();
-	}
+//	@Override
+//	public String toString(){
+//		StringBuffer sb = new StringBuffer();
+//		
+//		double prev= -1;
+//		Boolean prevLab = false;
+//		for(double pt : super.points.keySet()){
+//			if(pt > 0.0d){
+//				sb	.append(prev).append(" - ")
+//					.append(pt).append(" ")
+//					.append(prevLab)
+//					.append('\n');
+//			}
+//			prev = pt;
+//			prevLab = super.points.get(pt);
+//		}
+//		return sb.toString();
+//	}
 	
 	
 	

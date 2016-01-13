@@ -408,10 +408,12 @@ public class WavGraphics implements WavPanelModel{
 		int j = sampleStart;
 
 		//-- vertical manipulation
-		double multiplier = -1*this.panelHeightInPx/(double)(2*sampleHalfRange);
+//		double multiplier = -1*this.panelHeightInPx/(double)(2*sampleHalfRange);
+		double multiplier =  -1*this.panelHeightInPx/(double)(2*(sampleHalfRange-sampleMean));
 		//		int shift = 1 * this.sampleHalfRange;
 		//		int shift = 1 * (sampleRangeUpper-sampleRangeLower);
-		double shift = sampleMax;
+		double shift = sampleHalfRange;
+//		double shift = sampleMax;
 		//		double shift = 1.0d * this.sampleMin;
 
 		for(int pixIx = 0; pixIx < panelWidthInPx ; pixIx++){ 
@@ -483,8 +485,8 @@ public class WavGraphics implements WavPanelModel{
 		sampleRange = sampleMax-sampleMin;
 		sampleMean = sampleSum/samples.length;
 
-		sampleRangeUpper = (int) Math.abs(sampleMax - sampleFreqMaxVal);
-		sampleRangeLower = (int) Math.abs(sampleMin - sampleFreqMaxVal);
+		sampleRangeUpper = (int) Math.abs(sampleMax - sampleMean /*sampleFreqMaxVal*/);
+		sampleRangeLower = (int) Math.abs(sampleMin - sampleMean /*sampleFreqMaxVal*/);
 		sampleHalfRange = sampleRangeUpper > sampleRangeLower ? sampleRangeUpper : sampleRangeLower;  
 
 		@SuppressWarnings("unchecked")

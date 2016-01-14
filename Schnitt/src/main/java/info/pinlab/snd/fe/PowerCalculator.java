@@ -17,6 +17,10 @@ public class PowerCalculator extends AbstractFrameProcessor {
 		super.setKey("power");
 	}
 
+	public PowerCalculator(int myParam) {
+		super(null);
+	}
+	
 	@Override
 	public void init() {
 		//-- pass

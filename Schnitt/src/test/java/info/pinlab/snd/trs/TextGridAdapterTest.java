@@ -4,11 +4,34 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 
+import org.junit.Test;
+
+import ca.odell.glazedlists.impl.Main;
+
 public class TextGridAdapterTest {
 
 	
 	
+	@Test
+	public void textGridReadWriteTest() throws Exception {
+		String gridFileName = "sample.TextGrid";
+		InputStream is = TextGridAdapterTest.class.getResourceAsStream(gridFileName);
+		assertTrue(is!=null);
 
+		LabelTier tier = TextGridAdapter.fromTextGrid(is);
+		assertTrue(tier != null);
+
+		
+		String textGridAsString = TextGridAdapter.toTextGrid(tier);
+		
+		System.out.println(textGridAsString);
+		
+		//TODO: write to file, try to open with Praat
+		
+		
+		//TODO: automatic comparison
+		
+	}
 	
 	
 	
@@ -21,7 +44,7 @@ public class TextGridAdapterTest {
 		LabelTier tier = TextGridAdapter.fromTextGrid(is);
 		assertTrue(tier != null);
 		
-		assertTrue(tier.size() > 0);
+		assertTrue(tier.size() == 59);
 		
 		Double prev = tier.getFirstInterval();
 		prev -= 1;

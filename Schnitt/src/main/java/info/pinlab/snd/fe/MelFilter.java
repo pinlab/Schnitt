@@ -62,7 +62,7 @@ public class MelFilter extends AbstractFrameProcessor{
 	 */
 
 	@Override
-	synchronized public void init() {
+	synchronized public void init(){
 		if(context!=null){
 			hz = context.get(HZ);
 			mfccChN = context.get(MFCC_CH);

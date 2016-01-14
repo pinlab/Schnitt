@@ -32,7 +32,6 @@ public class TextGridAdapter {
 		File gridPath = new File(path);
 		LOG.info("Opening file '" + gridPath.getAbsolutePath() + "'");
 		InputStream is = new FileInputStream(gridPath);
-		
 		return fromTextGrid(is);
 	}
 
@@ -55,8 +54,8 @@ public class TextGridAdapter {
 			
 			BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
 			String line ;
-			Double max = null;
 			Double min = null;
+			Double max = null;
 			String text = null;
 			
 			while((line  = br.readLine()) != null){
@@ -116,11 +115,48 @@ public class TextGridAdapter {
 	public static String toTextGrid(LabelTier tier){
 		StringBuffer sb = new StringBuffer();
 		//TODO: write into TextGrid
+		
+		sb.append("File type = \"ooTextFile\"");
+		sb.append("\n");
+		sb.append("Object class = \"TextGrid\"");
+		sb.append("\n\n");
+		
+		sb.append("xmin = "+tier.getIntervalX(0).startT);
+		sb.append("\n");
+		sb.append("xmax = "+tier.getIntervalX(tier.size()-1).endT);
+		sb.append("\n");
 
+		
+		sb.append("tiers? <exists>");
+		sb.append("\n");
+		sb.append("size = 1");
+		sb.append("\n");
+		sb.append("Item []:");
+		sb.append("\n");
+		
+		sb.append("    Item [1]:");
+		sb.append("\n");
+		sb.append("        class = \"IntervalTier\"");
+		sb.append("\n");
+		sb.append("        name = \"vad\"");
+		sb.append("\n");
+		sb.append("        xmin = "+tier.getIntervalX(0).startT);
+		sb.append("\n");
+		sb.append("        xmax = "+tier.getIntervalX(tier.size()-1).endT);
+		sb.append("\n");
+		sb.append("        intervals: size = " + tier.size());
+		sb.append("\n");
+		
+		int i =0;
+		for(Interval<?> interval : tier){
+			sb.append("        intervals ["+ ++i +"]:\n");
+			sb.append("            xmin = "+interval.startT+"\n");
+			sb.append("            xmax = "+interval.endT+"\n");
+			sb.append("            text = "+ "\""+ interval.label+ "\"" + "\n");
+		}
+		
 		return sb.toString();
 	}
-	
-	
 	
 	
 	public static BinaryTier toBinaryTier(LabelTier tier){
@@ -129,7 +165,7 @@ public class TextGridAdapter {
 			Boolean b = true;
 			if(lab.label.isEmpty() 
 					|| lab.label.startsWith("<") 
-					|| lab.label.startsWith("<")  ){
+					|| lab.label.startsWith("%")  ){
 				b = false;
 			}
 			btier.addInterval(lab.startT, lab.endT, b);

@@ -290,11 +290,11 @@ public class HanningWindower extends AbstractFrameProcessor implements Windower{
 
 	@Override
 	public double[] process(double[] arr) {
-//		System.out.println(arr.length +" == " + filter.length);
+		double [] filtered = new double[arr.length];
 		for(int i = 0; i < filter.length ; i++){
-			arr[i] *= filter[i];
+			filtered[i] = arr[i]*filter[i];
 		}
-		return null;
+		return filtered;
 	}
 
 	@Override

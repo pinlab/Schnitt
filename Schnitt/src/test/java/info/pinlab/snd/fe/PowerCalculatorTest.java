@@ -17,7 +17,7 @@ public class PowerCalculatorTest {
 		for(double d: results){
 			System.out.println(d);
 		}
-		assertTrue(results[0]==100);
+		assertTrue(results[0]==62.5);
 	}
 
 }

@@ -8,7 +8,8 @@ import info.pinlab.schnitt.gui.swing.WavPanelImpl;
 public class ManualTestZeroLine {
 
 	public static void main(String[] args) throws Exception{
-		String wavFileName = "20150824-150917.wav";
+//		String wavFileName = "20150824-150917.wav";
+		String wavFileName = "sample.wav";
 		InputStream is = ManualTestZeroLine.class.getResourceAsStream(wavFileName);
 		WavClip wav = new WavClip(is);
 		

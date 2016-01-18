@@ -2,6 +2,7 @@ package info.pinlab.schnitt.gui;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -21,7 +22,7 @@ import info.pinlab.snd.vad.VadErrorTier;
 public class WavGraphics implements WavPanelModel{
 	public static Logger LOG = LoggerFactory.getLogger(WavGraphics.class);
 
-	private int [] samples;
+	private double [] samples;
 	private double hz;
 	private int viewStartSampleIx = 0;
 	private int viewEndSampleIx = 0;
@@ -36,9 +37,10 @@ public class WavGraphics implements WavPanelModel{
 
 
 	private double sampleMin, sampleMax, sampleMean, sampleRange;
-	private int sampleSum, sampleHalfRange, sampleRangeUpper, sampleRangeLower;
+	private int sampleSum;
+	private double sampleHalfRange, sampleRangeUpper, sampleRangeLower;
 	int sampleFreqMax = 0;
-	int sampleFreqMaxVal = 0; 
+	double sampleFreqMaxVal = 0; 
 
 
 	//-- Tiers
@@ -420,8 +422,8 @@ public class WavGraphics implements WavPanelModel{
 			//-- calc for each pixel: min & max sample values
 			int jMax = sampleStart+(int)Math.round((pixIx+1)*spanSize);
 
-			int spanMin = samples[j];
-			int spanMax = samples[j];
+			double spanMin = samples[j];
+			double spanMax = samples[j];
 			while(j < jMax && j < viewEndSampleIx){
 				spanMin = samples[j] < spanMin ? samples[j] : spanMin; 
 				spanMax = samples[j] > spanMax ? samples[j] : spanMax; 
@@ -448,12 +450,63 @@ public class WavGraphics implements WavPanelModel{
 		if(wav==null){
 			throw new IllegalArgumentException("WavClip can't be null!");
 		}
-		this.setSampleArray(wav.toIntArray(), (int)wav.getAudioFormat().getSampleRate());
+//		this.setSampleArray(wav.toIntArray(), (int)wav.getAudioFormat().getSampleRate());
+		this.setSampleArray(wav.toDoubleArray(), (int)wav.getAudioFormat().getSampleRate());
 	}
 
+
+	synchronized public void setSampleArray(double[] sampls, int hz) {
+		if(sampls.length==0){
+			throw new IllegalArgumentException("Sample array length is zero!");
+		}
+		this.hz = hz;
+		
+		this.samples = Arrays.copyOfRange(sampls, 0, sampls.length);
+		sampleMax = samples[0];
+		sampleMin = samples[0];
+		sampleMean = 0;
+		sampleSum = 0;
+		
+		for(int i = 0; i < this.samples.length ; i++){
+			sampleSum += samples[i];
+			sampleMax = (samples[i] > sampleMax) ? samples[i] : sampleMax;
+			sampleMin = (samples[i] < sampleMin) ? samples[i] : sampleMin;
+		}
+
+		this.viewStartSampleIx = 0;
+		this.viewEndSampleIx = this.samples.length;
+		this.viewSizeInSample = this.viewEndSampleIx - this.viewStartSampleIx;
+		sampleRange = sampleMax-sampleMin;
+		sampleMean = sampleSum/samples.length;
+
+		sampleRangeUpper = Math.abs(sampleMax - sampleMean /*sampleFreqMaxVal*/);
+		sampleRangeLower = Math.abs(sampleMin - sampleMean /*sampleFreqMaxVal*/);
+		sampleHalfRange = sampleRangeUpper > sampleRangeLower ? sampleRangeUpper : sampleRangeLower;  
+
+
+		
+		@SuppressWarnings("unchecked")
+		IntervalTier<Boolean> tier = (IntervalTier<Boolean>)tiers.get(0).getTier();
+		tier.addInterval(0.0d, this.samples.length / (double)hz, false);
+
+		LOG.trace("|-Sample max  : {}", sampleMax);
+		LOG.trace("|-Sample mean : {}", sampleMean);
+		LOG.trace("|-Sample mode : {} ({})",  sampleFreqMaxVal, sampleFreqMax);
+		LOG.trace("|-Sample min  : {}", sampleMin);
+		LOG.trace("|-Sample range: {}", sampleRange );
+		LOG.trace("|-       upper: {}", sampleRangeUpper );
+		LOG.trace("|-       lower: {}", sampleRangeLower );
+		LOG.trace("|-Half  range : {}", sampleHalfRange  );
+		
+	}
+	
 	@Override
-	synchronized public void setSampleArray(int[] sampls, int hz) {
-		this.samples = sampls;
+	synchronized public void setSampleArray(int[] sampls, int hz){
+		this.samples = new double[sampls.length];
+		for(int i = 0 ;i < sampls.length ;i++){
+			this.samples[i] = sampls[i];
+		}
+//		this.samples = sampls;
 		this.hz = hz;
 		this.viewStartSampleIx = 0;
 		this.viewEndSampleIx = this.samples.length;
@@ -461,26 +514,26 @@ public class WavGraphics implements WavPanelModel{
 
 		sampleMin=sampleMax=this.samples[0];
 
-		Map<Integer, Integer> sampleFreq = new TreeMap<Integer, Integer>();
+//		Map<Double, Integer> sampleFreq = new TreeMap<Integer, Integer>();
 		sampleFreqMax = -1;
-		sampleFreqMaxVal = samples[0]; 
+		sampleFreqMaxVal = sampls[0]; 
 
-		for(int sample : samples){
+		for(double sample : sampls){
 			sampleSum += sample;
 			sampleMax = (sample > sampleMax) ? sample : sampleMax;
 			sampleMin = (sample < sampleMin) ? sample : sampleMin;
 
-			Integer cnt = sampleFreq.get(sample);
-			if(cnt==null){
-				cnt =0;
-			}else{
-				cnt++;
-			}
-			if(cnt > sampleFreqMax){
-				sampleFreqMax = cnt;
-				sampleFreqMaxVal = sample;
-			}
-			sampleFreq.put(sample, cnt);
+//			Integer cnt = sampleFreq.get(sample);
+//			if(cnt==null){
+//				cnt =0;
+//			}else{
+//				cnt++;
+//			}
+//			if(cnt > sampleFreqMax){
+//				sampleFreqMax = cnt;
+//				sampleFreqMaxVal = sample;
+//			}
+//			sampleFreq.put(sample, cnt);
 		}
 		sampleRange = sampleMax-sampleMin;
 		sampleMean = sampleSum/samples.length;

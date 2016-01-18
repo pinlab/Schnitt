@@ -1,8 +1,7 @@
 package info.pinlab.snd.fe;
 
 import static org.junit.Assert.*;
-
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
@@ -10,44 +9,65 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class HanningWindowerTest {
-	static String testResult = 
-			"/home/snoopy/workspace/schnitt/Schnitt/src/test/resources/info/pinlab/snd/fe/TestHanningWindower.txt";
-	static String testInt = 
+import info.pinlab.snd.fe.ParamSheet.ParamSheetBuilder;
+import info.pinlab.snd.fe.Windower.WindowType;
+
+public class HanningWindowerTest{
+	static ParamSheet context;
+	static double error = 0.0001;
+	static String testExpectedFile = 
+			"/home/snoopy/workspace/schnitt/Schnitt/src/test/resources/info/pinlab/snd/fe/TestHanningWindower320.txt";
+	static String testIntSampleFile = 
 			"/home/snoopy/workspace/schnitt/Schnitt/src/test/resources/info/pinlab/snd/fe/test_int.txt";
-	static double [] testResultArr;
-	static double [] testArr;
+	static double [] exp;
+	static double [] intSampArr;
+	static int size;
+	static int frameLen = 20;
+	static int hz = 16000;
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		// Read the int arrary of wav file (test.wav) for test
+		// Read the int arrary of wa file (test.wav) for test
+		context = new ParamSheetBuilder()
+				.set(FEParam.FRAME_PROCESSORS, "windowning")
+				.setFrameLenInMs(frameLen)
+				.setHz(hz)
+				.setWinType(WindowType.HANNING)
+				.build();
+		
+		size = context.get(FEParam.FRAME_LEN_SAMPLE);
+		System.err.println("size: " + size);
+		
+		exp = new double[size];
+		intSampArr = new double[size];
+		
 		try{
-			File file = new File(testInt);
-			FileReader filereader = new FileReader(file);
-			int line = filereader.read();
+			FileReader fr = new FileReader(testIntSampleFile);
+			BufferedReader br = new BufferedReader(fr);
 			int ix = 0;
-			while(line!=-1){
-				line = filereader.read();
-				testArr[ix] = (double) line;
+			String line;
+			while((line = br.readLine()) !=null){
+//				System.err.println("testInt: " + line + " ix: " + ix);
+				intSampArr[ix] = Double.parseDouble(line);
 				ix++;
 			}
-			filereader.close();
+			br.close();
 		}catch(FileNotFoundException e){
 			System.err.println(e);
 		}
 		
 		// Read the result of hanning windowning by python .
 		try{
-			File file = new File(testResult);
-			FileReader filereader = new FileReader(file);
-			int line = filereader.read();
+			FileReader fr = new FileReader(testExpectedFile);
+			BufferedReader br = new BufferedReader(fr);
 			int ix = 0;
-			while(line!=-1){
-				line = filereader.read();
-				testResultArr[ix] = (double) line;
+			String line;
+			while((line = br.readLine())!=null){
+//				System.err.println("testRes: " + line + " ix: " + ix);
+				exp[ix] = Double.parseDouble(line);
 				ix++;
 			}
-			filereader.close();
+			br.close();
 		}catch(FileNotFoundException e){
 			System.err.println(e);
 		}
@@ -60,13 +80,14 @@ public class HanningWindowerTest {
 
 	@Test
 	public void testProcess() throws Exception{
-		double [] hann = HanningWindower.HANN_320;
-		HanningWindower hannWindow = new HanningWindower(null);
-		double result = hannWindow.filter(testArr);
-		
-		for(int i =0; i<hann.length;i++){
-			AssertEquals(testResultArr[i], 0.1, 0.001);
+		HanningWindower hannWindow = new HanningWindower(context);
+		double [] obs = new double [size];
+		obs = hannWindow.process(intSampArr);
+			
+		for(int i=0; i<size; i++){
+			System.err.println("res: " + obs[i]);
 		}
+		
+		assertArrayEquals(exp, obs, error);
 	}
-
 }

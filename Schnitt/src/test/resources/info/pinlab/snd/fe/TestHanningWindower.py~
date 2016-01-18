@@ -26,7 +26,7 @@ if __name__ == "__main__":
     #print "win len: ",  window_len
     #print "hz: ", hz
 
-    fe = Fe.Fe()
+    fe = Fe.TestFe()
     fe.set_wavfile(wav_file)        \
         .set_windowtype(windowtype) \
         .set_hz(hz)                 \

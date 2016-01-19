@@ -16,7 +16,7 @@ import info.pinlab.snd.fe.Windower.WindowType;
 public class HanningWindower320Test {
 
 	static ParamSheet context;
-	static double error = 0.0001;
+	static double error = 0.00001;
 	static double [] exp;
 	static double [] intSampArr;
 	static int size;

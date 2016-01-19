@@ -28,7 +28,8 @@ public abstract class FEParam<T> extends Param<T>{
 
 	
 	/**
-	 * Holds list of {@link FrameProcessor}s, separated by ':' 
+	 * Holds list of {@link FrameProcessor}s, separated by ':' <br>
+	 * For example,<br> "'nfo.pinlab.snd.fe.HanningWindower:info.pinlab.snd.fe.Fft' 
 	 */
 	public static final FEParamString FRAME_PROCESSORS = new FEParamString("FRAME_PROCESSORS", null, FEParam.class);
 

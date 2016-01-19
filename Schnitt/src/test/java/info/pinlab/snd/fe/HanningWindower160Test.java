@@ -15,9 +15,16 @@ import org.junit.Test;
 import info.pinlab.snd.fe.ParamSheet.ParamSheetBuilder;
 import info.pinlab.snd.fe.Windower.WindowType;
 
+
+/**
+ * 
+ * 
+ * @author Watanabe
+ *
+ */
 public class HanningWindower160Test{
 	static ParamSheet context;
-	static double error = 0.0001;
+	static double error = 0.00001;
 	static double [] exp;
 	static double [] intSampArr;
 	static int size;
@@ -28,6 +35,7 @@ public class HanningWindower160Test{
 	public static void setUpBeforeClass() throws Exception {
 		// setting up the paramter context
 		
+		// PG: I don't understand why you need param-sheet for this test..
 		context = new ParamSheetBuilder()
 				.set(FEParam.FRAME_PROCESSORS, "windowning")
 				.setFrameLenInMs(frameLen)
@@ -84,9 +92,9 @@ public class HanningWindower160Test{
 		double [] obs = new double [size];
 		obs = hannWindow.process(intSampArr);
 		
-		for(int i=0; i<size; i++){
-			System.err.println("res: " 	+ obs[i] + " expected: " + exp[i]);
-		}
+//		for(int i=0; i<size; i++){
+//			System.err.println("res: " 	+ obs[i] + " expected: " + exp[i]);
+//		}
 		
 		assertArrayEquals(exp, obs, error);
 	}

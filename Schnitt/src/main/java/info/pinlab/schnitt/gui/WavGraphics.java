@@ -441,7 +441,7 @@ public class WavGraphics implements WavPanelModel{
 		}
 
 		long t1 = System.currentTimeMillis();
-		LOG.trace("Graph created in {} ms", t1-t0);
+//		LOG.trace("Graph created in {} ms", t1-t0);
 		return minMaxCoordinates;
 	}
 

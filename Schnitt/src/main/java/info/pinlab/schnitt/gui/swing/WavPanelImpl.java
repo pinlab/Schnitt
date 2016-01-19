@@ -273,7 +273,7 @@ implements  WavPanelUI, ComponentListener
 			path.lineTo(i, minMaxs[i*2+1]);
 		}
 		long t1 = System.currentTimeMillis();
-		LOG.trace("Wav polyline created in " + (t1-t0) +"ms");
+//		LOG.trace("Wav polyline created in " + (t1-t0) +"ms");
 		return path;
 	}
 

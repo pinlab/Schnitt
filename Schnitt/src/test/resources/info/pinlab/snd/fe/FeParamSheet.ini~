@@ -12,5 +12,5 @@ shift_len = 10
 wav_file = ./test_10ms.wav
 
 [output]
-output_file =TestHanningWindower160.txt
+output_windower_file =TestHanningWindower320.txt
 

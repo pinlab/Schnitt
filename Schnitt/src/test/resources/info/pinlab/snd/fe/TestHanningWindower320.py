@@ -2,7 +2,7 @@
 
 
 ############
-# Create test files for HannigWindower(samples: 180, hz = 16000, winLen = 10ms)
+# Create test files for HannigWindower(samples: 160, hz = 16000, winLen = 10ms)
 ############
 
 import Fe
@@ -11,14 +11,15 @@ import sys
 import os
 
 # paramter
-wav_file = "test_10ms.wav"
-window_len = 10
+wav_file = "test_20ms.wav"
+window_len = 20
 windowtype = "Hanning"
 hz = 16000
 
+
 # filename for output
-output_int_file = "test_int_180_wav.txt"
-output_windowed_file = "TestHanningWindower160.txt"
+output_int_file = "test_int_320_wav.txt"
+output_windowed_file = "TestHanningWindower320.txt"
 
 
 if __name__ == "__main__":
@@ -48,4 +49,4 @@ if __name__ == "__main__":
         f.write(str(windowed_samples[i]) + "\n")
     f.close()
 
-    print "finish"
+    print "finish: ", __file__, "\n", "window length: ", window_len, "\n", "input file: ", wav_file, "\n", "output file: ", output_windowed_file

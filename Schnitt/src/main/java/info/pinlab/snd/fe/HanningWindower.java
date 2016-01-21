@@ -1,5 +1,7 @@
 package info.pinlab.snd.fe;
 
+import java.util.Arrays;
+
 /**
  * 
  * In-place windower.
@@ -260,28 +262,40 @@ public class HanningWindower extends AbstractFrameProcessor implements Windower{
 	}
 	
 	double [] filter;
+	Integer size = null;
 
 	
 	public HanningWindower(ParamSheet context){
 		super(context);
 	}
+
+	/**
+	 * 
+	 * @param len window length in number of points
+	 */
+	public HanningWindower(int len){
+		super(null);
+		size = len;
+		init();
+	}
+
+	
 	
 
 	@Override
 	public void init(){
 		super.setKey("sample");
 		super.setPredecessorKey("sample");
-		int size = context.get(FEParam.FRAME_LEN_SAMPLE);
+		if(size == null){
+			size = context.get(FEParam.FRAME_LEN_SAMPLE);
+		}
 		filter = new double[size];
 		switch (size) {
 		case 160:
-			for(int i = 0; i < size ; i++)
-				filter[i] = HANN_160[i];
+			filter = HANN_160; 
 			break;
 		case 320:
-			for(int i = 0; i < size ; i++)
-				filter[i] = HANN_320[i];
-			break;
+			filter = HANN_320;
 		default:
 			for(int i = 0; i < size ; i++)
 				filter[i] = (0.5 - (0.5 * Math.cos(2 * Math.PI * i / (size - 1) )));

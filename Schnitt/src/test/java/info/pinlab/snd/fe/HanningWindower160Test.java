@@ -6,14 +6,10 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
-import javax.annotation.Resources;
-
-import org.apache.commons.codec.Charsets;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import info.pinlab.snd.fe.ParamSheet.ParamSheetBuilder;
-import info.pinlab.snd.fe.Windower.WindowType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -23,11 +19,12 @@ import info.pinlab.snd.fe.Windower.WindowType;
  *
  */
 public class HanningWindower160Test{
-	static ParamSheet context;
+	public static Logger LOG = LoggerFactory.getLogger(HanningWindower160Test.class);
+
 	static double error = 0.00001;
 	static double [] exp;
 	static double [] intSampArr;
-	static int size;
+	static int size = 160;
 	static int frameLen = 10;
 	static int hz = 16000;
 		
@@ -35,23 +32,12 @@ public class HanningWindower160Test{
 	public static void setUpBeforeClass() throws Exception {
 		// setting up the paramter context
 		
-		// PG: I don't understand why you need param-sheet for this test..
-		context = new ParamSheetBuilder()
-				.set(FEParam.FRAME_PROCESSORS, "windowning")
-				.setFrameLenInMs(frameLen)
-				.setHz(hz)
-				.setWinType(WindowType.HANNING)
-				.build();
-		
-		size = context.get(FEParam.FRAME_LEN_SAMPLE);
-		System.err.println("size: " + size);
-		
 		// Read the int arrary of wa file (test.wav) for test
 		exp = new double[size];
 		intSampArr = new double[size];
 		
 		try{
-			System.err.println(HanningWindower160Test.class.getResource("test_int_160_wav.txt").getPath());
+			LOG.info("Reading " + HanningWindower160Test.class.getResource("test_int_160_wav.txt").getPath());
 			FileReader fr = new FileReader(HanningWindower160Test.class.getResource("test_int_160_wav.txt").getPath());
 			BufferedReader br = new BufferedReader(fr);
 			int ix = 0;
@@ -69,7 +55,7 @@ public class HanningWindower160Test{
 		// Read the result of hanning windowning by python .
 		
 		try{
-			System.err.println(HanningWindower160Test.class.getResource("TestHanningWindower160.txt").getPath());
+			LOG.info("Reading " + HanningWindower160Test.class.getResource("TestHanningWindower160.txt").getPath());
 			FileReader fr = new FileReader(HanningWindower160Test.class.getResource("TestHanningWindower160.txt").getPath());
 			BufferedReader br = new BufferedReader(fr);
 			int ix = 0;
@@ -88,7 +74,7 @@ public class HanningWindower160Test{
 	
 	@Test
 	public void testProcess() throws Exception{
-		HanningWindower hannWindow = new HanningWindower(context);
+		HanningWindower hannWindow = new HanningWindower(size);
 		double [] obs = new double [size];
 		obs = hannWindow.process(intSampArr);
 		

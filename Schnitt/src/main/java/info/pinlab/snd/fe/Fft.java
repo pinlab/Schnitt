@@ -8,7 +8,7 @@ import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
 
 public class Fft extends AbstractFrameProcessor {
-	public static final FEParamInt FFT_N = new FEParamInt("FFT_N", 128, Fft.class);
+	public static final FEParamInt FFT_N = new FEParamInt("FFT_N", 512, Fft.class);
 	public static final FEParamInt FFT_SIGNAL_LEN = new FEParamInt("FFT_SIGNAL_LEN", 320, Fft.class);
 	
 	
@@ -57,7 +57,8 @@ public class Fft extends AbstractFrameProcessor {
 	@Override
 	public double[] process(double[] samples) {
 		//-- padding
-		double [] arr = Arrays.copyOf(samples, sigSizePow2);
+		//double [] arr = Arrays.copyOf(samples, sigSizePow2);
+		double [] arr = Arrays.copyOf(samples, fftN);
 		Complex [] fft = fftTransformer.transform(arr, TransformType.FORWARD);
 		double [] mag = new double[nyqFreq];
 		for(int i = 0; i<nyqFreq; i++){

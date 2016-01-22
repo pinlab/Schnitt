@@ -24,12 +24,12 @@ class Fe:
         # parameter
         self.filename     = ""
         self.samples      = []
-        self.preemph_coef = 0.0
+        self.preemph_coef = 0.97
         self.windowtype   = ""
-        self.fftn         = 0
-        self.hz           = 0
-        self.mfcc_ch      = 0
-        self.window_len   = 0
+        self.fftn         = 512
+        self.hz           = 16000
+        self.mfcc_ch      = 20
+        self.window_len   = 20 # ms
         self.wav_path="."
         print os.path.abspath(__file__)
         
@@ -40,7 +40,7 @@ class Fe:
             self.filename = filename
         else: print ("No file exists")
         return self
-    def set_fftn(self, fftn=512):
+    def set_fftn(self, fftn):
         """Set fftN"""
         if fftn > 0 and (fftn & (fftn - 1)) == 0:
             self.fftn = fftn
@@ -50,7 +50,7 @@ class Fe:
         """set sampling rate"""
         self.hz = hz
         return self
-    def set_preemph_coef(self, preemph_coef=0.97):
+    def set_preemph_coef(self, preemph_coef):
         """Set Preemph coef"""
         self.preemph_coef = preemph_coef
         return self
@@ -66,7 +66,7 @@ class Fe:
         self.window_len = window_len #ms#
         self.window_samp_len = window_len*self.hz*0.001
         return self
-    def set_mfcc_ch(self, ch=20):
+    def set_mfcc_ch(self, ch):
         """Set MFCC ch"""
         if isinstance(ch, int): 
             self.mfcc_ch = ch
@@ -97,27 +97,48 @@ class Fe:
         elif self.windowtype == "Hanning":
             self.window = np.hanning(self.window_samp_len)
         return signal * self.window
-    def do_fft(self, windowedSamples):
-        if len(windowedSamples) == self.fftn:
-            self.signal = windowedSamples
-            self.nyq = self.fftn/2
-#            self.mag_spec = np.abs(np.fft.fft(self.signal, self.fftn))[:self.nyq]
-            self.complex_spec = np.fft.fft(self.signal, self.fftn)[:self.nyq]
-            self.spec = np.abs(self.complex_spec)
-            self.freq_scale = np.fft.fftfreq(self.fftn, d=1.0/self.hz)[:self.nyq]
-        else:
-            print "[ERROR]: the length of signal has to mathch the fftn--HERE"        
-        return self.spec
+    def do_fft(self, samples):
+        """apply fft to input samples
+           input = list
+           [1] length of samples > fftn: use the first elements (n=fftn sizes) of samples
+           [2] length 0f samples < fftn: 0-padding
+           output: maginitude"""
+        self.nyq = self.fftn/2
+        if len(samples) == self.fftn:
+            self.signal = samples
+        # 0-padding
+        elif len(samples) < self.fftn:
+            self.zero_list = [0] * self.fftn
+            self.zero_list[0:len(samples)] = samples
+            self.signal = self.zero_list
+            print "0-padding"
+        # chopping 
+        elif len(samples) > self.fftn:
+            self.signal =  samples[:self.fftn]
+            print "chopping"
 
-    def do_melFilterBank(self, ampArray):
-        self.signal = ampArray
-        self.fmax = self.hz / 2
-        self.melmax = 1127.01048 * np.log(self.fmax / 700 + 1)
-        self.nmax = self.fftn/ 2
-        self.df = self.hz / self.fftn
-        self.dmel = self.melmax / (self.mfcc_ch + 1)
-        self.melcenters = np.arange(1, self.mfcc_ch + 1) * self.dmel
+        self.N = len(self.signal)
+        #print self.signal
+        self.normfactor = 1.4142135623730951 / self.N
+        self.fftdata = np.fft.fft(self.signal)
+        self.fftdata = self.fftdata[:self.N / 2]
+        self.mag = self.normfactor * np.abs(self.fftdata)
+        return self.mag
 
+    def hz2mel(self, f):
+        return 1127.01048 * np.log(f / 700.0 + 1.0)
+
+    def mel2hz(self, m):
+        return 700.0 * (np.exp(m / 1127.01048) - 1.0)
+    def do_melFilterBank(self, ampArr):
+        self.signal = ampArr
+        self.fmax = self.hz / 2.0
+        self.melmax = self.hz2mel(self.fmax)
+        self.nmax = self.fftn/ 2.0
+        self.df = self.hz / float(self.fftn)
+        self.dmel = self.melmax / (self.mfcc_ch + 1.0)
+        self.melcenters = np.arange(1.0, self.mfcc_ch + 1.0) * self.dmel
+        
         self.fcenters = 700.0 * (np.exp(self.melcenters / 1127.01048) - 1.0)
         self.indexcenter = np.round(self.fcenters / self.df)
 
@@ -137,8 +158,8 @@ class Fe:
             for i in np.arange(self.indexcenter[c], self.indexstop[c]):
                 self.filterbank[c, i] = 1.0 - ((i - self.indexcenter[c]) * self.decrement)
 
-        self.mspec = np.dot(self.signal, self.filterbank.T)
-        return self.mspec
+        self.mfc = np.dot(self.signal, self.filterbank.T)
+        return self.mfc
 
 
     def do_mfcc(self, mspec):

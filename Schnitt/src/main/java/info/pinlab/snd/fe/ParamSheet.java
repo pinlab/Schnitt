@@ -2,7 +2,9 @@ package info.pinlab.snd.fe;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.sound.sampled.AudioFormat;
 
@@ -35,11 +37,36 @@ import info.pinlab.snd.fe.Windower.WindowType;
 public class ParamSheet{
 
 	private final Map<String, FEParam<?>> paramMap;
-
+	private final Map<Class<?>, Set<FEParam<?>>> classToParamMap;
+	
 	private ParamSheet(Map<String, FEParam<?>> params){
 		paramMap = new HashMap<String, FEParam<?>>(params);
+		
+		classToParamMap = new HashMap<Class<?>, Set<FEParam<?>>>();
+		for(FEParam<?> param : paramMap.values()){
+			Class<?> parentClazz = param.getParentClazz();
+			Set<FEParam<?>> paramSet = classToParamMap.get(parentClazz);
+			if(paramSet==null){
+				paramSet = new HashSet<FEParam<?>>();
+				classToParamMap.put(parentClazz, paramSet);
+			}
+			paramSet.add(param);
+		}
 	}
 
+	
+	public Set<Class<?>> getParamParentClasses(){
+		return new HashSet<Class<?>>(classToParamMap.keySet());
+	}
+	
+	
+	public Set<FEParam<?>>  getParamsForParentClazz (Class<?> clazz){
+		return classToParamMap.get(clazz);
+	}
+ 	
+	
+	
+	
 	public boolean containsKey(FEParamInt param){
 		return paramMap.containsKey(param.getKey());
 	}

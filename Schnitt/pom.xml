@@ -7,6 +7,25 @@
 	<name>Schnitt</name>
 	<description>Vad + Java swing visualization</description>
 
+	<repositories>
+		<repository>
+			<id>dev.davidsoergel.com releases</id>
+			<url>http://dev.davidsoergel.com/nexus/content/repositories/releases</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>dev.davidsoergel.com snapshots</id>
+			<url>http://dev.davidsoergel.com/nexus/content/repositories/snapshots</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</repository>
+	</repositories>
+
+
+
 	<build>
 		<plugins>
 			<plugin>
@@ -32,76 +51,56 @@
 			</plugin>
 
 
-			<!-- Maven Shade Plugin -->
-		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-shade-plugin</artifactId>
-			<version>2.4.2</version>
-			<executions>
-				<!-- Run shade goal on package phase -->
-				<execution>
-					<phase>package</phase>
-					<goals>
-						<goal>shade</goal>
-					</goals>
-					<configuration>
-						<filters>
-							<filter>
-								<artifact>*:*</artifact>
-								<excludes>
-									<exclude>META-INF/*.SF</exclude>
-									<exclude>META-INF/*.DSA</exclude>
-									<exclude>META-INF/*.RSA</exclude>
-								</excludes>
-							</filter>
-						</filters>
-	
-						<transformers>
-							<!-- add Main-Class to manifest file -->
-							<transformer
-								implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-								<mainClass>info.pinlab.schnitt.Main</mainClass>
-							</transformer>
-						</transformers>
-					</configuration>
-				</execution>
-			</executions>
-		</plugin>
 
-<!-- 
+
+
+
+
+			<!-- Maven Shade Plugin -->
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>2.4.2</version>
 				<executions>
+					<!-- Run shade goal on package phase -->
 					<execution>
-						<id>package-jar</id>
 						<phase>package</phase>
 						<goals>
-							<goal>exec</goal>
+							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<executable>
-								${env.JAVA_HOME}/bin/javapackager
-							</executable>
-							<arguments>
-								<argument>-createjar</argument>
-								<argument>-appclass</argument>
-								<argument>info.pinlab.schnitt.Main</argument>
-								<argument>-srcdir</argument>
-								<argument>./target/classes</argument>
-								<argument>-outdir</argument>
-								<argument>./target</argument>
-								<argument>-outfile</argument>
-								<argument>
-									${project.artifactId}-app
-								</argument>
-								<argument>-v</argument>
-							</arguments>
+							<filters>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+									</excludes>
+								</filter>
+							</filters>
+
+							<transformers>
+								<!-- add Main-Class to manifest file -->
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>info.pinlab.schnitt.Main</mainClass>
+								</transformer>
+							</transformers>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
- -->
+
+			<!-- <plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>exec-maven-plugin</artifactId> 
+				<executions> <execution> <id>package-jar</id> <phase>package</phase> <goals> 
+				<goal>exec</goal> </goals> <configuration> <executable> ${env.JAVA_HOME}/bin/javapackager 
+				</executable> <arguments> <argument>-createjar</argument> <argument>-appclass</argument> 
+				<argument>info.pinlab.schnitt.Main</argument> <argument>-srcdir</argument> 
+				<argument>./target/classes</argument> <argument>-outdir</argument> <argument>./target</argument> 
+				<argument>-outfile</argument> <argument> ${project.artifactId}-app </argument> 
+				<argument>-v</argument> </arguments> </configuration> </execution> </executions> 
+				</plugin> -->
 
 			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-jar-plugin</artifactId> 
 				<version>2.6</version> <configuration> <archive> <manifest> <addClasspath>true</addClasspath> 
@@ -116,6 +115,7 @@
 						<phase>install</phase>
 						<goals>
 							<goal>copy-dependencies</goal>
+							<goal>sources</goal>
 						</goals>
 						<configuration>
 							<outputDirectory>${project.basedir}/lib/jar</outputDirectory>
@@ -187,5 +187,12 @@
 			<artifactId>commons-math3</artifactId>
 			<version>3.2</version>
 		</dependency>
+
+		<dependency>
+			<groupId>edu.berkeley.compbio</groupId>
+			<artifactId>jlibsvm</artifactId>
+			<version>0.911</version>
+		</dependency>
+
 	</dependencies>
 </project>

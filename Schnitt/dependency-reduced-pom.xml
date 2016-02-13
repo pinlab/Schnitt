@@ -63,6 +63,7 @@
             <phase>install</phase>
             <goals>
               <goal>copy-dependencies</goal>
+              <goal>sources</goal>
             </goals>
             <configuration>
               <outputDirectory>${project.basedir}/lib/jar</outputDirectory>
@@ -98,6 +99,22 @@
       </plugin>
     </plugins>
   </build>
+  <repositories>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>dev.davidsoergel.com releases</id>
+      <url>http://dev.davidsoergel.com/nexus/content/repositories/releases</url>
+    </repository>
+    <repository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <id>dev.davidsoergel.com snapshots</id>
+      <url>http://dev.davidsoergel.com/nexus/content/repositories/snapshots</url>
+    </repository>
+  </repositories>
   <dependencies>
     <dependency>
       <groupId>junit</groupId>

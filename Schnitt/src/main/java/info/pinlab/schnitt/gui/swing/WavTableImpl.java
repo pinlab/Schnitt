@@ -6,6 +6,9 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -40,6 +43,51 @@ implements TableModelListener, ListSelectionListener{
 
 	private final JTable table;
 
+	
+	private static class TableColumn{
+		final int id;
+		String label;
+		String brief;
+		
+		static Map<Integer, TableColumn> columns = new HashMap<Integer, TableColumn>();
+		static int ids = -1;
+		
+		TableColumn(String header, String brief){
+//			if(columns.containsKey(index)){ //-- this should not happen, but just in case:
+//				throw new IllegalArgumentException("Column id '" + index + "' is already defined!");
+//			}
+			id = ++ids;
+			label = header;
+			columns.put(this.id, this);
+		}
+		public String getHdrLabel(){
+			return label;
+		}
+		public String getBrief(){
+			return brief;
+		}
+		
+		static String getHdrName(int ix){
+			return columns.get(ix).getHdrLabel();
+		}
+		static int getSize(){
+			return ids;
+		}
+	}
+
+	
+	
+	
+	static{
+		new TableColumn("#",    "row count");
+		new TableColumn("file", "audio file path");
+		new TableColumn("ms",   "duration in ms");
+		new TableColumn("targ", "target tier status");
+		new TableColumn("hypo", "hypo tier status");
+		new TableColumn("err",  "false hypo in # of frames");
+	}
+	
+	
 	private enum TableCols{
 		ICON(0,""),
 		SERIAL(1, "#"),
@@ -153,13 +201,17 @@ implements TableModelListener, ListSelectionListener{
 		Border border = BorderFactory.createMatteBorder(0, 0, 1, 1, Color.GRAY);
 		Border border2 = BorderFactory.createEmptyBorder();
 
+		
+		
+		
 		@Override
 		public Component getTableCellRendererComponent(JTable table,
 				Object value, boolean isSelected, boolean hasFocus, int rowIx,
 				int colIx) {
 			setOpaque(true);
 
-
+			System.out.println(value);
+			
 			if(rowIx < 0){
 				JTableHeader header = table.getTableHeader();
 				if (header != null) {
@@ -267,8 +319,15 @@ implements TableModelListener, ListSelectionListener{
 
 
 
+	
+	
+	
+	
 	public static void main(String[] args) throws Exception{
 
+		SwingUtils.setNimbusLF();
+		
+		
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {

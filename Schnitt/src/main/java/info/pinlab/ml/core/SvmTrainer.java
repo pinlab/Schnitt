@@ -99,7 +99,6 @@ public class SvmTrainer implements BinaryClassifier{
 		model = svm.train(problem, params);
 		System.out.println(model.getTrueLabel());
 		System.out.println(model.getFalseLabel());
-		
 	}
 	
 	@Override

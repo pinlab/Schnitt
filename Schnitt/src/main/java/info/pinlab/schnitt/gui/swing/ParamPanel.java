@@ -17,7 +17,9 @@ import info.pinlab.snd.fe.FEParam;
 import info.pinlab.snd.fe.ParamSheet;
 
 public class ParamPanel extends JPanel {
-
+	private static final long serialVersionUID = 1L;
+	
+	
 	private final ParamSheet sheet;
 	private final JButton btn;
 	
@@ -89,9 +91,9 @@ public class ParamPanel extends JPanel {
 	
 	
 	public static void main(String[] args) {
-		
 		ParamSheet sheet = new ParamSheet.ParamSheetBuilder().build();
 		
+		SwingUtils.setNimbusLF();
 		
 		JFrame frame = new JFrame("Param setters");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
